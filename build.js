@@ -38,7 +38,7 @@ const html = `<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>Доход — учёт доходов и финансов</title>
 <meta name="description" content="Личный учёт доходов, вкладов и кредитов">
 <meta name="theme-color" content="#F4F6F5" media="(prefers-color-scheme: light)">

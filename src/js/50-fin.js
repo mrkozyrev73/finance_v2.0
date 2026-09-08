@@ -91,6 +91,7 @@ const Fin = (() => {
       build(body) {
         const nameInput = el('input', { class: 'input', id: 's-name', value: draft.name, 'data-autofocus': true });
         nameInput.addEventListener('input', () => { draft.name = nameInput.value; });
+        nameInput.addEventListener('focus', () => nameInput.select(), { once: true });
         body.appendChild(field('Название', nameInput, 's-name'));
 
         const amt = el('input', {
@@ -345,10 +346,13 @@ const Fin = (() => {
     const paint = (id, value, kind) => {
       const node = $('#' + id);
       const apply = () => {
+        const isNewMetric = current && baseline && baseline[kind] === 0 && current[kind] > 0;
         const favorable = kind === 'payments' || kind === 'credits' ? value < 0 : value > 0;
         const tone = value === 0 ? 'is-flat' : favorable ? 'is-good' : 'is-bad';
         node.className = 'fade-swap fin-audit-value ' + tone;
-        node.textContent = current && baseline ? signedMoney(value) : '—';
+        // Первое появление вклада/кредита не является ухудшением:
+        // раньше такой позиции просто не было в учёте.
+        node.textContent = current && baseline && !isNewMetric ? signedMoney(value) : '—';
       };
       soft ? softSwap(node, apply) : apply();
     };
@@ -443,6 +447,9 @@ function bind(id, draft, key, attrs, autofocus) {
     class: 'input', id: id, type: 'text', value: draft[key] || '', autocomplete: 'off'
   }, attrs || {}));
   if (autofocus) input.setAttribute('data-autofocus', '');
+  input.addEventListener('focus', () => {
+    if (input.value) input.select();
+  }, { once: true });
   const syncPlaceholder = () => {
     if (placeholder) input.placeholder = input.value ? '' : placeholder;
   };
