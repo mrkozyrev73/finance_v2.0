@@ -2014,6 +2014,58 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .hero-cell:first-child { padding-right: 16px; }
 .hero-cell + .hero-cell { margin-top: 0; }
 
+/* Главный итог — акцентная композиция без карточной подложки. */
+.hero {
+  min-height: 300px;
+  padding: 24px 0 20px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.hero::before,
+.hero::after { display: none; }
+.hero-label {
+  color: var(--text-2);
+  font-size: 15px;
+  font-weight: 600;
+}
+.hero-amount {
+  margin-top: 9px;
+  color: var(--accent-press);
+  font-size: clamp(52px, 14vw, 64px);
+  line-height: .95;
+  letter-spacing: -.07em;
+  font-weight: 760;
+}
+.hero-split {
+  gap: 8px;
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top-color: var(--border);
+}
+.hero-cell {
+  padding: 12px 0;
+}
+.hero-cell + .hero-cell {
+  padding-left: 12px;
+  border-left-color: var(--border);
+}
+.hero-cell:first-child { padding-right: 12px; }
+.hero-cell dt {
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .018em;
+  text-transform: none;
+}
+.hero-cell dd {
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 720;
+}
+
 .income { padding: 14px 15px; }
 .income-title, .fin-name { font-weight: 610; letter-spacing: -.01em; }
 .income-meta, .fin-meta { letter-spacing: .012em; }
