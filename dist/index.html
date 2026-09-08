@@ -2009,8 +2009,10 @@ button, input, select, textarea { font-optical-sizing: auto; }
   font-weight: 760;
   text-shadow: 0 1px 1px rgba(0,0,0,.12);
 }
-.hero-split { margin-top: 20px; padding-top: 14px; gap: 10px; }
-.hero-cell { min-height: 0; padding: 12px 13px; border-radius: 15px; }
+.hero-split { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; padding-top: 14px; gap: 10px; }
+.hero-cell { display: block; min-height: 0; padding: 12px 13px; border-radius: 15px; }
+.hero-cell dt { display: block; }
+.hero-cell dd { margin: 6px 0 0; }
 .hero-cell + .hero-cell { margin-top: 0; }
 
 .income { padding: 14px 15px; }
