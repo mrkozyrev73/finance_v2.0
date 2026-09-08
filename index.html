@@ -6494,44 +6494,6 @@ alter publication supabase_realtime add table public.app_state;`;
           }));
         }
 
-        /* Схема — всегда доступна, но свёрнута */
-        const details = el('details', { class: 'disclose' });
-        details.appendChild(el('summary', { text: 'Схема таблицы и параметры проекта' }));
-        const inner = el('div', { class: 'disclose-body' });
-
-        if (configured()) {
-          inner.appendChild(el('p', {
-            class: 'section-sub', style: 'margin:0 0 10px',
-            text: 'Проект: ' + shortHost(cfg.url) + (builtIn ? ' (задан в файле)' : '')
-          }));
-        }
-
-        inner.appendChild(el('pre', { class: 'code' }, [document.createTextNode(SQL)]));
-        inner.appendChild(el('button', {
-          class: 'btn-dashed', type: 'button', style: 'margin-top:10px',
-          onclick: async () => {
-            try { await navigator.clipboard.writeText(SQL); Toast.show('SQL скопирован'); }
-            catch (_) { Toast.show('Скопируйте вручную', { kind: 'err' }); }
-          }
-        }, [icon('download'), el('span', { text: 'Скопировать SQL' })]));
-
-        if (configured() && !builtIn) {
-          inner.appendChild(el('button', {
-            class: 'btn btn--ghost btn--block', type: 'button',
-            text: 'Отключить проект', style: 'margin-top:10px;color:var(--danger)',
-            onclick: async () => {
-              try { if (client) await client.auth.signOut(); } catch (_) {}
-              saveConfig({ url: '', key: '' });
-              client = null; session = null; unsubscribeRealtime();
-              setStatus('off', 'Только на этом устройстве');
-              Sheet.close();
-              Toast.show('Проект отключён');
-            }
-          }));
-        }
-
-        details.appendChild(inner);
-        body.appendChild(details);
       },
 
       footer(foot) {
