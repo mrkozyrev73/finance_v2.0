@@ -34,7 +34,7 @@
   /* Текст */
   --text:          #16201B;
   --text-2:        #6C7C74;
-  --text-3:        #9AA8A1;
+  --text-3:        #87968E;
   --on-hero:       #FFFFFF;
   --on-hero-2:     rgba(255,255,255,.62);
 
@@ -43,6 +43,7 @@
   --accent-press:  #148B5A;
   --accent-soft:   #E6F5ED;
   --accent-line:   rgba(24,164,107,.24);
+  --accent-nav:    #72D5A4;
 
   --danger:        #C0614C;
   --danger-soft:   #FAEDE9;
@@ -84,6 +85,7 @@
   --dur-fast: 160ms;
   --dur:      200ms;
   --dur-slow: 240ms;
+  --dur-nav:   280ms;
   --ease:     cubic-bezier(.23, 1, .32, 1);      /* сильный ease-out */
   --ease-io:  cubic-bezier(.4, 0, .2, 1);
   --ease-sheet: cubic-bezier(.32, .72, 0, 1);
@@ -261,7 +263,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
    Нижняя навигация
    ============================================================ */
 
-.tabbar {
+.tabbar { 
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
@@ -1887,11 +1889,12 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   --surface-sunk: #EEF2F0;
   --text: #15201A;
   --text-2: #68776F;
-  --text-3: #98A59E;
+  --text-3: #87968E;
   --accent: #199B66;
   --accent-press: #147E53;
   --accent-soft: #E8F5EE;
   --accent-line: rgba(25,155,102,.22);
+  --accent-nav: #72D5A4;
   --border: rgba(21,32,26,.075);
   --border-strong: rgba(21,32,26,.13);
   --r-card: 20px;
@@ -2656,7 +2659,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .appbar::after { display: none; }
 .tabbar {
   padding: 6px var(--gutter) calc(6px + env(safe-area-inset-bottom, 0px));
-  background: #15201A;
+  background: var(--text);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow: 0 -10px 26px rgba(21,32,26,.12);
@@ -2676,17 +2679,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .tabbar .tab[aria-selected="true"] { color: #fff; }
 .tabbar .tab svg { transition: transform var(--dur-fast) var(--ease); }
-.tabbar .tab[aria-selected="true"] svg { transform: translateY(-1px) scale(1.04); color: #72D5A4; }
+.tabbar .tab[aria-selected="true"] svg { transform: translateY(-1px) scale(1.04); color: var(--accent-nav); }
 .tabbar .tab-pill {
   top: auto;
   bottom: 0;
   height: 3px;
   border-radius: 999px;
-  background: #72D5A4;
+  background: var(--accent-nav);
   box-shadow: none;
 }
 .tabbar-inner[data-ready] .tab-pill {
-  transition: transform 420ms cubic-bezier(.22,1,.36,1), width 420ms cubic-bezier(.22,1,.36,1);
+  transition: transform var(--dur-nav) var(--ease), width var(--dur-nav) var(--ease);
 }
 
 /* Единый кегль заголовков секций во всём приложении. */
