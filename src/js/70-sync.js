@@ -47,6 +47,8 @@ const Sync = (() => {
   let pushTimer = 0;
   let lastPushAt = 0;
   let lastRemoteStamp = null;
+  let householdId = localStorage.getItem('income-supabase-household-v1') || '';
+  let revision = Number(localStorage.getItem('income-supabase-revision-v1') || 0);
   let libLoading = null;
   let builtIn = false;       // адрес зашит в файл — не спрашиваем его
 
@@ -221,15 +223,48 @@ const Sync = (() => {
 
   async function pull() {
     if (!client || !session) return null;
+    const membership = await client.from('household_members')
+      .select('household_id').eq('user_id', session.user.id).maybeSingle();
+    if (membership.error) throw membership.error;
+    if (!membership.data?.household_id) {
+      const created = await client.rpc('create_household', { p_name: 'Семья' });
+      if (created.error) throw created.error;
+      householdId = created.data?.[0]?.household_id || created.data?.household_id || '';
+    } else householdId = membership.data.household_id;
+    if (!householdId) throw new Error('Не найдено семейное хранилище');
+    localStorage.setItem('income-supabase-household-v1', householdId);
     const { data, error } = await client
       .from('app_state')
-      .select('data, updated_at')
-      .eq('user_id', session.user.id)
+      .select('payload, revision, updated_at')
+      .eq('household_id', householdId)
       .maybeSingle();
     if (error) throw error;
     if (!data) { lastSyncAt = Date.now(); return null; }
-    applyRemote(data.data, data.updated_at);
-    return data.data;
+    revision = Number(data.revision || 0);
+    localStorage.setItem('income-supabase-revision-v1', String(revision));
+    const remote = normalizeLegacyPayload(data.payload, data.updated_at);
+    applyRemote(remote, data.updated_at);
+    return remote;
+  }
+
+  function normalizeLegacyPayload(payload, updatedAt) {
+    if (payload?.incomes || payload?.financeSnapshots) return payload;
+    const remote = { schema: 1, incomes: [], categories: [], recurring: [], historical: [], deposits: [], credits: [], notes: [], history: [], financeSnapshots: [], safe: null, settings: {} };
+    const categories = new Map();
+    (payload?.categories || []).forEach((name, index) => {
+      const label = typeof name === 'string' ? name : name.name;
+      if (label) categories.set(label, { id: name.id || 'legacy-cat-' + index, name: label, color: name.color || '#7C8C85', order: index, updatedAt: updatedAt });
+    });
+    (payload?.items || []).forEach((item, index) => {
+      const category = item.category || 'Прочее';
+      if (!categories.has(category)) categories.set(category, { id: 'legacy-cat-' + category, name: category, color: '#7C8C85', order: categories.size, updatedAt });
+      remote.incomes.push({ id: String(item.id || 'legacy-income-' + index), name: item.name || 'Доход', amount: Number(item.amount) || 0, categoryId: categories.get(category).id, status: item.status === 'received' ? 'received' : 'expected', date: item.date || null, month: item.month, createdAt: item.updatedAt || updatedAt, updatedAt: item.updatedAt || updatedAt, deletedAt: null });
+    });
+    remote.categories = [...categories.values()];
+    const finance = payload?.finance || {};
+    remote.safe = { name: 'Наличные дома', amount: Number(finance.safe) || 0, updatedAt };
+    (finance.credits || []).forEach((credit, index) => remote.credits.push({ id: String(credit.id || 'legacy-credit-' + index), name: credit.name || 'Кредит', remaining: Number(credit.debt) || 0, rate: Number(credit.rate) || 0, monthlyPayment: Number(credit.monthlyPayment) || 0, updatedAt, deletedAt: null }));
+    return remote;
   }
 
   /* ---------- Отправка ---------- */
@@ -257,16 +292,12 @@ const Sync = (() => {
     lastPushAt = Date.now();
     try {
       const { data, error } = await client
-        .from('app_state')
-        .upsert({
-          user_id: session.user.id,
-          data: Store.state,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' })
-        .select('updated_at')
-        .single();
+        .rpc('save_app_state', { p_household_id: householdId, p_payload: Store.state, p_expected_revision: revision });
       if (error) throw error;
-      lastRemoteStamp = data.updated_at;   // своё эхо по realtime игнорируем
+      if (!data?.ok) throw new Error('Не удалось сохранить данные');
+      revision = Number(data.revision || revision + 1);
+      localStorage.setItem('income-supabase-revision-v1', String(revision));
+      lastRemoteStamp = new Date().toISOString();
       lastSyncAt = Date.now();
       pendingPush = false;
       setStatus('on');
@@ -285,16 +316,18 @@ const Sync = (() => {
   function subscribeRealtime() {
     if (!client || !session || channel) return;
     channel = client
-      .channel('app_state:' + session.user.id)
+      .channel('app_state:' + householdId)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'app_state',
-        filter: 'user_id=eq.' + session.user.id
+        filter: 'household_id=eq.' + householdId
       }, (payload) => {
         const row = payload.new;
         if (!row || !row.updated_at) return;
-        if (row.updated_at === lastRemoteStamp) return;      // это наша же запись
+        if (Number(row.revision || 0) <= revision) return;
+        revision = Number(row.revision || revision);
+        localStorage.setItem('income-supabase-revision-v1', String(revision));
         // Данные уже в событии — применяем сразу, без второго запроса
-        if (row.data && typeof row.data === 'object') applyRemote(row.data, row.updated_at);
+        if (row.payload && typeof row.payload === 'object') applyRemote(normalizeLegacyPayload(row.payload, row.updated_at), row.updated_at);
         else pull().catch(e => console.warn('[sync] realtime pull', e));
       })
       .subscribe((state) => {
