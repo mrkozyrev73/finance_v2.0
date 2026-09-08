@@ -2017,7 +2017,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 /* Главный итог — акцентная композиция без карточной подложки. */
 .hero {
   min-height: 0;
-  padding: 24px 0 20px;
+  padding: 20px 0 8px;
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -2039,15 +2039,15 @@ button, input, select, textarea { font-optical-sizing: auto; }
   font-weight: 760;
 }
 .hero-split {
-  width: min(100%, 360px);
+  width: min(100%, 320px);
   margin-inline: auto;
   gap: 8px;
-  margin-top: 28px;
-  padding-top: 14px;
+  margin-top: 22px;
+  padding-top: 10px;
   border-top-color: var(--border);
 }
 .hero-cell {
-  padding: 12px 0;
+  padding: 8px 0;
 }
 .hero-cell + .hero-cell {
   padding-left: 12px;
@@ -2062,11 +2062,12 @@ button, input, select, textarea { font-optical-sizing: auto; }
   text-transform: none;
 }
 .hero-cell dd {
-  margin-top: 6px;
+  margin-top: 4px;
   color: var(--text);
   font-size: 20px;
   font-weight: 720;
 }
+#scr-home > .section:nth-child(2) { margin-top: 8px; }
 
 .income { padding: 14px 15px; }
 .income-title, .fin-name { font-weight: 610; letter-spacing: -.01em; }
