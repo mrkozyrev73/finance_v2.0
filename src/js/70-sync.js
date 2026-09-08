@@ -211,6 +211,14 @@ const Sync = (() => {
   /** Применить входящий документ поверх локального */
   function applyRemote(remote, stamp) {
     if (!remote || typeof remote !== 'object') return false;
+    if (Array.isArray(remote.incomes)) {
+      remote = Object.assign({}, remote, {
+        incomes: remote.incomes.map((item, index) => Object.assign({}, item, {
+          id: String(item.id || 'income-' + index),
+          title: item.title || item.name || item.label || item.description || ''
+        }))
+      });
+    }
     if (stamp) lastRemoteStamp = stamp;
     const merged = mergeStates(Store.state, remote);
     const before = JSON.stringify(Store.state);
