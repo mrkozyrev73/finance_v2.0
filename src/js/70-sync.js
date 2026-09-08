@@ -532,7 +532,7 @@ alter publication supabase_realtime add table public.app_state;`;
         if (session) {
           foot.appendChild(el('button', {
             class: 'btn btn--ghost btn--block', type: 'button', text: 'Выйти из аккаунта',
-            onclick: () => { Sheet.close(); setTimeout(toggleAuth, 90); }
+            onclick: () => { Sheet.close(false, toggleAuth); }
           }));
           return;
         }

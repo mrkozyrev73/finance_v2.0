@@ -57,6 +57,7 @@ const Sheet = (() => {
   let lastFocused = null;
   let closeTimer = 0;     // отложенное закрытие: его нельзя дать выполнить,
                           // если за это время открыли следующий лист
+  let closeDone = null;
 
   function mount() {
     node = $('#sheet'); scrim = $('#scrim');
@@ -185,12 +186,16 @@ const Sheet = (() => {
     openState = null;
     bodyEl.innerHTML = '';
     footEl.innerHTML = '';
-    if (conf && conf.onClose) conf.onClose();
     if (lastFocused && lastFocused.isConnected) lastFocused.focus({ preventScroll: true });
+    if (conf && conf.onClose) conf.onClose();
+    const done = closeDone;
+    closeDone = null;
+    if (done) done();
   }
 
-  function close(immediate) {
-    if (!openState) return;
+  function close(immediate, done) {
+    if (!openState) { if (done) done(); return; }
+    closeDone = done || null;
     if (immediate || prefersReducedMotion()) { closeNow(); return; }
     node.classList.add('sheet-anim');
     node.style.transform = 'translate(-50%,100%)';
@@ -223,7 +228,7 @@ function confirmSheet(opts) {
           class: 'btn ' + (opts.danger ? 'btn--danger' : ''),
           type: 'button',
           text: opts.confirmLabel || 'Продолжить',
-          onclick: () => { Sheet.close(); setTimeout(opts.onConfirm, 60); }
+          onclick: () => { Sheet.close(false, opts.onConfirm); }
         })
       ]));
     }

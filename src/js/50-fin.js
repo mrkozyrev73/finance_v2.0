@@ -82,7 +82,7 @@ const Fin = (() => {
             ]),
             el('span', { class: 'list-side' }, [icon('right', 16)])
           ]);
-          b.addEventListener('click', () => { Sheet.close(); setTimeout(run, 90); });
+          b.addEventListener('click', () => { Sheet.close(false, run); });
           list.appendChild(b);
         };
         add('Вклад', 'Название, банк, сумма, ставка', 'coins', () => openDeposit(null));
@@ -212,7 +212,7 @@ const Fin = (() => {
       footer(foot) {
         foot.appendChild(el('button', {
           class: 'btn btn--block', type: 'button', text: 'Изменить',
-          onclick: () => { Sheet.close(); setTimeout(() => openDeposit(id), 90); }
+          onclick: () => { Sheet.close(false, () => openDeposit(id)); }
         }));
       }
     });
@@ -317,7 +317,7 @@ const Fin = (() => {
       footer(foot) {
         foot.appendChild(el('button', {
           class: 'btn btn--block', type: 'button', text: 'Изменить',
-          onclick: () => { Sheet.close(); setTimeout(() => openCredit(id), 90); }
+          onclick: () => { Sheet.close(false, () => openCredit(id)); }
         }));
       }
     });

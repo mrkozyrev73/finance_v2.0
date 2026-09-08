@@ -408,7 +408,7 @@ const IncomeForm = (() => {
           foot.appendChild(el('button', {
             class: 'btn btn--ghost btn--block', type: 'button', text: 'Удалить доход',
             style: 'margin-top:8px;color:var(--danger)',
-            onclick: () => { Sheet.close(); setTimeout(() => deleteIncome(editing.id), 80); }
+            onclick: () => { Sheet.close(false, () => deleteIncome(editing.id)); }
           }));
         }
       }
