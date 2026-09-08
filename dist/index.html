@@ -3954,7 +3954,11 @@ const MonthBar = (() => {
   function render() {
     const d = new Date();
     setText($('#weekday'), WEEKDAYS[d.getDay()] + ', ' + d.getDate() + ' ' + MONTHS_GEN[d.getMonth()]);
-    softSwap($('#monthLabel'), () => setText($('#monthLabel'), keyLabel(View.key)));
+    const monthLabel = $('#monthLabel');
+    const nextLabel = keyLabel(View.key);
+    if (monthLabel && monthLabel.textContent !== nextLabel) {
+      softSwap(monthLabel, () => setText(monthLabel, nextLabel));
+    }
     // Вперёд можно уходить максимум на 12 месяцев от текущего
     const limit = shiftKey(View.todayKey, 12);
     if ($('#monthNext')) setAttr($('#monthNext'), 'disabled', View.key >= limit ? true : null);
