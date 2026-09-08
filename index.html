@@ -3982,7 +3982,9 @@ const Data = {
   incomesOf(key) {
     return Store.list('incomes')
       .filter(r => keyOf(r.date) === key || Data.carriesToMonth(r, key))
-      .sort((a, b) => ((b.status === 'expected') - (a.status === 'expected')) || b.createdAt - a.createdAt);
+      // Статус меняется на месте: отметка «получен» не уводит строку
+      // из-под пальца и не вызывает лишнюю перестановку списка.
+      .sort((a, b) => b.createdAt - a.createdAt);
   },
 
   /** Итоги месяца с учётом исторических сумм */
