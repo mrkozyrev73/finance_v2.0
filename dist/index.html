@@ -3195,6 +3195,15 @@ const Store = (() => {
         base[key] = Object.assign({}, base[key], data[key]);
       }
     }
+    const palette = new Map(DEFAULT_CATEGORIES.map(c => [c.name, c.color]));
+    base.categories = base.categories.map(c => Object.assign({}, c, {
+      color: c.color && c.color !== '#7C8C85' ? c.color : (palette.get(c.name) || c.color)
+    }));
+    for (const key of ['incomes', 'recurring']) {
+      base[key] = base[key].map(r => Object.assign({}, r, {
+        title: r.title || r.name || r.label || r.description || ''
+      }));
+    }
     if (!base.categories.length) base.categories = emptyState().categories;
     // Версию берём из пришедших данных, а не из подмешанных значений по умолчанию
     const storedVersion = (data.settings && data.settings.categoriesVersion) || 0;
@@ -5989,7 +5998,7 @@ const Settings = (() => {
    его в файле не опаснее, чем вводить руками.
    ------------------------------------------------------------------ */
 const SUPABASE_URL = 'https://citzcwjtczxrgbjgbdws.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_ltaNA7nnVozoSCOcZIjg';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdHpjd2p0Y3p4cmdiamdiZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NzIwOTgsImV4cCI6MjEwNDQ0ODA5OH0.sU2Ddqvjizd35_CfxX0_PP1DH8CiOJKbYUBFShw4D6c';
 
 const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
 const LOGIN_DOMAIN = 'dohod.app';

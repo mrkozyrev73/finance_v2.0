@@ -102,6 +102,15 @@ const Store = (() => {
         base[key] = Object.assign({}, base[key], data[key]);
       }
     }
+    const palette = new Map(DEFAULT_CATEGORIES.map(c => [c.name, c.color]));
+    base.categories = base.categories.map(c => Object.assign({}, c, {
+      color: c.color && c.color !== '#7C8C85' ? c.color : (palette.get(c.name) || c.color)
+    }));
+    for (const key of ['incomes', 'recurring']) {
+      base[key] = base[key].map(r => Object.assign({}, r, {
+        title: r.title || r.name || r.label || r.description || ''
+      }));
+    }
     if (!base.categories.length) base.categories = emptyState().categories;
     // Версию берём из пришедших данных, а не из подмешанных значений по умолчанию
     const storedVersion = (data.settings && data.settings.categoriesVersion) || 0;

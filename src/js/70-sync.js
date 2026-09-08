@@ -28,7 +28,7 @@
    его в файле не опаснее, чем вводить руками.
    ------------------------------------------------------------------ */
 const SUPABASE_URL = 'https://citzcwjtczxrgbjgbdws.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_ltaNA7nnVozoSCOcZIjg';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpdHpjd2p0Y3p4cmdiamdiZHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NzIwOTgsImV4cCI6MjEwNDQ0ODA5OH0.sU2Ddqvjizd35_CfxX0_PP1DH8CiOJKbYUBFShw4D6c';
 
 const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
 const LOGIN_DOMAIN = 'dohod.app';
