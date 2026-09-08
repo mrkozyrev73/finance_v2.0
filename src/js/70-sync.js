@@ -49,6 +49,7 @@ const Sync = (() => {
   let lastRemoteStamp = null;
   let householdId = localStorage.getItem('income-supabase-household-v1') || '';
   let revision = Number(localStorage.getItem('income-supabase-revision-v1') || 0);
+  let pulledRemote = false;
   let libLoading = null;
   let builtIn = false;       // адрес зашит в файл — не спрашиваем его
 
@@ -190,7 +191,7 @@ const Sync = (() => {
     setStatus('connecting', 'Загружаем данные…');
     try {
       await pull();
-      await push(true);
+      if (!pulledRemote) await push(true);
       subscribeRealtime();
       setStatus('on');
     } catch (e) {
@@ -240,6 +241,7 @@ const Sync = (() => {
       .maybeSingle();
     if (error) throw error;
     if (!data) { lastSyncAt = Date.now(); return null; }
+    pulledRemote = true;
     revision = Number(data.revision || 0);
     localStorage.setItem('income-supabase-revision-v1', String(revision));
     const remote = normalizeLegacyPayload(data.payload, data.updated_at);
@@ -258,7 +260,7 @@ const Sync = (() => {
     (payload?.items || []).forEach((item, index) => {
       const category = item.category || 'Прочее';
       if (!categories.has(category)) categories.set(category, { id: 'legacy-cat-' + category, name: category, color: '#7C8C85', order: categories.size, updatedAt });
-      remote.incomes.push({ id: String(item.id || 'legacy-income-' + index), name: item.name || 'Доход', amount: Number(item.amount) || 0, categoryId: categories.get(category).id, status: item.status === 'received' ? 'received' : 'expected', date: item.date || null, month: item.month, createdAt: item.updatedAt || updatedAt, updatedAt: item.updatedAt || updatedAt, deletedAt: null });
+      remote.incomes.push({ id: String(item.id || 'legacy-income-' + index), title: item.title || item.name || item.label || 'Доход', amount: Number(item.amount) || 0, categoryId: categories.get(category).id, status: item.status === 'received' ? 'received' : 'expected', date: item.date || null, month: item.month, createdAt: item.createdAt || item.updatedAt || updatedAt, updatedAt: item.updatedAt || updatedAt, deletedAt: null });
     });
     remote.categories = [...categories.values()];
     const finance = payload?.finance || {};
