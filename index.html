@@ -2106,6 +2106,17 @@ button, input, select, textarea { font-optical-sizing: auto; }
   min-height: 60px;
   padding: 10px 14px;
 }
+.swipe[data-enter] .swipe-body {
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity var(--dur-fast) var(--ease-io), transform var(--dur-fast) var(--ease);
+}
+.swipe-body {
+  transition: opacity var(--dur-fast) var(--ease-io);
+}
+.swipe[data-settling] .swipe-body {
+  transition: transform var(--dur-slow) var(--ease-sheet), opacity var(--dur-fast) var(--ease-io);
+}
 .income-title, .fin-name { font-weight: 610; letter-spacing: -.01em; }
 .income-meta, .fin-meta { letter-spacing: .012em; }
 .income-new-badge { box-shadow: 0 1px 1px rgba(25,155,102,.08); }
@@ -4350,6 +4361,8 @@ const IncomeList = (() => {
     ]);
 
     const row = el('div', { class: 'swipe' }, [actions, body]);
+    row.setAttribute('data-enter', '');
+    requestAnimationFrame(() => row.removeAttribute('data-enter'));
     Swipe.attach(row, body, rec.id);
 
     // Двойной путь: тап по строке открывает редактирование

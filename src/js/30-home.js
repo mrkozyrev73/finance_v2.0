@@ -171,6 +171,8 @@ const IncomeList = (() => {
     ]);
 
     const row = el('div', { class: 'swipe' }, [actions, body]);
+    row.setAttribute('data-enter', '');
+    requestAnimationFrame(() => row.removeAttribute('data-enter'));
     Swipe.attach(row, body, rec.id);
 
     // Двойной путь: тап по строке открывает редактирование
