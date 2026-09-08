@@ -157,9 +157,20 @@ const IncomeList = (() => {
       }, [icon('trash'), el('span', { text: 'Удалить' })])
     ]);
 
+    const check = icon('check');
+    check.classList.add('status-check');
+    check.setAttribute('viewBox', '0 0 24 24');
+    check.setAttribute('fill', 'none');
+    check.setAttribute('stroke', 'currentColor');
+    check.setAttribute('stroke-width', '2.2');
+    check.setAttribute('stroke-linecap', 'round');
+    check.setAttribute('stroke-linejoin', 'round');
+    const checkPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    checkPath.setAttribute('d', 'm5 12.6 4.6 4.6L19 7.4');
+    check.replaceChildren(checkPath);
     const dot = el('button', {
       class: 'status-dot', type: 'button', 'aria-pressed': 'false'
-    }, [icon('check')]);
+    }, [check]);
     dot.addEventListener('click', (e) => {
       e.stopPropagation();          // тап по галочке не открывает форму
       toggleReceived(rec.id);
@@ -187,17 +198,27 @@ const IncomeList = (() => {
     body.addEventListener('click', () => IncomeForm.open(rec.id));
 
     title.appendChild(newBadge);
-    return { row, dot, title, newBadge, meta, amount, flag };
+    return { row, dot, check, title, newBadge, meta, amount, flag, painted: false, wasReceived: false };
   }
 
   function paint(entry, rec) {
     const received = rec.status === 'received';
+    const shouldDrawCheck = entry.painted && received && !entry.wasReceived;
     // Меняется только цвет: иконка на месте, геометрия не дрожит
     entry.dot.className = 'status-dot ' + (received ? 'status-dot--received' : 'status-dot--expected');
     setAttr(entry.dot, 'aria-pressed', received ? 'true' : 'false');
     setAttr(entry.dot, 'aria-label', received ? 'Вернуть в ожидаемые' : 'Отметить полученным');
     setAttr(entry.dot, 'title', received ? 'Получен — нажмите, чтобы вернуть в ожидаемые'
                                          : 'Ожидается — нажмите, чтобы отметить полученным');
+
+    entry.check.classList.toggle('status-check--drawn', received);
+    if (shouldDrawCheck && !prefersReducedMotion()) {
+      entry.check.classList.remove('status-check--drawn');
+      entry.dot.classList.add('status-dot--drawing');
+      requestAnimationFrame(() => entry.check.classList.add('status-check--drawn'));
+    }
+    entry.painted = true;
+    entry.wasReceived = received;
 
     setText(entry.title, rec.title || 'Без названия');
     entry.title.appendChild(entry.newBadge);
@@ -557,7 +578,14 @@ const Home = (() => {
         (r.title || '').toLowerCase().includes(q) ||
         Data.categoryName(r.categoryId).toLowerCase().includes(q));
     }
-    return list;
+    // Две понятные группы: ожидаемые сверху, полученные ниже.
+    // Внутри группы последняя изменённая запись становится первой.
+    return list.slice().sort((a, b) => {
+      const groupA = a.status === 'expected' ? 0 : 1;
+      const groupB = b.status === 'expected' ? 0 : 1;
+      if (groupA !== groupB) return groupA - groupB;
+      return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
+    });
   }
 
   function render(opts) {

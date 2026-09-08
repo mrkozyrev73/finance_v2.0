@@ -701,6 +701,19 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 }
 .status-dot:active { transform: scale(.9); }
 .status-dot svg { width: 16px; height: 16px; }
+.status-check path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+}
+.status-check--drawn path {
+  stroke-dashoffset: 0;
+}
+.status-dot--drawing .status-check path {
+  transition: stroke-dashoffset 220ms var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .status-check path { transition: none; }
+}
 /* Не получен — пустой кружок; получен — залит и с галочкой.
    Иконка на месте всегда, меняется только цвет: строка не дёргается. */
 .status-dot--expected {
@@ -895,6 +908,18 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   border-radius: 8px;
   background: var(--surface-sunk);
   transition: height var(--dur-slow) var(--ease), background var(--dur) var(--ease-io);
+}
+@keyframes chart-rise {
+  from { clip-path: inset(100% 0 0 0); opacity: .45; }
+  to { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+#dynMonth[data-chart-enter="month"] .bar-fill {
+  animation: chart-rise 260ms var(--ease) var(--chart-delay, 0ms) both;
+  will-change: clip-path, opacity;
+}
+#dynYear[data-chart-enter="year"] .hbar-fill {
+  animation: chart-rise 260ms var(--ease) var(--chart-delay, 0ms) both;
+  will-change: clip-path, opacity;
 }
 .bar-fill .bar-val {
   position: absolute;
@@ -2336,6 +2361,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #dynYear .hbar[data-current] .hbar-name,
 #dynYear .hbar[data-current] .hbar-val { color: var(--accent-press); }
 
+@media (prefers-reduced-motion: reduce) {
+  #dynMonth[data-chart-enter="month"] .bar-fill,
+  #dynYear[data-chart-enter="year"] .hbar-fill {
+    animation: none;
+    will-change: auto;
+  }
+}
+
 /* Месяц: лёгкие контурные стрелки остаются на периферии шапки,
    не конкурируя с центральной датой. */
 .appbar-nav {
@@ -2420,6 +2453,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   font-weight: 560;
   margin-top: 4px;
   line-height: 1.2;
+}
+#scr-stats .audit-cell:first-child dd.delta--down {
+  color: var(--danger);
+}
+#scr-stats .audit-cell:first-child dd.delta--down .sub {
+  color: var(--danger);
+  opacity: .78;
 }
 
 /* ============================================================
@@ -2766,9 +2806,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   height: 28px;
 }
 .status-dot svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 1.9;
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.1;
 }
 .status-dot--expected {
   box-shadow: inset 0 0 0 1.2px var(--border-strong);
@@ -2928,6 +2968,74 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 /* Кнопка добавления дохода повторяет зелёный перелив текущего месяца на графике. */
 #scr-home #addIncome {
+  border-radius: var(--r-card);
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
 }
 #scr-home #addIncome:active { background: var(--accent-press); }
+
+/* Форма дохода — тот же лёгкий материал, что и карточки приложения. */
+.sheet:has(.input--amount) {
+  background: linear-gradient(180deg, var(--surface) 0%, #F8FBF9 100%);
+  box-shadow: 0 12px 42px rgba(21,32,26,.14);
+}
+.sheet:has(.input--amount) .sheet-head {
+  padding-bottom: 10px;
+}
+.sheet:has(.input--amount) .sheet-title {
+  font-size: 20px;
+  letter-spacing: -.024em;
+}
+.sheet:has(.input--amount) .field > label,
+.sheet:has(.input--amount) .field-label {
+  margin-bottom: 7px;
+  color: var(--text-2);
+  font-size: 12px;
+  letter-spacing: .008em;
+  text-transform: none;
+}
+.sheet:has(.input--amount) .input,
+.sheet:has(.input--amount) .select,
+.sheet:has(.input--amount) .switch-row {
+  border-color: transparent;
+  background: rgba(238,242,240,.72);
+  box-shadow: inset 0 1px 1px rgba(21,32,26,.025);
+}
+.sheet:has(.input--amount) .input:focus,
+.sheet:has(.input--amount) .select:focus {
+  border-color: var(--accent-line);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(25,155,102,.08);
+}
+.sheet:has(.input--amount) .input--amount {
+  height: 58px;
+  color: var(--text);
+  font-size: 28px;
+}
+.sheet:has(.input--amount) .segmented--status {
+  background: var(--surface-sunk);
+  border-radius: var(--r-ctl);
+  padding: 3px;
+}
+.sheet:has(.input--amount) .segmented--status .seg {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.sheet:has(.input--amount) .segmented--status .seg[aria-selected="true"] {
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(21,32,26,.08);
+}
+.sheet:has(.input--amount) .quick-cat[aria-pressed="true"] {
+  background: var(--surface-sunk);
+}
+.sheet:has(.input--amount) .switch-row {
+  min-height: 56px;
+}
+.sheet:has(.input--amount) .sheet-foot {
+  border-top: 0;
+  background: transparent;
+  padding-top: 8px;
+}
+.sheet:has(.input--amount) .sheet-foot .btn {
+  border-radius: var(--r-card);
+}

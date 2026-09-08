@@ -100,9 +100,13 @@ const Settings = (() => {
   }
 
   const PALETTE = DEFAULT_CATEGORIES.map(c => c.color);
+  const NEW_CATEGORY_COLORS = PALETTE.filter(color =>
+    color !== '#7C8C85' && color !== '#9A8A7A');
   function pickColor() {
     const used = Data.categories().map(c => c.color);
-    return PALETTE.find(c => !used.includes(c)) || PALETTE[used.length % PALETTE.length];
+    const available = NEW_CATEGORY_COLORS.filter(c => !used.includes(c));
+    const pool = available.length ? available : NEW_CATEGORY_COLORS;
+    return pool[Math.floor(Math.random() * pool.length)];
   }
 
   function catRow(rec, refresh) {

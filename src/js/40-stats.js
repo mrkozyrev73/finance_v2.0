@@ -39,7 +39,7 @@ const Stats = (() => {
       segs.forEach(x => setAttr(x, 'aria-selected', x === b ? 'true' : 'false'));
       moveThumb();
       Store.setSingleton('settings', { dynMode: View.dynMode });
-      render();
+      render({ animateMode: true });
     }));
 
     // Столбцы месяцев
@@ -171,6 +171,20 @@ const Stats = (() => {
     return Data.totalsOf(key).total;
   }
 
+  function replayChart(mode) {
+    if (prefersReducedMotion()) return;
+    const layer = mode === 'year' ? $('#dynYear') : $('#dynMonth');
+    const nodes = mode === 'year' ? hbarNodes : barNodes;
+    const attribute = mode === 'year' ? 'year' : 'month';
+    layer.removeAttribute('data-chart-enter');
+    nodes.forEach((n, i) => n.fill.style.setProperty('--chart-delay', Math.min(i * 24, 120) + 'ms'));
+    requestAnimationFrame(() => {
+      layer.setAttribute('data-chart-enter', attribute);
+      clearTimeout(layer._chartEnterTimer);
+      layer._chartEnterTimer = setTimeout(() => layer.removeAttribute('data-chart-enter'), 480);
+    });
+  }
+
   function render(opts) {
     const soft = opts && opts.soft;
     if (View.dynMode !== 'year') View.statsYear = yearOf(View.key);
@@ -263,6 +277,8 @@ const Stats = (() => {
       setAttr(n.row, 'aria-label', 'Доход за ' + y + ': ' + money(value));
     });
     for (let i = years.length; i < hbarNodes.length; i++) hbarNodes[i].row.style.display = 'none';
+
+    if (opts && opts.animateMode) replayChart(isYear ? 'year' : 'month');
 
     /* --- Структура --- */
     // Годовой режим без выбранного месяца → структура за весь год
