@@ -6739,7 +6739,7 @@ alter publication supabase_realtime add table public.app_state;`;
           const login = el('input', {
             class: 'input', id: 'sy-login', type: 'text', autocapitalize: 'none',
             autocomplete: 'username', spellcheck: 'false',
-            placeholder: 'например, anton', 'data-autofocus': true
+            placeholder: 'Введите логин', 'data-autofocus': true
           });
           login.addEventListener('input', () => { draft.login = login.value; });
           body.appendChild(field('Логин', login, 'sy-login'));
