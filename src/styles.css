@@ -1923,7 +1923,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .btn {
   height: 50px;
   border-radius: var(--r-ctl);
-  box-shadow: 0 1px 1px rgba(12,26,20,.08), 0 5px 14px rgba(25,155,102,.12);
+  box-shadow: none;
   font-weight: 650;
   letter-spacing: -.006em;
 }
