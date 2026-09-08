@@ -2013,6 +2013,9 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .hero-cell { display: block; min-height: 0; padding: 12px 13px; border-radius: 15px; }
 .hero-cell dt { display: block; }
 .hero-cell dd { margin: 6px 0 0; }
+.hero-cell { background: transparent; border-radius: 0; }
+.hero-cell + .hero-cell { border-left: 1px solid rgba(255,255,255,.12); padding-left: 20px; }
+.hero-cell:first-child { padding-right: 20px; }
 .hero-cell + .hero-cell { margin-top: 0; }
 
 .income { padding: 14px 15px; }
