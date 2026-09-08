@@ -89,6 +89,7 @@
   --dur:      200ms;
   --dur-slow: 240ms;
   --dur-nav:   280ms;
+  --swipe-settle-duration: 240ms;
   --ease:     cubic-bezier(.23, 1, .32, 1);      /* сильный ease-out */
   --ease-io:  cubic-bezier(.4, 0, .2, 1);
   --ease-sheet: cubic-bezier(.32, .72, 0, 1);
@@ -691,7 +692,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   touch-action: pan-y;
 }
 .swipe[data-settling] .swipe-body {
-  transition: transform var(--dur-slow) var(--ease-sheet);
+  transition: transform var(--swipe-settle-duration) var(--ease-sheet);
 }
 
 .income {
@@ -2115,7 +2116,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
   transition: opacity var(--dur-fast) var(--ease-io);
 }
 .swipe[data-settling] .swipe-body {
-  transition: transform var(--dur-slow) var(--ease-sheet), opacity var(--dur-fast) var(--ease-io);
+  transition: transform var(--swipe-settle-duration) var(--ease-sheet), opacity var(--dur-fast) var(--ease-io);
 }
 .income-title, .fin-name { font-weight: 610; letter-spacing: -.01em; }
 .income-meta, .fin-meta { letter-spacing: .012em; }
@@ -4210,7 +4211,13 @@ const Swipe = (() => {
       body.style.transform = 'translateX(' + v + 'px)';
     };
 
-    const settle = (to) => {
+    const settle = (to, velocity = 0) => {
+      const distance = Math.abs(to - x);
+      const speed = Math.max(220, Math.abs(velocity));
+      const duration = distance
+        ? Math.max(140, Math.min(300, distance / speed * 1000 * .9))
+        : 180;
+      body.style.setProperty('--swipe-settle-duration', duration + 'ms');
       row.setAttribute('data-settling', '');
       setX(to);
       if (to < 0) { open.set(id, { row, body }); row.setAttribute('data-open', ''); }
@@ -4219,7 +4226,7 @@ const Swipe = (() => {
       row._settleT = setTimeout(() => {
         row.removeAttribute('data-settling');
         if (to === 0) row.removeAttribute('data-dragging');
-      }, 260);
+      }, duration + 30);
     };
 
     body.addEventListener('pointerdown', (e) => {
@@ -4229,6 +4236,7 @@ const Swipe = (() => {
       base = open.has(id) ? -ACTIONS_W : 0;
       samples = [{ t: performance.now(), x: e.clientX }];
       row.removeAttribute('data-settling');
+      body.style.removeProperty('--swipe-settle-duration');
     });
 
     body.addEventListener('pointermove', (e) => {
@@ -4272,7 +4280,7 @@ const Swipe = (() => {
       const dt = Math.max(1, last.t - first.t);
       const velocity = (last.x - first.x) / dt * 1000;
       const projected = x + projectMomentum(velocity);
-      settle(projected < -ACTIONS_W / 2 ? -ACTIONS_W : 0);
+      settle(projected < -ACTIONS_W / 2 ? -ACTIONS_W : 0, velocity);
     };
 
     body.addEventListener('pointerup', finish);
@@ -4294,6 +4302,7 @@ const Swipe = (() => {
       row.removeAttribute('data-settling');
       row.removeAttribute('data-dragging');
       row.removeAttribute('data-open');
+      body.style.removeProperty('--swipe-settle-duration');
       setX(0);
     };
   }

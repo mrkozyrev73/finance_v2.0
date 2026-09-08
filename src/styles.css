@@ -70,6 +70,7 @@
   --dur:      200ms;
   --dur-slow: 240ms;
   --dur-nav:   280ms;
+  --swipe-settle-duration: 240ms;
   --ease:     cubic-bezier(.23, 1, .32, 1);      /* сильный ease-out */
   --ease-io:  cubic-bezier(.4, 0, .2, 1);
   --ease-sheet: cubic-bezier(.32, .72, 0, 1);
@@ -672,7 +673,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   touch-action: pan-y;
 }
 .swipe[data-settling] .swipe-body {
-  transition: transform var(--dur-slow) var(--ease-sheet);
+  transition: transform var(--swipe-settle-duration) var(--ease-sheet);
 }
 
 .income {
@@ -2096,7 +2097,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
   transition: opacity var(--dur-fast) var(--ease-io);
 }
 .swipe[data-settling] .swipe-body {
-  transition: transform var(--dur-slow) var(--ease-sheet), opacity var(--dur-fast) var(--ease-io);
+  transition: transform var(--swipe-settle-duration) var(--ease-sheet), opacity var(--dur-fast) var(--ease-io);
 }
 .income-title, .fin-name { font-weight: 610; letter-spacing: -.01em; }
 .income-meta, .fin-meta { letter-spacing: .012em; }

@@ -20,7 +20,13 @@ const Swipe = (() => {
       body.style.transform = 'translateX(' + v + 'px)';
     };
 
-    const settle = (to) => {
+    const settle = (to, velocity = 0) => {
+      const distance = Math.abs(to - x);
+      const speed = Math.max(220, Math.abs(velocity));
+      const duration = distance
+        ? Math.max(140, Math.min(300, distance / speed * 1000 * .9))
+        : 180;
+      body.style.setProperty('--swipe-settle-duration', duration + 'ms');
       row.setAttribute('data-settling', '');
       setX(to);
       if (to < 0) { open.set(id, { row, body }); row.setAttribute('data-open', ''); }
@@ -29,7 +35,7 @@ const Swipe = (() => {
       row._settleT = setTimeout(() => {
         row.removeAttribute('data-settling');
         if (to === 0) row.removeAttribute('data-dragging');
-      }, 260);
+      }, duration + 30);
     };
 
     body.addEventListener('pointerdown', (e) => {
@@ -39,6 +45,7 @@ const Swipe = (() => {
       base = open.has(id) ? -ACTIONS_W : 0;
       samples = [{ t: performance.now(), x: e.clientX }];
       row.removeAttribute('data-settling');
+      body.style.removeProperty('--swipe-settle-duration');
     });
 
     body.addEventListener('pointermove', (e) => {
@@ -82,7 +89,7 @@ const Swipe = (() => {
       const dt = Math.max(1, last.t - first.t);
       const velocity = (last.x - first.x) / dt * 1000;
       const projected = x + projectMomentum(velocity);
-      settle(projected < -ACTIONS_W / 2 ? -ACTIONS_W : 0);
+      settle(projected < -ACTIONS_W / 2 ? -ACTIONS_W : 0, velocity);
     };
 
     body.addEventListener('pointerup', finish);
@@ -104,6 +111,7 @@ const Swipe = (() => {
       row.removeAttribute('data-settling');
       row.removeAttribute('data-dragging');
       row.removeAttribute('data-open');
+      body.style.removeProperty('--swipe-settle-duration');
       setX(0);
     };
   }
