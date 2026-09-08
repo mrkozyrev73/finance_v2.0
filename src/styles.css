@@ -2783,3 +2783,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   font-weight: 640;
 }
 #scr-home #incomeList .income-flag { margin-top: 2px; }
+
+/* Кнопка добавления дохода повторяет зелёный перелив текущего месяца на графике. */
+#scr-home #addIncome {
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
+}
+#scr-home #addIncome:active { background: var(--accent-press); }
