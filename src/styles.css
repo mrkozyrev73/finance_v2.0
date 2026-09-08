@@ -2429,6 +2429,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-fin > .section:nth-child(n+2) { margin-top: 28px; }
 #scr-fin .section-head { margin-bottom: 11px; }
 #scr-fin .section-title { font-size: 20px; }
+#scr-fin > .section:nth-child(n+2) { margin-top: 30px; }
 #scr-fin .section-title span { gap: 8px !important; }
 #scr-fin .section-title svg { width: 18px !important; height: 18px !important; stroke-width: 1.85; }
 #scr-fin > .section:first-child .section-head { align-items: center; }
@@ -2465,13 +2466,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-fin .fin-head-actions > .section-sub { margin: 0; }
 
 #scr-fin .fin-card {
-  min-height: 78px;
-  padding: 14px;
+  min-height: 80px;
+  padding: 13px 14px;
   grid-template-columns: 44px minmax(0, 1fr) auto;
   gap: 12px;
   border-radius: var(--r-card);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
+  background: linear-gradient(145deg, #FFFFFF 0%, #FCFDFC 100%);
+  box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 6px 16px rgba(21,32,26,.04);
 }
 #scr-fin .fin-card--static { cursor: pointer; }
 #scr-fin .fin-card:active { transform: scale(.985); }
@@ -2509,11 +2510,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 #scr-fin .fin-swipe .fin-card:active { transform: none; }
 #scr-fin .empty {
-  padding: 17px 14px;
+  padding: 18px 14px;
   border-radius: var(--r-inner);
   color: var(--text-2);
   font-size: 13px;
-  background: var(--surface-sunk);
+  background: linear-gradient(145deg, #F4F8F6 0%, #EFF4F1 100%);
+  border: 1px solid rgba(22,32,27,.04);
   box-shadow: none;
 }
 
@@ -2550,8 +2552,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   margin: 0;
 }
 #scr-fin .fin-audit-cell {
-  min-height: 96px;
-  padding: 14px 15px 13px;
+  min-height: 100px;
+  padding: 15px 16px 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -2560,7 +2562,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 7px 18px rgba(21,32,26,.04);
 }
 #scr-fin .fin-audit-cell dt { color: var(--text-2); font-size: 13px; font-weight: 600; }
-#scr-fin .fin-audit-cell dd { margin: 8px 0 0; font-family: var(--num); font-size: 22px; line-height: 1; font-weight: 720; letter-spacing: -.035em; }
+#scr-fin .fin-audit-cell dd { margin: 9px 0 0; font-family: var(--num); font-size: 23px; line-height: 1; font-weight: 700; letter-spacing: -.035em; }
 #scr-fin .fin-audit-note { margin-top: 5px; color: var(--text-3); font-size: 11px; line-height: 1.1; }
 #scr-fin .fin-audit-value.is-good { color: var(--accent-press); }
 #scr-fin .fin-audit-value.is-bad { color: var(--danger); }
