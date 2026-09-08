@@ -3395,8 +3395,49 @@ const Store = (() => {
     // Версию берём из пришедших данных, а не из подмешанных значений по умолчанию
     const storedVersion = (data.settings && data.settings.categoriesVersion) || 0;
     upgradeCategories(base, storedVersion);
+    dedupeCategories(base);
     base.schema = SCHEMA;
     return base;
+  }
+
+  function categoryKey(name) {
+    return String(name || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('ru-RU');
+  }
+
+  /** Объединяет дубли, сохраняя привязки доходов и регулярных записей. */
+  function dedupeCategories(target) {
+    const live = (target.categories || [])
+      .filter(c => c && !c.deletedAt)
+      .slice()
+      .sort((a, b) => (a.order || 0) - (b.order || 0) || (a.createdAt || 0) - (b.createdAt || 0));
+    const keeperByName = new Map();
+    const replacements = new Map();
+    const stamp = now();
+
+    for (const category of live) {
+      const key = categoryKey(category.name);
+      if (!key) continue;
+      const keeper = keeperByName.get(key);
+      if (!keeper) {
+        keeperByName.set(key, category);
+        continue;
+      }
+      replacements.set(category.id, keeper.id);
+      category.deletedAt = stamp;
+      category.updatedAt = stamp;
+    }
+
+    if (!replacements.size) return false;
+    for (const listName of ['incomes', 'recurring']) {
+      for (const record of target[listName] || []) {
+        const replacement = replacements.get(record.categoryId);
+        if (replacement) {
+          record.categoryId = replacement;
+          record.updatedAt = stamp;
+        }
+      }
+    }
+    return true;
   }
 
   /**
@@ -3502,6 +3543,7 @@ const Store = (() => {
 
     /** Тихое применение (для входящей синхронизации) — без обратной отправки */
     applyRemote(next) {
+      dedupeCategories(next);
       state = next;
       try { localStorage.setItem(DB_KEY, JSON.stringify(state)); } catch (_) {}
       emit('remote');
