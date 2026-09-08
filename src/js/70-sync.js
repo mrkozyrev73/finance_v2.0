@@ -27,8 +27,8 @@
    в браузер, а доступ к данным ограничивают политики RLS. Держать
    его в файле не опаснее, чем вводить руками.
    ------------------------------------------------------------------ */
-const SUPABASE_URL = 'https://gftgurqxibkcueimsquz.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_O9mp1Y-ujrJQP6o6JM9WMg_Pj8dP5JW';
+const SUPABASE_URL = 'https://citzcwjtczxrgbjgbdws.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_ltaNA7nnVozoSCOcZIjg';
 
 const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
 const LOGIN_DOMAIN = 'dohod.app';
