@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Варианты нижнего меню</title>
+  <style>
+    :root {
+      --bg: #F4F6F5;
+      --surface: #FFFFFF;
+      --surface-sunk: #EFF2F0;
+      --text: #16201B;
+      --text-2: #6C7C74;
+      --text-3: #87968E;
+      --accent: #18A46B;
+      --accent-press: #148B5A;
+      --accent-soft: #E6F5ED;
+      --ease: cubic-bezier(.23, 1, .32, 1);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #DDE3E0; color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+    body { display: grid; place-items: center; padding: 20px; }
+    .stage { position: relative; width: min(100%, 480px); height: min(900px, calc(100dvh - 40px)); min-height: 620px; overflow: hidden; border-radius: 28px; background: var(--bg); box-shadow: 0 20px 60px rgba(21,32,26,.18); }
+    .content { padding: 24px 16px 100px; }
+    .eyebrow { margin: 0; color: var(--text-3); font-size: 12px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+    h1 { margin: 5px 0 24px; font-size: 28px; line-height: 1.08; letter-spacing: -.04em; }
+    .hero { padding: 26px 20px 22px; border-radius: 22px; background: linear-gradient(145deg, #fff 0%, #f1f8f4 100%); box-shadow: 0 1px 2px rgba(21,32,26,.03), 0 10px 24px rgba(21,32,26,.06); text-align: center; }
+    .hero-label { margin: 0; color: var(--text-2); font-size: 14px; font-weight: 600; }
+    .hero-value { margin: 7px 0 19px; color: var(--accent-press); font-size: 48px; line-height: .95; font-weight: 760; letter-spacing: -.07em; font-variant-numeric: tabular-nums; }
+    .hero-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 13px; border-top: 1px solid rgba(22,32,27,.08); text-align: left; }
+    .hero-meta span { display: block; color: var(--text-3); font-size: 11px; }
+    .hero-meta strong { display: block; margin-top: 4px; font-size: 18px; }
+    .section-label { margin: 28px 2px 10px; font-size: 19px; font-weight: 680; letter-spacing: -.02em; }
+    .row { display: flex; align-items: center; gap: 12px; min-height: 66px; margin-top: 9px; padding: 12px 14px; border-radius: 18px; background: #fff; box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 6px 16px rgba(21,32,26,.035); }
+    .row-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 12px; background: var(--surface-sunk); color: var(--text-2); font-size: 16px; }
+    .row-copy { flex: 1; min-width: 0; }
+    .row-title, .row-sub { display: block; }
+    .row-title { font-size: 15px; font-weight: 650; }
+    .row-sub { margin-top: 3px; color: var(--text-2); font-size: 12px; }
+    .row-value { font-size: 18px; font-weight: 680; font-variant-numeric: tabular-nums; }
+
+    /* Variant surfaces */
+    .bottom-nav { position: absolute; left: 0; right: 0; bottom: 0; height: 76px; display: grid; grid-template-columns: repeat(4, 1fr); padding: 7px 12px calc(7px + env(safe-area-inset-bottom, 0px)); background: rgba(255,255,255,.94); border-top: 1px solid rgba(22,32,27,.05); }
+    .nav-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; border: 0; background: transparent; color: var(--text-3); font: inherit; cursor: pointer; transition: color 160ms ease-out, transform 160ms var(--ease); }
+    .nav-icon { width: 21px; height: 21px; display: grid; place-items: center; font-size: 19px; line-height: 1; font-weight: 500; }
+    .nav-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .nav-label { font-size: 11px; line-height: 1; font-weight: 650; letter-spacing: .01em; white-space: nowrap; }
+    .nav-item:active { transform: scale(.96); }
+    .nav-item[data-active] { color: var(--text); }
+
+    /* Rail: spatial indicator, most restrained. */
+    .nav-rail .nav-item[data-active] { transform: translateY(-1px); }
+    .nav-rail .nav-item::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 0; height: 2px; border-radius: 99px; background: var(--text); transform: translateX(-50%); transition: width 240ms var(--ease); }
+    .nav-rail .nav-item[data-active]::after { width: 30px; }
+
+    /* Dot: a small anchor under the icon, no bar. */
+    .nav-dot .nav-item[data-active] { transform: translateY(-1px); }
+    .nav-dot .nav-item[data-active] .nav-icon { color: var(--accent-press); }
+    .nav-dot .nav-item::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 0; height: 4px; border-radius: 99px; background: var(--text); transform: translateX(-50%); transition: width 180ms var(--ease); }
+    .nav-dot .nav-item[data-active]::after { width: 4px; }
+
+    /* Focus: hierarchy does the work, with a quiet material halo. */
+    .nav-focus .nav-item[data-active] .nav-icon { color: var(--accent-press); transform: scale(1.08); }
+    .nav-focus .nav-item[data-active] .nav-label { font-weight: 730; }
+    .nav-focus .nav-item { isolation: isolate; }
+    .nav-focus .nav-item[data-active]::before { content: ""; position: absolute; top: 4px; width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); opacity: .72; z-index: 0; transform: scale(.75); transition: transform 220ms var(--ease), opacity 180ms ease-out; }
+    .nav-focus .nav-item[data-active]::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-press); transform: translateX(-50%); }
+    .nav-icon, .nav-label { position: relative; z-index: 1; transition: color 160ms ease-out, transform 220ms var(--ease), font-weight 160ms ease-out; }
+
+    /* Prototype picker — keep identical to the approved harness. */
+    .proto-picker {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2147483647;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(10, 10, 10, 0.82);
+      -webkit-backdrop-filter: blur(12px) saturate(1.4);
+      backdrop-filter: blur(12px) saturate(1.4);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 8px 24px rgba(0, 0, 0, 0.24), 0 2px 6px rgba(0, 0, 0, 0.12);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      line-height: 1;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .proto-picker-highlight { position: absolute; top: 4px; left: 0; height: 28px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); will-change: transform; }
+    .proto-picker[data-ready] .proto-picker-highlight { transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1), width 250ms cubic-bezier(0.23, 1, 0.32, 1); }
+    @media (prefers-reduced-motion: reduce) { .proto-picker[data-ready] .proto-picker-highlight { transition: none; } }
+    .proto-picker-item { position: relative; display: flex; align-items: center; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: rgba(255, 255, 255, 0.55); font: inherit; cursor: pointer; transition: color 150ms ease-out; }
+    .proto-picker-item:hover { color: rgba(255, 255, 255, 0.85); }
+    .proto-picker-item:active { transform: scale(0.97); }
+    .proto-picker-item:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.4); outline-offset: 2px; }
+    .proto-picker-item[data-active] { color: #fff; }
+    .proto-picker-divider { width: 1px; height: 16px; margin: 0 4px; background: rgba(255, 255, 255, 0.12); }
+    .proto-picker-replay { padding: 0 10px; font-size: 14px; }
+    .proto-picker[data-position="top"] { bottom: auto; top: 24px; }
+    @media (prefers-reduced-motion: reduce) { .nav-item, .nav-icon, .nav-label, .nav-rail .nav-item::after, .nav-dot .nav-item::after, .nav-focus .nav-item[data-active]::before { transition: none; } }
+  </style>
+</head>
+<body>
+  <main class="stage" id="stage">
+    <div class="content">
+      <p class="eyebrow">Вторник, 8 сентября</p>
+      <h1>Сентябрь 2026</h1>
+      <section class="hero">
+        <p class="hero-label">Получено в этом месяце</p>
+        <p class="hero-value">137 512 ₽</p>
+        <div class="hero-meta"><div><span>Ещё ожидается</span><strong>2 340 ₽</strong></div><div><span>Всего</span><strong>139 852 ₽</strong></div></div>
+      </section>
+      <p class="section-label">Доходы</p>
+      <div class="row"><span class="row-icon">✓</span><span class="row-copy"><span class="row-title">Абонемент Rex</span><span class="row-sub">Rex (наличные)</span></span><span class="row-value">1 500 ₽</span></div>
+      <div class="row"><span class="row-icon">✓</span><span class="row-copy"><span class="row-title">ТБанк выписка</span><span class="row-sub">Кешбек сервисы</span></span><span class="row-value">747 ₽</span></div>
+      <div class="row"><span class="row-icon">✓</span><span class="row-copy"><span class="row-title">iBox Pulsar</span><span class="row-sub">Продажа Авито</span></span><span class="row-value">6 395 ₽</span></div>
+    </div>
+  </main>
+  <nav class="proto-picker" data-position="top" aria-label="Prototype variants">
+    <span class="proto-picker-highlight" aria-hidden="true"></span>
+    <button class="proto-picker-item" data-active aria-current="true">Rail</button>
+    <button class="proto-picker-item">Dot</button>
+    <button class="proto-picker-item">Focus</button>
+    <span class="proto-picker-divider" aria-hidden="true"></span>
+    <button class="proto-picker-item proto-picker-replay" aria-label="Replay animation (R)">↻</button>
+  </nav>
+  <script>
+    const variants = ['nav-rail', 'nav-dot', 'nav-focus'];
+    const labels = ['Главная', 'Статистика', 'Финансы', 'Настройки'];
+    const icons = [
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10.5 8.5-7 8.5 7"/><path d="M5.5 9.5v10h13v-10M9.5 19.5v-5h5v5"/></svg>',
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V11M10 19V5M15 19v-6M20 19V8"/><path d="M3.5 19.5h18"/></svg>',
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h13.5a2 2 0 0 1 2 2v9H4.5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"/><path d="M4 7.5V5.8a1.8 1.8 0 0 1 1.8-1.8h11.7a2 2 0 0 1 2 2v3.5"/><circle cx="16.5" cy="14" r="1.5"/></svg>',
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 13.2 5a7.6 7.6 0 0 1 2.1.9l1.8-.5 1.5 1.5-.5 1.8c.4.7.7 1.4.9 2.1l1.5 1.2v2l-1.5 1.2a7.6 7.6 0 0 1-.9 2.1l.5 1.8-1.5 1.5-1.8-.5a7.6 7.6 0 0 1-2.1.9L12 20.5h-2l-1.2-1.5a7.6 7.6 0 0 1-2.1-.9l-1.8.5-1.5-1.5.5-1.8a7.6 7.6 0 0 1-.9-2.1L1.5 12v-2L3 8.8a7.6 7.6 0 0 1 .9-2.1l-.5-1.8L4.9 3.4l1.8.5a7.6 7.6 0 0 1 2.1-.9L10 1.5h2Z"/><circle cx="11" cy="11" r="3"/></svg>'
+    ];
+    const stage = document.getElementById('stage');
+    const picker = document.querySelector('.proto-picker');
+    const highlight = picker.querySelector('.proto-picker-highlight');
+    const items = [...picker.querySelectorAll('.proto-picker-item:not(.proto-picker-replay)')];
+    const replay = picker.querySelector('.proto-picker-replay');
+    let current = 0;
+
+    function moveHighlight() {
+      const item = items[current];
+      highlight.style.width = item.offsetWidth + 'px';
+      highlight.style.transform = `translateX(${item.offsetLeft}px)`;
+    }
+    function mount(i) {
+      stage.querySelector('.bottom-nav')?.remove();
+      requestAnimationFrame(() => {
+        const nav = document.createElement('nav');
+        nav.className = `bottom-nav ${variants[i]}`;
+        labels.forEach((label, index) => {
+          const button = document.createElement('button');
+          button.className = 'nav-item';
+          if (index === 0) button.dataset.active = '';
+          button.innerHTML = `<span class="nav-icon">${icons[index]}</span><span class="nav-label">${label}</span>`;
+          button.addEventListener('click', () => {
+            nav.querySelectorAll('.nav-item').forEach(el => el.removeAttribute('data-active'));
+            button.dataset.active = '';
+          });
+          nav.appendChild(button);
+        });
+        stage.appendChild(nav);
+      });
+    }
+    function setActive(i) {
+      if (i < 0 || i >= variants.length) return;
+      current = i;
+      items.forEach((item, index) => {
+        item.toggleAttribute('data-active', index === i);
+        if (index === i) item.setAttribute('aria-current', 'true'); else item.removeAttribute('aria-current');
+      });
+      moveHighlight();
+      const url = new URL(location);
+      url.searchParams.set('v', i + 1);
+      history.replaceState(null, '', url);
+      mount(i);
+    }
+    items.forEach((item, i) => item.addEventListener('click', () => setActive(i)));
+    replay?.addEventListener('click', () => mount(current));
+    window.addEventListener('resize', moveHighlight);
+    document.addEventListener('keydown', e => {
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
+      const num = parseInt(e.key, 10);
+      if (num >= 1 && num <= variants.length) setActive(num - 1);
+      else if (e.key === 'ArrowRight') setActive((current + 1) % variants.length);
+      else if (e.key === 'ArrowLeft') setActive((current - 1 + variants.length) % variants.length);
+      else if (e.key === 'r' || e.key === 'R') mount(current);
+    });
+    setActive((parseInt(new URLSearchParams(location.search).get('v'), 10) || 1) - 1);
+    requestAnimationFrame(() => requestAnimationFrame(() => picker.setAttribute('data-ready', '')));
+  </script>
+</body>
+</html>
