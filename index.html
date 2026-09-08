@@ -2798,6 +2798,69 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   box-shadow: inset 0 0 0 1px rgba(25,155,102,.10);
 }
 
+/* Единое оформление пустых состояний: лёгкая поверхность вместо
+   разрозненных рамок и разных оттенков. */
+#scr-home .empty,
+#scr-stats .empty,
+#scr-fin .empty,
+.sheet .empty {
+  border: 1px solid rgba(22,32,27,.045);
+  background: linear-gradient(145deg, #FFFFFF 0%, #F5F9F7 100%);
+  color: var(--text-2);
+  box-shadow: 0 1px 2px rgba(21,32,26,.02), 0 6px 16px rgba(21,32,26,.025);
+}
+#scr-home #incomeEmpty,
+#scr-fin #depEmpty,
+#scr-fin #creditEmpty {
+  line-height: 1.45;
+}
+
+/* Нулевые значения на графиках читаются как отсутствие данных, а не как
+   полноценный показатель. */
+#dynMonth .bar-val[data-zero],
+#dynYear .hbar-val[data-zero],
+#scr-stats .hbars--months .hbar-val[data-zero] {
+  color: var(--text-3);
+  opacity: .7;
+}
+
+/* Поле пароля: действие рядом с полем, без отдельной тяжёлой кнопки. */
+.input-with-action { position: relative; }
+.input-with-action > .input { padding-right: 76px; }
+.input-action {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  min-height: 30px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: color var(--dur-fast) var(--ease-io), background var(--dur-fast) var(--ease-io), transform var(--dur-fast) var(--ease);
+}
+.input-action:active { transform: translateY(-50%) scale(.96); background: var(--surface-sunk); }
+
+/* Короткое появление новых строк — только для ориентации, без скачка layout. */
+@keyframes settingsRowIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+#scr-set .list-row { animation: settingsRowIn var(--dur-fast) var(--ease) both; }
+#scr-set .list-row:nth-child(2) { animation-delay: 30ms; }
+#scr-set .list-row:nth-child(3) { animation-delay: 60ms; }
+#scr-set .list-row:nth-child(4) { animation-delay: 90ms; }
+#scr-set .list-row:nth-child(5) { animation-delay: 120ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  #scr-set .list-row { animation: none; }
+  .input-action { transition: none; }
+}
+
 /* Главная — тот же мягкий материал, что и на странице статистики. */
 #scr-home .hero {
   padding: 19px 16px 15px;
@@ -5316,7 +5379,8 @@ const Stats = (() => {
         n.fill.style.height = (row.amount > 0 ? Math.max(3, (row.amount / catMax) * 100) : 0) + '%';
         n.fill.style.width = '100%';
         n.fill.style.background = row.color;
-        setText(n.val, barShort(row.amount));
+        setText(n.val, row.amount > 0 ? barShort(row.amount) : '—');
+        setAttr(n.val, 'data-zero', row.amount > 0 ? null : true);
       });
     } else {
       paintDonut(topSlices(data.rows, DONUT_SLICES), data.total);
@@ -5789,7 +5853,9 @@ const Fin = (() => {
         node.className = 'fade-swap fin-audit-value ' + tone;
         // Первое появление вклада/кредита не является ухудшением:
         // раньше такой позиции просто не было в учёте.
-        node.textContent = current && baseline && !isNewMetric ? signedMoney(value) : '—';
+        node.textContent = current && baseline && !isBaselineMonth && !isNewMetric
+          ? signedMoney(value)
+          : '—';
       };
       soft ? softSwap(node, apply) : apply();
     };
@@ -6879,7 +6945,19 @@ alter publication supabase_realtime add table public.app_state;`;
           });
           pass.addEventListener('input', () => { draft.password = pass.value; });
           pass.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit('signin'); });
-          body.appendChild(field('Пароль', pass, 'sy-pass'));
+          const passWrap = el('div', { class: 'input-with-action' }, [pass]);
+          const passToggle = el('button', {
+            class: 'input-action', type: 'button', text: 'Показать',
+            'aria-label': 'Показать пароль'
+          });
+          passToggle.addEventListener('click', () => {
+            const visible = pass.type === 'text';
+            pass.type = visible ? 'password' : 'text';
+            setText(passToggle, visible ? 'Показать' : 'Скрыть');
+            setAttr(passToggle, 'aria-label', visible ? 'Показать пароль' : 'Скрыть пароль');
+          });
+          passWrap.appendChild(passToggle);
+          body.appendChild(field('Пароль', passWrap, 'sy-pass'));
 
           body.appendChild(el('p', {
             class: 'section-sub',

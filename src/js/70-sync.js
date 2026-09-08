@@ -495,7 +495,19 @@ alter publication supabase_realtime add table public.app_state;`;
           });
           pass.addEventListener('input', () => { draft.password = pass.value; });
           pass.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit('signin'); });
-          body.appendChild(field('Пароль', pass, 'sy-pass'));
+          const passWrap = el('div', { class: 'input-with-action' }, [pass]);
+          const passToggle = el('button', {
+            class: 'input-action', type: 'button', text: 'Показать',
+            'aria-label': 'Показать пароль'
+          });
+          passToggle.addEventListener('click', () => {
+            const visible = pass.type === 'text';
+            pass.type = visible ? 'password' : 'text';
+            setText(passToggle, visible ? 'Показать' : 'Скрыть');
+            setAttr(passToggle, 'aria-label', visible ? 'Показать пароль' : 'Скрыть пароль');
+          });
+          passWrap.appendChild(passToggle);
+          body.appendChild(field('Пароль', passWrap, 'sy-pass'));
 
           body.appendChild(el('p', {
             class: 'section-sub',

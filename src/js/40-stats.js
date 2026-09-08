@@ -306,7 +306,8 @@ const Stats = (() => {
         n.fill.style.height = (row.amount > 0 ? Math.max(3, (row.amount / catMax) * 100) : 0) + '%';
         n.fill.style.width = '100%';
         n.fill.style.background = row.color;
-        setText(n.val, barShort(row.amount));
+        setText(n.val, row.amount > 0 ? barShort(row.amount) : '—');
+        setAttr(n.val, 'data-zero', row.amount > 0 ? null : true);
       });
     } else {
       paintDonut(topSlices(data.rows, DONUT_SLICES), data.total);

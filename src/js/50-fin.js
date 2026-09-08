@@ -366,7 +366,9 @@ const Fin = (() => {
         node.className = 'fade-swap fin-audit-value ' + tone;
         // Первое появление вклада/кредита не является ухудшением:
         // раньше такой позиции просто не было в учёте.
-        node.textContent = current && baseline && !isNewMetric ? signedMoney(value) : '—';
+        node.textContent = current && baseline && !isBaselineMonth && !isNewMetric
+          ? signedMoney(value)
+          : '—';
       };
       soft ? softSwap(node, apply) : apply();
     };
