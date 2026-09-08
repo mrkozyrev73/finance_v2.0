@@ -484,14 +484,14 @@ alter publication supabase_realtime add table public.app_state;`;
           const login = el('input', {
             class: 'input', id: 'sy-login', type: 'text', autocapitalize: 'none',
             autocomplete: 'username', spellcheck: 'false',
-            placeholder: 'Введите логин', 'data-autofocus': true
+            placeholder: 'Введите логин или почту', 'data-autofocus': true
           });
           login.addEventListener('input', () => { draft.login = login.value; });
-          body.appendChild(field('Логин', login, 'sy-login'));
+          body.appendChild(field('Логин или почта', login, 'sy-login'));
 
           const pass = el('input', {
             class: 'input', id: 'sy-pass', type: 'password',
-            autocomplete: 'current-password', placeholder: 'минимум 6 символов'
+            autocomplete: 'current-password', placeholder: 'Не менее 6 символов'
           });
           pass.addEventListener('input', () => { draft.password = pass.value; });
           pass.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit('signin'); });
@@ -499,7 +499,7 @@ alter publication supabase_realtime add table public.app_state;`;
 
           body.appendChild(el('p', {
             class: 'section-sub',
-            text: 'На первом телефоне — «Создать». На втором введите тот же логин и пароль и нажмите «Войти».',
+            text: 'Для первого устройства выберите «Создать», для остальных — «Войти».',
             style: 'margin:12px 2px 0'
           }));
         } else {

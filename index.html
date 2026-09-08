@@ -2630,8 +2630,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   gap: 12px;
   border: 1px solid var(--border);
   border-radius: var(--r-card);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
+  background: linear-gradient(145deg, #FFFFFF 0%, #FCFDFC 100%);
+  box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 6px 16px rgba(21,32,26,.035);
   transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease-io), box-shadow var(--dur-fast) var(--ease-io);
 }
 #scr-set .list-row + .list-row { box-shadow: var(--shadow-card); }
@@ -2659,22 +2659,50 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   font-size: 11px;
 }
 #scr-set .sync-card {
-  min-height: 76px;
-  padding: 13px 12px 13px 15px;
+  min-height: 80px;
+  padding: 14px 13px 14px 16px;
   border-radius: var(--r-card);
-  box-shadow: var(--shadow-card);
+  background: linear-gradient(145deg, #FFFFFF 0%, #F6FBF8 100%);
+  border-color: rgba(22,32,27,.045);
+  box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 7px 18px rgba(21,32,26,.045);
 }
 #scr-set .sync-open { gap: 11px; }
 #scr-set .sync-led { width: 9px; height: 9px; }
-#scr-set .sync-title { font-weight: 620; }
+#scr-set .sync-title { font-weight: 650; }
 #scr-set .sync-sub { margin-top: 3px; }
 #scr-set .sync-btn {
   height: 42px;
   padding-inline: 14px;
   border-radius: var(--r-ctl);
-  box-shadow: 0 1px 1px rgba(12,26,20,.08), 0 5px 14px rgba(25,155,102,.12);
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
+  box-shadow: none;
 }
-#scr-set .sync-btn--ghost { box-shadow: none; }
+#scr-set .sync-btn--ghost { background: var(--surface-sunk); box-shadow: none; }
+
+/* Авторизация — спокойная форма без технического визуального шума. */
+.sheet .sync-state-card {
+  padding: 13px 14px;
+  background: linear-gradient(145deg, #F7FBF9 0%, #EFF7F3 100%);
+  border-color: rgba(22,32,27,.045);
+}
+.sheet .sync-state-card .sync-led { width: 8px; height: 8px; }
+.sheet .field { margin-top: 15px; }
+.sheet .field:first-of-type { margin-top: 18px; }
+.sheet .field-label { margin-bottom: 6px; color: var(--text-2); font-weight: 620; }
+.sheet .field .input,
+.sheet .field textarea.input {
+  background: var(--surface-2);
+  border-color: rgba(22,32,27,.10);
+  box-shadow: inset 0 1px 1px rgba(21,32,26,.02);
+}
+.sheet .field .input:focus,
+.sheet .field textarea.input:focus {
+  border-color: var(--accent-line);
+  box-shadow: 0 0 0 3px rgba(24,164,107,.10);
+}
+.sheet .sheet-foot #sy-signup,
+.sheet .sheet-foot #sy-signin { height: 46px; }
+.sheet .sheet-foot #sy-signin { background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%); }
 
 @media (max-width: 359px) {
   #scr-set .list-row { padding-inline: 12px; }
@@ -6840,14 +6868,14 @@ alter publication supabase_realtime add table public.app_state;`;
           const login = el('input', {
             class: 'input', id: 'sy-login', type: 'text', autocapitalize: 'none',
             autocomplete: 'username', spellcheck: 'false',
-            placeholder: 'Введите логин', 'data-autofocus': true
+            placeholder: 'Введите логин или почту', 'data-autofocus': true
           });
           login.addEventListener('input', () => { draft.login = login.value; });
-          body.appendChild(field('Логин', login, 'sy-login'));
+          body.appendChild(field('Логин или почта', login, 'sy-login'));
 
           const pass = el('input', {
             class: 'input', id: 'sy-pass', type: 'password',
-            autocomplete: 'current-password', placeholder: 'минимум 6 символов'
+            autocomplete: 'current-password', placeholder: 'Не менее 6 символов'
           });
           pass.addEventListener('input', () => { draft.password = pass.value; });
           pass.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit('signin'); });
@@ -6855,7 +6883,7 @@ alter publication supabase_realtime add table public.app_state;`;
 
           body.appendChild(el('p', {
             class: 'section-sub',
-            text: 'На первом телефоне — «Создать». На втором введите тот же логин и пароль и нажмите «Войти».',
+            text: 'Для первого устройства выберите «Создать», для остальных — «Войти».',
             style: 'margin:12px 2px 0'
           }));
         } else {
