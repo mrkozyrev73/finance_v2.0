@@ -236,7 +236,7 @@ const Stats = (() => {
       setText(n.name, MONTHS_SHORT[monOf(k)]);
       setText(n.val, values[i] > 0 ? barShort(values[i]) : '—');
       // Даже нулевой месяц остаётся видимым: минимальная высота задана в CSS
-      n.fill.style.height = Math.max(4, (values[i] / max) * 100) + '%';
+      n.fill.style.height = Math.max(4, (values[i] / max) * 88) + '%';
       setAttr(n.col, 'aria-pressed', (!isYear && k === scopeKey) ? 'true' : 'false');
       setAttr(n.col, 'data-current', k === View.todayKey ? true : null);
       setAttr(n.col, 'aria-label', keyLabel(k) + ': ' + money(values[i]));
@@ -255,7 +255,7 @@ const Stats = (() => {
       n.row.style.display = i < years.length ? '' : 'none';
       n.row.dataset.key = key;
       setText(n.name, String(y));
-      n.fill.style.height = (value > 0 ? Math.max(3, (value / yMax) * 100) : 0) + '%';
+      n.fill.style.height = (value > 0 ? Math.max(3, (value / yMax) * 88) : 0) + '%';
       n.fill.style.width = '100%';
       setText(n.val, value > 0 ? barShort(value) : '—');
       setAttr(n.row, 'aria-pressed', (isYear && key === View.statsKey) ? 'true' : 'false');

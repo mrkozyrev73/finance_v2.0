@@ -2211,7 +2211,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #dynMonth .bars {
   height: 190px;
   gap: 7px;
-  padding-top: 22px;
+  padding-top: 7px;
 }
 #dynMonth .bar-track {
   background: var(--accent-soft);
@@ -2232,7 +2232,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   align-items: end;
   gap: 7px;
   height: 100%;
-  padding: 22px 1px 3px;
+  padding: 7px 1px 3px;
 }
 #dynYear .hbar {
   display: flex;
