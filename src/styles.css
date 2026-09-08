@@ -2543,11 +2543,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .appbar::after { display: none; }
 .tabbar {
-  background: var(--bg);
+  background: #15201A;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  box-shadow: none;
+  box-shadow: 0 -10px 26px rgba(21,32,26,.12);
   border-top: 0;
+}
+.tabbar .tab { color: rgba(255,255,255,.58); }
+.tabbar .tab[aria-selected="true"] { color: var(--accent-press); }
+.tabbar .tab-pill {
+  background: #F5F7F6;
+  box-shadow: 0 3px 12px rgba(0,0,0,.18);
 }
 
 /* Единый кегль заголовков секций во всём приложении. */
