@@ -232,27 +232,15 @@ const Sync = (() => {
 
   async function pull() {
     if (!client || !session) return null;
-    const membership = await client.from('household_members')
-      .select('household_id').eq('user_id', session.user.id).maybeSingle();
-    if (membership.error) throw membership.error;
-    if (!membership.data?.household_id) {
-      const created = await client.rpc('create_household', { p_name: 'Семья' });
-      if (created.error) throw created.error;
-      householdId = created.data?.[0]?.household_id || created.data?.household_id || '';
-    } else householdId = membership.data.household_id;
-    if (!householdId) throw new Error('Не найдено семейное хранилище');
-    localStorage.setItem('income-supabase-household-v1', householdId);
     const { data, error } = await client
       .from('app_state')
-      .select('payload, revision, updated_at')
-      .eq('household_id', householdId)
+      .select('data, updated_at')
+      .eq('user_id', session.user.id)
       .maybeSingle();
     if (error) throw error;
     if (!data) { lastSyncAt = Date.now(); return null; }
     pulledRemote = true;
-    revision = Number(data.revision || 0);
-    localStorage.setItem('income-supabase-revision-v1', String(revision));
-    const remote = normalizeLegacyPayload(data.payload, data.updated_at);
+    const remote = normalizeLegacyPayload(data.data, data.updated_at);
     applyRemote(remote, data.updated_at);
     return remote;
   }
@@ -319,12 +307,12 @@ const Sync = (() => {
     lastPushAt = Date.now();
     try {
       const { data, error } = await client
-        .rpc('save_app_state', { p_household_id: householdId, p_payload: Store.state, p_expected_revision: revision });
+        .from('app_state')
+        .upsert({ user_id: session.user.id, data: Store.state, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+        .select('updated_at')
+        .single();
       if (error) throw error;
-      if (!data?.ok) throw new Error('Не удалось сохранить данные');
-      revision = Number(data.revision || revision + 1);
-      localStorage.setItem('income-supabase-revision-v1', String(revision));
-      lastRemoteStamp = new Date().toISOString();
+      lastRemoteStamp = data.updated_at;
       lastSyncAt = Date.now();
       pendingPush = false;
       setStatus('on');
@@ -343,18 +331,16 @@ const Sync = (() => {
   function subscribeRealtime() {
     if (!client || !session || channel) return;
     channel = client
-      .channel('app_state:' + householdId)
+      .channel('app_state:' + session.user.id)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'app_state',
-        filter: 'household_id=eq.' + householdId
+        filter: 'user_id=eq.' + session.user.id
       }, (payload) => {
         const row = payload.new;
         if (!row || !row.updated_at) return;
-        if (Number(row.revision || 0) <= revision) return;
-        revision = Number(row.revision || revision);
-        localStorage.setItem('income-supabase-revision-v1', String(revision));
         // Данные уже в событии — применяем сразу, без второго запроса
-        if (row.payload && typeof row.payload === 'object') applyRemote(normalizeLegacyPayload(row.payload, row.updated_at), row.updated_at);
+        if (row.updated_at === lastRemoteStamp) return;
+        if (row.data && typeof row.data === 'object') applyRemote(normalizeLegacyPayload(row.data, row.updated_at), row.updated_at);
         else pull().catch(e => console.warn('[sync] realtime pull', e));
       })
       .subscribe((state) => {
