@@ -2208,7 +2208,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #dynMode .seg:active { transform: scale(.97); }
 #dynSlot { margin-top: 17px !important; min-height: 238px; height: 238px; }
 #dynMonth, #dynYear { padding: 3px 1px 0; }
-#dynMonth .bars { height: 190px; gap: 7px; }
+#dynMonth .bars {
+  height: 190px;
+  gap: 7px;
+  padding-top: 18px;
+}
 #dynMonth .bar-fill { background: var(--surface-sunk); }
 #dynMonth .bar-col[aria-pressed="true"] .bar-fill { box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
 #dynMonth .bar-name, #dynMonth .bar-val { font-weight: 650; }
@@ -2224,7 +2228,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   align-items: end;
   gap: 7px;
   height: 100%;
-  padding: 7px 1px 3px;
+  padding: 22px 1px 3px;
 }
 #dynYear .hbar {
   display: flex;
