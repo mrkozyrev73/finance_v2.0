@@ -44,6 +44,9 @@
   --accent-soft:   #E6F5ED;
   --accent-line:   rgba(24,164,107,.24);
   --accent-nav:    #72D5A4;
+  --accent-muted:  #A9DDC5;
+  --warning:       #A0803F;
+  --nav-bg:        #15201A;
 
   --danger:        #C0614C;
   --danger-soft:   #FAEDE9;
@@ -676,7 +679,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   color: #fff;
 }
 .swipe-action svg { width: 17px; height: 17px; }
-.swipe-action--edit { background: #7C8C85; }
+.swipe-action--edit { background: var(--text-2); }
 .swipe-action--del  { background: var(--danger); }
 
 .swipe-body {
@@ -785,7 +788,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   color: var(--text-3);
   font-weight: 560;
 }
-.income-flag--expected { color: #A0803F; }
+.income-flag--expected { color: var(--warning); }
 
 .swipe-hint {
   position: absolute;
@@ -981,7 +984,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   position: relative;
   height: 100%;
   border-radius: var(--r-pill);
-  background: #A9DDC5;
+  background: var(--accent-muted);
   transform-origin: left center;
   transition: width var(--dur-slow) var(--ease), background var(--dur) var(--ease-io);
 }
@@ -2198,7 +2201,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #dynSlot { margin-top: 17px !important; min-height: 238px; height: 238px; }
 #dynMonth, #dynYear { padding: 3px 1px 0; }
 #dynMonth .bars { height: 190px; gap: 7px; }
-#dynMonth .bar-fill { background: #E9EFEC; }
+#dynMonth .bar-fill { background: var(--surface-sunk); }
 #dynMonth .bar-col[aria-pressed="true"] .bar-fill { box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
 #dynMonth .bar-name, #dynMonth .bar-val { font-weight: 650; }
 #dynYear .hbars { gap: 8px; padding: 7px 2px 3px; }
