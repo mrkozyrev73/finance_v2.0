@@ -2037,13 +2037,20 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .hero {
   min-height: 0;
   padding: 20px 0 8px;
-  background: radial-gradient(ellipse 68% 96% at 50% 38%, rgba(255,255,255,.82) 0%, rgba(255,255,255,.44) 52%, rgba(255,255,255,0) 100%);
+  background: transparent;
   border-radius: 28px;
   border: 0;
   border-radius: 0;
   box-shadow: none;
 }
-.hero::before,
+.hero::before {
+  display: block;
+  inset: 10px 0 0;
+  border-radius: 28px;
+  background: radial-gradient(ellipse 68% 96% at 50% 38%, rgba(255,255,255,.82) 0%, rgba(255,255,255,.44) 52%, rgba(255,255,255,0) 100%);
+  box-shadow: none;
+  z-index: -1;
+}
 .hero::after { display: none; }
 .hero-label {
   color: var(--text-2);
