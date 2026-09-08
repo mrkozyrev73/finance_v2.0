@@ -49,7 +49,6 @@ const Sync = (() => {
   let lastRemoteStamp = null;
   let householdId = localStorage.getItem('income-supabase-household-v1') || '';
   let revision = Number(localStorage.getItem('income-supabase-revision-v1') || 0);
-  let pulledRemote = false;
   let libLoading = null;
   let builtIn = false;       // адрес зашит в файл — не спрашиваем его
 
@@ -191,7 +190,11 @@ const Sync = (() => {
     setStatus('connecting', 'Загружаем данные…');
     try {
       await pull();
-      if (!pulledRemote) await push(true);
+      // После pull в локальном состоянии может оставаться то, чего ещё нет
+      // в удалённой записи (например, сейф, вклады или кредиты). Состояния
+      // уже объединены по записям, поэтому безопасно сохранить результат
+      // всегда — так первое подключение переносит весь набор данных.
+      await push(true);
       subscribeRealtime();
       setStatus('on');
     } catch (e) {
@@ -239,7 +242,6 @@ const Sync = (() => {
       .maybeSingle();
     if (error) throw error;
     if (!data) { lastSyncAt = Date.now(); return null; }
-    pulledRemote = true;
     const remote = normalizeLegacyPayload(data.data, data.updated_at);
     applyRemote(remote, data.updated_at);
     return remote;
