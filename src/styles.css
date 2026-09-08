@@ -2018,7 +2018,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .hero {
   min-height: 0;
   padding: 20px 0 8px;
-  background: transparent;
+  background: radial-gradient(ellipse 78% 92% at 50% 34%, rgba(25,155,102,.085) 0%, rgba(25,155,102,.035) 42%, transparent 76%);
   border: 0;
   border-radius: 0;
   box-shadow: none;
