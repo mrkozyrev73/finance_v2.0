@@ -6207,7 +6207,14 @@ const Sync = (() => {
   }
 
   function normalizeLegacyPayload(payload, updatedAt) {
-    if (payload?.incomes || payload?.financeSnapshots) return payload;
+    if (payload?.incomes || payload?.financeSnapshots) {
+      const repaired = Object.assign({}, payload);
+      repaired.incomes = (payload.incomes || []).map((item, index) => Object.assign({}, item, {
+        id: String(item.id || 'income-' + index),
+        title: item.title || item.name || item.label || item.description || 'Доход'
+      }));
+      return repaired;
+    }
     const remote = { schema: 1, incomes: [], categories: [], recurring: [], historical: [], deposits: [], credits: [], notes: [], history: [], financeSnapshots: [], safe: null, settings: {} };
     const categories = new Map();
     (payload?.categories || []).forEach((name, index) => {
