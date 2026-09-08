@@ -167,8 +167,9 @@ const Sheet = (() => {
       });
     });
 
-    const auto = $('[data-autofocus]', bodyEl);
-    if (auto) setTimeout(() => auto.focus({ preventScroll: true }), 260);
+    // Не открываем клавиатуру автоматически: на iPhone это меняет visual
+    // viewport во время появления листа и вызывает заметный рывок экрана.
+    // Поле получает фокус только после явного нажатия пользователя.
   }
 
   function closeNow() {
