@@ -6217,6 +6217,10 @@ const Sync = (() => {
   function normalizeLegacyPayload(payload, updatedAt) {
     if (payload?.incomes || payload?.financeSnapshots) {
       const repaired = Object.assign({}, payload);
+      const palette = new Map((typeof DEFAULT_CATEGORIES !== 'undefined' ? DEFAULT_CATEGORIES : []).map(item => [item.name, item.color]));
+      repaired.categories = (payload.categories || []).map(item => Object.assign({}, item, {
+        color: item.color && item.color !== '#7C8C85' ? item.color : (palette.get(item.name) || item.color || '#7C8C85')
+      }));
       repaired.incomes = (payload.incomes || []).map((item, index) => Object.assign({}, item, {
         id: String(item.id || 'income-' + index),
         title: item.title || item.name || item.label || item.description || 'Доход'
@@ -6227,11 +6231,17 @@ const Sync = (() => {
     const categories = new Map();
     (payload?.categories || []).forEach((name, index) => {
       const label = typeof name === 'string' ? name : name.name;
-      if (label) categories.set(label, { id: name.id || 'legacy-cat-' + index, name: label, color: name.color || '#7C8C85', order: index, updatedAt: updatedAt });
+      if (label) {
+        const palette = typeof DEFAULT_CATEGORIES !== 'undefined' ? DEFAULT_CATEGORIES.find(item => item.name === label) : null;
+        categories.set(label, { id: name.id || 'legacy-cat-' + index, name: label, color: name.color || palette?.color || '#7C8C85', order: index, updatedAt: updatedAt });
+      }
     });
     (payload?.items || []).forEach((item, index) => {
       const category = item.category || 'Прочее';
-      if (!categories.has(category)) categories.set(category, { id: 'legacy-cat-' + category, name: category, color: '#7C8C85', order: categories.size, updatedAt });
+      if (!categories.has(category)) {
+        const palette = typeof DEFAULT_CATEGORIES !== 'undefined' ? DEFAULT_CATEGORIES.find(item => item.name === category) : null;
+        categories.set(category, { id: 'legacy-cat-' + category, name: category, color: palette?.color || '#7C8C85', order: categories.size, updatedAt });
+      }
       remote.incomes.push({ id: String(item.id || 'legacy-income-' + index), title: item.title || item.name || item.label || 'Доход', amount: Number(item.amount) || 0, categoryId: categories.get(category).id, status: item.status === 'received' ? 'received' : 'expected', date: item.date || null, month: item.month, createdAt: item.createdAt || item.updatedAt || updatedAt, updatedAt: item.updatedAt || updatedAt, deletedAt: null });
     });
     remote.categories = [...categories.values()];
