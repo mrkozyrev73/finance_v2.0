@@ -2562,17 +2562,37 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .appbar::after { display: none; }
 .tabbar {
-  background: #15201A;
+  padding: 8px var(--gutter) calc(8px + env(safe-area-inset-bottom, 0px));
+  background: transparent;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  box-shadow: 0 -10px 26px rgba(21,32,26,.12);
+  box-shadow: none;
   border-top: 0;
 }
-.tabbar .tab { color: rgba(255,255,255,.58); }
-.tabbar .tab[aria-selected="true"] { color: var(--accent-press); }
+.tabbar-inner {
+  height: 56px;
+  padding: 4px;
+  border-radius: 21px;
+  background: #15201A;
+  box-shadow: 0 8px 22px rgba(21,32,26,.16), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.tabbar .tab {
+  color: rgba(255,255,255,.58);
+  z-index: 1;
+  transition: color var(--dur-fast) var(--ease-io), transform var(--dur-fast) var(--ease);
+}
+.tabbar .tab[aria-selected="true"] { color: #fff; }
+.tabbar .tab svg { transition: transform var(--dur-fast) var(--ease); }
+.tabbar .tab[aria-selected="true"] svg { transform: translateY(-1px) scale(1.04); }
 .tabbar .tab-pill {
-  background: #F5F7F6;
-  box-shadow: 0 3px 12px rgba(0,0,0,.18);
+  top: 4px;
+  height: 48px;
+  border-radius: 17px;
+  background: #1FA36D;
+  box-shadow: 0 4px 12px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.12);
+}
+.tabbar-inner[data-ready] .tab-pill {
+  transition: transform 420ms cubic-bezier(.22,1,.36,1), width 420ms cubic-bezier(.22,1,.36,1);
 }
 
 /* Единый кегль заголовков секций во всём приложении. */
