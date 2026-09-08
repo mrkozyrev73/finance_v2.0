@@ -2016,7 +2016,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 
 /* Главный итог — акцентная композиция без карточной подложки. */
 .hero {
-  min-height: 300px;
+  min-height: 0;
   padding: 24px 0 20px;
   background: transparent;
   border: 0;
@@ -2039,6 +2039,8 @@ button, input, select, textarea { font-optical-sizing: auto; }
   font-weight: 760;
 }
 .hero-split {
+  width: min(100%, 360px);
+  margin-inline: auto;
   gap: 8px;
   margin-top: 28px;
   padding-top: 14px;
