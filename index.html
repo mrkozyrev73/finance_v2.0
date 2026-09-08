@@ -2689,10 +2689,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .appbar::after { display: none; }
 .tabbar {
   padding: 6px var(--gutter) calc(6px + env(safe-area-inset-bottom, 0px));
-  background: var(--text);
+  background: var(--surface);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  box-shadow: 0 -10px 26px rgba(21,32,26,.12);
+  box-shadow: 0 -8px 24px rgba(21,32,26,.06);
   border-top: 0;
 }
 .tabbar-inner {
@@ -2703,19 +2703,19 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   box-shadow: none;
 }
 .tabbar .tab {
-  color: rgba(255,255,255,.58);
+  color: var(--text-3);
   z-index: 1;
   transition: color var(--dur-fast) var(--ease-io), transform var(--dur-fast) var(--ease);
 }
-.tabbar .tab[aria-selected="true"] { color: #fff; }
+.tabbar .tab[aria-selected="true"] { color: var(--accent-press); }
 .tabbar .tab svg { transition: transform var(--dur-fast) var(--ease); }
-.tabbar .tab[aria-selected="true"] svg { transform: translateY(-1px) scale(1.04); color: var(--accent-nav); }
+.tabbar .tab[aria-selected="true"] svg { transform: translateY(-1px) scale(1.04); color: var(--accent-press); }
 .tabbar .tab-pill {
   top: auto;
   bottom: 0;
-  height: 3px;
+  height: 2px;
   border-radius: 999px;
-  background: var(--accent-nav);
+  background: var(--accent-press);
   box-shadow: none;
 }
 .tabbar-inner[data-ready] .tab-pill {
