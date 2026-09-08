@@ -255,8 +255,11 @@ const IncomeList = (() => {
 function toggleReceived(id) {
   const rec = Store.byId('incomes', id);
   if (!rec) return;
+  const before = Data.totalsOf(View.key);
   const next = rec.status === 'received' ? 'expected' : 'received';
   Store.patch('incomes', id, { status: next }, rec.title);
+  const after = Data.totalsOf(View.key);
+  Home.animateTotals(before, after);
   Toast.show(next === 'received'
     ? '«' + (rec.title || 'Доход') + '» отмечен полученным'
     : '«' + (rec.title || 'Доход') + '» снова ожидается', {
@@ -591,7 +594,33 @@ const Home = (() => {
     IncomeList.render(filtered());
   }
 
-  return { mount, render };
+  let countFrame = 0;
+
+  function animateTotals(from, to) {
+    const nodes = [
+      [$('#heroReceived'), from.received, to.received],
+      [$('#heroExpected'), from.expected, to.expected],
+      [$('#heroTotal'), from.total, to.total]
+    ];
+    if (prefersReducedMotion()) {
+      nodes.forEach(([node, , value]) => setText(node, money(value)));
+      return;
+    }
+    cancelAnimationFrame(countFrame);
+    const started = performance.now();
+    const duration = 240;
+    const tick = (time) => {
+      const progress = Math.min(1, (time - started) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      nodes.forEach(([node, fromValue, toValue]) => {
+        setText(node, money(fromValue + (toValue - fromValue) * eased));
+      });
+      if (progress < 1) countFrame = requestAnimationFrame(tick);
+    };
+    countFrame = requestAnimationFrame(tick);
+  }
+
+  return { mount, render, animateTotals };
 })();
 
 /* ------------------------------------------------------------
