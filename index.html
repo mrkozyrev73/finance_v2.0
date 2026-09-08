@@ -2922,6 +2922,29 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-home #incomeStatus[data-state="received"]::before { background: var(--accent-muted); }
 #scr-home #incomeStatus[data-state="empty"]::before { display: none; }
 
+/* Уведомления — лёгкий системный материал вместо тяжёлой чёрной плашки. */
+.toast {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F5FAF7 100%);
+  color: var(--text);
+  border: 1px solid rgba(22,32,27,.07);
+  box-shadow: 0 8px 24px rgba(21,32,26,.12), 0 1px 3px rgba(21,32,26,.05);
+  transform: translateY(8px) scale(.985);
+  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease-io);
+}
+.toast[data-in] { transform: translateY(0) scale(1); }
+.toast button { color: var(--accent-press); }
+.toast--err {
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFF6F3 100%);
+  color: var(--text);
+  border-color: rgba(192,97,76,.16);
+}
+.toast--err button { color: var(--danger); }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast[data-in] { transform: none; }
+}
+
 /* Кнопка добавления дохода повторяет зелёный перелив текущего месяца на графике. */
 #scr-home #addIncome {
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
