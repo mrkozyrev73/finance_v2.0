@@ -2896,6 +2896,31 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 #scr-home #incomeList .income-flag { margin-top: 2px; }
 
+/* Статус доходов живёт в одной строке с заголовком — легче и быстрее считывается. */
+#scr-home .section-head:has(#incomeStatus) { align-items: baseline; }
+#scr-home #incomeStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--fs-xs);
+  line-height: 1.2;
+  color: var(--text-3);
+}
+#scr-home #incomeStatus::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+#scr-home #incomeStatus[data-state="expected"] { color: var(--warning); }
+#scr-home #incomeStatus[data-state="expected"]::before { background: var(--warning); }
+#scr-home #incomeStatus[data-state="received"]::before { background: var(--accent-muted); }
+#scr-home #incomeStatus[data-state="empty"]::before { display: none; }
+
 /* Кнопка добавления дохода повторяет зелёный перелив текущего месяца на графике. */
 #scr-home #addIncome {
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
@@ -2987,10 +3012,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
       <div class="section">
         <div class="section-head">
-          <div>
-            <h2 class="section-title">Доходы</h2>
-            <p class="section-sub fade-swap" id="incomeStatus">Всё получено</p>
-          </div>
+          <h2 class="section-title">Доходы</h2>
+          <p class="section-sub fade-swap" id="incomeStatus">Всё получено</p>
         </div>
 
         <button class="btn btn--block" id="addIncome" type="button">
@@ -5013,6 +5036,7 @@ const Home = (() => {
     const statusText = !all.length ? 'Записей нет'
       : counts.expected === 0 ? 'Всё получено'
       : counts.expected + ' ' + plural(counts.expected, 'доход ожидается', 'дохода ожидаются', 'доходов ожидаются');
+    setAttr($('#incomeStatus'), 'data-state', !all.length ? 'empty' : counts.expected ? 'expected' : 'received');
     softSwap($('#incomeStatus'), () => setText($('#incomeStatus'), statusText));
 
     IncomeList.render(filtered());

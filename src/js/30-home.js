@@ -585,6 +585,7 @@ const Home = (() => {
     const statusText = !all.length ? 'Записей нет'
       : counts.expected === 0 ? 'Всё получено'
       : counts.expected + ' ' + plural(counts.expected, 'доход ожидается', 'дохода ожидаются', 'доходов ожидаются');
+    setAttr($('#incomeStatus'), 'data-state', !all.length ? 'empty' : counts.expected ? 'expected' : 'received');
     softSwap($('#incomeStatus'), () => setText($('#incomeStatus'), statusText));
 
     IncomeList.render(filtered());

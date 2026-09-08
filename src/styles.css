@@ -2877,6 +2877,31 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 #scr-home #incomeList .income-flag { margin-top: 2px; }
 
+/* Статус доходов живёт в одной строке с заголовком — легче и быстрее считывается. */
+#scr-home .section-head:has(#incomeStatus) { align-items: baseline; }
+#scr-home #incomeStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--fs-xs);
+  line-height: 1.2;
+  color: var(--text-3);
+}
+#scr-home #incomeStatus::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+#scr-home #incomeStatus[data-state="expected"] { color: var(--warning); }
+#scr-home #incomeStatus[data-state="expected"]::before { background: var(--warning); }
+#scr-home #incomeStatus[data-state="received"]::before { background: var(--accent-muted); }
+#scr-home #incomeStatus[data-state="empty"]::before { display: none; }
+
 /* Кнопка добавления дохода повторяет зелёный перелив текущего месяца на графике. */
 #scr-home #addIncome {
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
