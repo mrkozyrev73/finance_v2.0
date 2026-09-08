@@ -68,6 +68,9 @@ function boot() {
   Fin.mount();
   Settings.mount();
 
+  // Первый месяц с данными — база, а не изменение.
+  Store.ensureFinanceBaseline(View.key);
+
   // Восстанавливаем режим динамики и вкладку из настроек
   const s = Store.state.settings || {};
   if (s.dynMode === 'year') {

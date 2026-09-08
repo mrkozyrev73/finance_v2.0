@@ -237,6 +237,20 @@ const Store = (() => {
       return (state[name] || []).find(r => r.id === id) || null;
     },
 
+    /** Первый месяц с финансовыми данными — стартовая точка аудита. */
+    ensureFinanceBaseline(key) {
+      if (state.settings && state.settings.financeBaselineKey) return;
+      const safe = state.safe || {};
+      const hasFinanceData = Number(safe.amount) > 0 || api.list('deposits').length > 0 || api.list('credits').length > 0;
+      if (!hasFinanceData) return;
+      api.update(s => {
+        s.settings = Object.assign({}, s.settings, {
+          financeBaselineKey: key,
+          updatedAt: now()
+        });
+      }, 'finance:baseline');
+    },
+
     /** Снимок финансов на момент ручного изменения — для помесячного аудита. */
     recordFinanceSnapshot() {
       const safe = state.safe || {};
@@ -253,6 +267,12 @@ const Store = (() => {
         const list = s.financeSnapshots || (s.financeSnapshots = []);
         const last = list[list.length - 1];
         if (last && ['safe', 'deposits', 'credits', 'payments'].every(k => last[k] === snapshot[k])) return;
+        if (!s.settings.financeBaselineKey && (snapshot.safe > 0 || snapshot.deposits > 0 || snapshot.credits > 0 || snapshot.payments > 0)) {
+          s.settings = Object.assign({}, s.settings, {
+            financeBaselineKey: keyOf(new Date(snapshot.at)),
+            updatedAt: now()
+          });
+        }
         list.push(stampNew(snapshot));
         if (list.length > 240) list.splice(0, list.length - 240);
       }, 'finance:snapshot');

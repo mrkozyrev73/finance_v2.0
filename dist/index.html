@@ -3517,6 +3517,20 @@ const Store = (() => {
       return (state[name] || []).find(r => r.id === id) || null;
     },
 
+    /** Первый месяц с финансовыми данными — стартовая точка аудита. */
+    ensureFinanceBaseline(key) {
+      if (state.settings && state.settings.financeBaselineKey) return;
+      const safe = state.safe || {};
+      const hasFinanceData = Number(safe.amount) > 0 || api.list('deposits').length > 0 || api.list('credits').length > 0;
+      if (!hasFinanceData) return;
+      api.update(s => {
+        s.settings = Object.assign({}, s.settings, {
+          financeBaselineKey: key,
+          updatedAt: now()
+        });
+      }, 'finance:baseline');
+    },
+
     /** Снимок финансов на момент ручного изменения — для помесячного аудита. */
     recordFinanceSnapshot() {
       const safe = state.safe || {};
@@ -3533,6 +3547,12 @@ const Store = (() => {
         const list = s.financeSnapshots || (s.financeSnapshots = []);
         const last = list[list.length - 1];
         if (last && ['safe', 'deposits', 'credits', 'payments'].every(k => last[k] === snapshot[k])) return;
+        if (!s.settings.financeBaselineKey && (snapshot.safe > 0 || snapshot.deposits > 0 || snapshot.credits > 0 || snapshot.payments > 0)) {
+          s.settings = Object.assign({}, s.settings, {
+            financeBaselineKey: keyOf(new Date(snapshot.at)),
+            updatedAt: now()
+          });
+        }
         list.push(stampNew(snapshot));
         if (list.length > 240) list.splice(0, list.length - 240);
       }, 'finance:snapshot');
@@ -5627,7 +5647,9 @@ const Fin = (() => {
     const current = snapshots.filter(s => s.at <= currentEnd).pop();
     const previous = snapshots.filter(s => s.at <= previousEnd).pop();
     const baseline = previous;
-    const period = () => setText($('#finAuditPeriod'), previous ? previousKey.replace('-', ' / ') : 'нет данных');
+    const baselineKey = Store.state.settings?.financeBaselineKey || null;
+    const isBaselineMonth = baselineKey === key;
+    const period = () => setText($('#finAuditPeriod'), isBaselineMonth ? 'базовый месяц' : (previous ? previousKey.replace('-', ' / ') : 'нет данных'));
     period();
     const paint = (id, value, kind) => {
       const node = $('#' + id);
@@ -5642,10 +5664,10 @@ const Fin = (() => {
       };
       soft ? softSwap(node, apply) : apply();
     };
-    paint('finAuditSafe', current && baseline ? current.safe - baseline.safe : 0, 'safe');
-    paint('finAuditDeposits', current && baseline ? current.deposits - baseline.deposits : 0, 'deposits');
-    paint('finAuditPayments', current && baseline ? current.payments - baseline.payments : 0, 'payments');
-    paint('finAuditCredits', current && baseline ? current.credits - baseline.credits : 0, 'credits');
+    paint('finAuditSafe', !isBaselineMonth && current && baseline ? current.safe - baseline.safe : 0, 'safe');
+    paint('finAuditDeposits', !isBaselineMonth && current && baseline ? current.deposits - baseline.deposits : 0, 'deposits');
+    paint('finAuditPayments', !isBaselineMonth && current && baseline ? current.payments - baseline.payments : 0, 'payments');
+    paint('finAuditCredits', !isBaselineMonth && current && baseline ? current.credits - baseline.credits : 0, 'credits');
   }
 
   function signedMoney(value) {
@@ -6912,6 +6934,9 @@ function boot() {
   Stats.mount();
   Fin.mount();
   Settings.mount();
+
+  // Первый месяц с данными — база, а не изменение.
+  Store.ensureFinanceBaseline(View.key);
 
   // Восстанавливаем режим динамики и вкладку из настроек
   const s = Store.state.settings || {};
