@@ -289,7 +289,7 @@ const Settings = (() => {
 
   /* ---------- Ранее заработанные доходы ---------- */
 
-  const FIRST_YEAR = 2023;
+  const FIRST_YEAR = 2022;
 
   function openHistorical() {
     const nowY = new Date().getFullYear();

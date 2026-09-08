@@ -353,7 +353,9 @@ const Fin = (() => {
     const current = snapshots.filter(s => s.at <= currentEnd).pop();
     const previous = snapshots.filter(s => s.at <= previousEnd).pop();
     const baseline = previous;
-    const period = () => setText($('#finAuditPeriod'), previous ? previousKey.replace('-', ' / ') : 'нет данных');
+    const baselineKey = Store.state.settings?.financeBaselineKey || null;
+    const isBaselineMonth = baselineKey === key;
+    const period = () => setText($('#finAuditPeriod'), isBaselineMonth ? 'базовый месяц' : (previous ? previousKey.replace('-', ' / ') : 'нет данных'));
     period();
     const paint = (id, value, kind) => {
       const node = $('#' + id);
@@ -368,10 +370,10 @@ const Fin = (() => {
       };
       soft ? softSwap(node, apply) : apply();
     };
-    paint('finAuditSafe', current && baseline ? current.safe - baseline.safe : 0, 'safe');
-    paint('finAuditDeposits', current && baseline ? current.deposits - baseline.deposits : 0, 'deposits');
-    paint('finAuditPayments', current && baseline ? current.payments - baseline.payments : 0, 'payments');
-    paint('finAuditCredits', current && baseline ? current.credits - baseline.credits : 0, 'credits');
+    paint('finAuditSafe', !isBaselineMonth && current && baseline ? current.safe - baseline.safe : 0, 'safe');
+    paint('finAuditDeposits', !isBaselineMonth && current && baseline ? current.deposits - baseline.deposits : 0, 'deposits');
+    paint('finAuditPayments', !isBaselineMonth && current && baseline ? current.payments - baseline.payments : 0, 'payments');
+    paint('finAuditCredits', !isBaselineMonth && current && baseline ? current.credits - baseline.credits : 0, 'credits');
   }
 
   function signedMoney(value) {
