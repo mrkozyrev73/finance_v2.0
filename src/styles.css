@@ -2209,15 +2209,18 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #dynSlot { margin-top: 17px !important; min-height: 238px; height: 238px; }
 #dynMonth, #dynYear { padding: 3px 1px 0; }
 #dynMonth .bars {
-  height: 190px;
+  height: 100%;
   gap: 7px;
-  padding-top: 7px;
+  padding: 7px 1px 3px;
 }
 #dynMonth .bar-track {
   background: var(--accent-soft);
   border-radius: var(--r-ctl);
 }
-#dynMonth .bar-fill { background: var(--accent-muted); }
+#dynMonth .bar-fill,
+#dynYear .hbar-fill {
+  background: linear-gradient(180deg, #B8E2CF 0%, var(--accent-muted) 100%);
+}
 #dynMonth .bar-col[aria-pressed="true"] .bar-fill { box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
 #dynMonth .bar-name, #dynMonth .bar-val { font-weight: 650; }
 #dynYear .hbars { gap: 8px; padding: 7px 2px 3px; }
@@ -2323,9 +2326,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 /* Текущий месяц использует тот же зелёный акцент, что и положительная динамика в аудите. */
 #dynMonth .bar-col[data-current] .bar-fill,
 #dynMonth .bar-col[data-current][aria-pressed="true"] .bar-fill {
-  background: var(--accent-press);
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
 }
-#dynYear .hbar[data-current] .hbar-fill { background: var(--accent-press); }
+#dynMonth .bar-col[aria-pressed="true"] .bar-fill,
+#dynYear .hbar[aria-pressed="true"] .hbar-fill,
+#dynYear .hbar[data-current] .hbar-fill {
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
+}
 #dynYear .hbar[data-current] .hbar-name,
 #dynYear .hbar[data-current] .hbar-val { color: var(--accent-press); }
 
