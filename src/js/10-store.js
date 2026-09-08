@@ -333,7 +333,9 @@ const Store = (() => {
       api.update(s => {
         const rec = s[name].find(r => r.id === id);
         if (!rec) return;
-        Object.assign(rec, data, { updatedAt: now() });
+        // Даже два изменения в одну миллисекунду должны иметь устойчивый порядок.
+        const updatedAt = Math.max(now(), (Number(rec.updatedAt) || 0) + 1);
+        Object.assign(rec, data, { updatedAt });
         pushHistory(s, 'update', name, rec, logLabel);
       }, 'patch:' + name);
     },

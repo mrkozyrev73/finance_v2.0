@@ -278,7 +278,11 @@ function toggleReceived(id) {
   if (!rec) return;
   const before = Data.totalsOf(View.key);
   const next = rec.status === 'received' ? 'expected' : 'received';
-  Store.patch('incomes', id, { status: next }, rec.title);
+  const statusChangedAt = Math.max(Date.now(), Number(rec.statusChangedAt) || 0) + 1;
+  const receivedOrder = next === 'received'
+    ? Store.list('incomes').reduce((max, item) => Math.max(max, Number(item.receivedOrder) || 0), 0) + 1
+    : (Number(rec.receivedOrder) || 0);
+  Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, rec.title);
   const after = Data.totalsOf(View.key);
   Home.animateTotals(before, after);
   Toast.show(next === 'received'
@@ -584,7 +588,18 @@ const Home = (() => {
       const groupA = a.status === 'expected' ? 0 : 1;
       const groupB = b.status === 'expected' ? 0 : 1;
       if (groupA !== groupB) return groupA - groupB;
-      return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
+      if (a.status === 'received') {
+        const hasOrderA = Number(a.receivedOrder) > 0;
+        const hasOrderB = Number(b.receivedOrder) > 0;
+        if (hasOrderA !== hasOrderB) return hasOrderA ? -1 : 1;
+      }
+      const timeA = a.status === 'received'
+        ? (Number(a.receivedOrder) > 0 ? a.receivedOrder : (a.statusChangedAt || a.updatedAt || a.createdAt || 0))
+        : (a.updatedAt || a.createdAt || 0);
+      const timeB = b.status === 'received'
+        ? (Number(b.receivedOrder) > 0 ? b.receivedOrder : (b.statusChangedAt || b.updatedAt || b.createdAt || 0))
+        : (b.updatedAt || b.createdAt || 0);
+      return timeB - timeA;
     });
   }
 
