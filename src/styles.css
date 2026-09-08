@@ -2356,6 +2356,16 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-fin .fin-chev { color: var(--text-3); }
 #scr-fin .fin-card--credit { background: var(--surface); }
 #scr-fin .row-gap { gap: 10px; }
+#scr-fin .fin-swipe {
+  border-radius: var(--r-card);
+  background: var(--surface);
+}
+#scr-fin .fin-swipe .swipe-body {
+  border: 0;
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+}
+#scr-fin .fin-swipe .fin-card:active { transform: none; }
 #scr-fin .empty {
   padding: 17px 14px;
   border-radius: var(--r-inner);

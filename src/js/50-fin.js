@@ -50,10 +50,19 @@ const Fin = (() => {
   const credNodes = new Map();
 
   function mount() {
-    $('#safeCard').addEventListener('click', openSafe);
+    const safeCard = $('#safeCard');
+    safeCard.classList.add('swipe-body');
+    const safeRow = wrapFinanceCard(safeCard, 'fin-safe', openSafe, clearSafe, 'сейф');
+    safeCard.addEventListener('click', openSafe);
     $('#safeAdd').addEventListener('click', openSafe);
     $('#depAdd').addEventListener('click', () => openDeposit(null));
     $('#creditAdd').addEventListener('click', () => openCredit(null));
+  }
+
+  function clearSafe() {
+    Store.setSingleton('safe', { name: 'Наличные дома', amount: 0 });
+    Store.recordFinanceSnapshot();
+    Toast.show('Сейф удалён');
   }
 
   function openMenu() {
@@ -390,7 +399,7 @@ const Fin = (() => {
     const meta = el('p', { class: 'fin-meta' });
     const amount = el('p', { class: 'fin-amount' });
     const rate = el('span', { class: 'fin-rate' });
-    const root = el('button', { class: 'fin-card', type: 'button' }, [
+    const card = el('button', { class: 'fin-card swipe-body', type: 'button' }, [
       el('span', { class: 'fin-icon fin-icon--dep' }, [icon('coins')]),
       el('span', { class: 'fin-body' }, [name, meta]),
       el('span', { class: 'fin-side' }, [
@@ -398,7 +407,9 @@ const Fin = (() => {
         el('span', { class: 'fin-chev' }, [icon('right', 17)])
       ])
     ]);
-    root.addEventListener('click', () => depositDetail(rec.id));
+    card.addEventListener('click', () => depositDetail(rec.id));
+    const root = wrapFinanceCard(card, 'fin-deposit-' + rec.id,
+      () => depositDetail(rec.id), () => removeDeposit(rec.id), 'вклад');
     return { root, name, meta, amount, rate };
   }
 
@@ -416,7 +427,7 @@ const Fin = (() => {
     const meta = el('p', { class: 'fin-meta' });
     const amount = el('p', { class: 'fin-amount' });
     const rate = el('span', { class: 'fin-rate' });
-    const root = el('button', { class: 'fin-card fin-card--credit', type: 'button' }, [
+    const card = el('button', { class: 'fin-card fin-card--credit swipe-body', type: 'button' }, [
       el('span', { class: 'fin-icon fin-icon--credit' }, [icon('bank')]),
       el('span', { class: 'fin-body' }, [name, meta]),
       el('span', { class: 'fin-side' }, [
@@ -424,7 +435,9 @@ const Fin = (() => {
         el('span', { class: 'fin-chev' }, [icon('right', 17)])
       ])
     ]);
-    root.addEventListener('click', () => creditDetail(rec.id));
+    card.addEventListener('click', () => creditDetail(rec.id));
+    const root = wrapFinanceCard(card, 'fin-credit-' + rec.id,
+      () => creditDetail(rec.id), () => removeCredit(rec.id), 'кредит');
     return { root, name, meta, amount, rate };
   }
 
@@ -438,6 +451,44 @@ const Fin = (() => {
 
   return { mount, render, creditDetail };
 })();
+
+function wrapFinanceCard(card, id, edit, remove, label) {
+  const actions = el('div', { class: 'swipe-actions' }, [
+    el('button', {
+      class: 'swipe-action swipe-action--edit', type: 'button',
+      'aria-label': 'Изменить ' + label,
+      onclick: (e) => { e.stopPropagation(); Swipe.closeAll(); edit(); }
+    }, [icon('pencil'), el('span', { text: 'Изменить' })]),
+    el('button', {
+      class: 'swipe-action swipe-action--del', type: 'button',
+      'aria-label': 'Удалить ' + label,
+      onclick: (e) => { e.stopPropagation(); Swipe.closeAll(); remove(); }
+    }, [icon('trash'), el('span', { text: 'Удалить' })])
+  ]);
+  const row = el('div', { class: 'swipe fin-swipe' }, [actions, card]);
+  Swipe.attach(row, card, id);
+  return row;
+}
+
+function removeDeposit(id) {
+  const rec = Store.byId('deposits', id);
+  if (!rec) return;
+  Store.remove('deposits', id, rec.name);
+  Store.recordFinanceSnapshot();
+  Toast.show('Вклад в корзине', {
+    action: { label: 'Вернуть', run: () => Store.restore('deposits', id) }
+  });
+}
+
+function removeCredit(id) {
+  const rec = Store.byId('credits', id);
+  if (!rec) return;
+  Store.remove('credits', id, rec.name);
+  Store.recordFinanceSnapshot();
+  Toast.show('Кредит в корзине', {
+    action: { label: 'Вернуть', run: () => Store.restore('credits', id) }
+  });
+}
 
 /* ---------- Помощники форм ---------- */
 
