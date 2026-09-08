@@ -2878,7 +2878,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-home #incomeList .income-flag { margin-top: 2px; }
 
 /* Статус доходов живёт в одной строке с заголовком — легче и быстрее считывается. */
-#scr-home .section-head:has(#incomeStatus) { align-items: baseline; }
+#scr-home > .section:nth-child(2) { margin-top: 17px; }
+#scr-home .section-head:has(#incomeStatus) { align-items: center; }
 #scr-home #incomeStatus {
   display: inline-flex;
   align-items: center;
@@ -2887,7 +2888,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   white-space: nowrap;
   font-size: var(--fs-xs);
   line-height: 1.2;
-  color: var(--text-3);
+  color: var(--text-2);
 }
 #scr-home #incomeStatus::before {
   content: "";
@@ -2897,8 +2898,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   border-radius: 50%;
   background: var(--text-3);
 }
-#scr-home #incomeStatus[data-state="expected"] { color: var(--warning); }
-#scr-home #incomeStatus[data-state="expected"]::before { background: var(--warning); }
+#scr-home #incomeStatus[data-state="expected"] { color: var(--text-2); }
+#scr-home #incomeStatus[data-state="expected"]::before { background: var(--text-3); }
 #scr-home #incomeStatus[data-state="received"]::before { background: var(--accent-muted); }
 #scr-home #incomeStatus[data-state="empty"]::before { display: none; }
 
