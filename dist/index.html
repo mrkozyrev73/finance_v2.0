@@ -5133,7 +5133,10 @@ const Fin = (() => {
   function mount() {
     const safeCard = $('#safeCard');
     safeCard.classList.add('swipe-body');
+    const safeHost = safeCard.parentNode;
+    const safeAfter = safeCard.nextSibling;
     const safeRow = wrapFinanceCard(safeCard, 'fin-safe', openSafe, clearSafe, 'сейф');
+    safeHost.insertBefore(safeRow, safeAfter);
     safeCard.addEventListener('click', openSafe);
     $('#safeAdd').addEventListener('click', openSafe);
     $('#depAdd').addEventListener('click', () => openDeposit(null));
