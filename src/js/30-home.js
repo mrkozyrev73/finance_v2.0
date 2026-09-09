@@ -304,6 +304,10 @@ const IncomeList = (() => {
 function toggleReceived(id) {
   const rec = Store.byId('incomes', id);
   if (!rec) return;
+  const previousStatus = rec.status;
+  const previousStatusChangedAt = rec.statusChangedAt;
+  const previousReceivedOrder = rec.receivedOrder;
+  const title = rec.title;
   const before = Data.totalsOf(View.key);
   const next = rec.status === 'received' ? 'expected' : 'received';
   haptic(next === 'received' ? 'success' : 'light');
@@ -311,14 +315,21 @@ function toggleReceived(id) {
   const receivedOrder = next === 'received'
     ? Store.list('incomes').reduce((max, item) => Math.max(max, Number(item.receivedOrder) || 0), 0) + 1
     : (Number(rec.receivedOrder) || 0);
-  Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, rec.title);
+  Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, title);
   Home.flashIncome(id);
   const after = Data.totalsOf(View.key);
   Home.animateTotals(before, after);
   Toast.show(next === 'received'
     ? '«' + (rec.title || 'Доход') + '» отмечен полученным'
     : '«' + (rec.title || 'Доход') + '» снова ожидается', {
-    action: { label: 'Отменить', run: () => Store.patch('incomes', id, { status: rec.status }, rec.title) }
+    action: {
+      label: 'Отменить',
+      run: () => Store.patch('incomes', id, {
+        status: previousStatus,
+        statusChangedAt: previousStatusChangedAt,
+        receivedOrder: previousReceivedOrder
+      }, title)
+    }
   });
 }
 

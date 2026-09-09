@@ -2,6 +2,8 @@
    Оболочка: вкладки, шапка месяца, листы, тосты
    ============================================================ */
 
+const SHEET_ANIM_MS = 250;
+
 /* ------------------------------------------------------------
    Тосты
    ------------------------------------------------------------ */
@@ -102,7 +104,10 @@ const Sheet = (() => {
       if (!dragging) return;
       const raw = e.clientY - startY;
       // Вверх — резиновое сопротивление, вниз — 1:1
-      y = raw < 0 ? -rubberband(-raw, height) : raw;
+      const fromTop = node.getAttribute('data-placement') === 'top';
+      y = fromTop
+        ? (raw > 0 ? rubberband(raw, height) : raw)
+        : (raw < 0 ? -rubberband(-raw, height) : raw);
       node.style.transform = 'translate(-50%,' + y + 'px)';
       samples.push({ t: performance.now(), y: e.clientY });
       if (samples.length > 6) samples.shift();
@@ -115,19 +120,27 @@ const Sheet = (() => {
       const dt = Math.max(1, last.t - first.t);
       const velocity = (last.y - first.y) / dt * 1000;      // px/s
       const projected = y + projectMomentum(velocity);
+      const fromTop = node.getAttribute('data-placement') === 'top';
       node.classList.add('sheet-anim');
-      if (projected > height * 0.4) {
-        node.style.transform = 'translate(-50%,' + height + 'px)';
-        setTimeout(() => close(true), prefersReducedMotion() ? 0 : 180);
+      if (fromTop ? projected < -height * 0.4 : projected > height * 0.4) {
+        const exit = fromTop ? -height : height;
+        node.style.transform = 'translate(-50%,' + exit + 'px)';
+        setTimeout(() => close(true), prefersReducedMotion() ? 0 : SHEET_ANIM_MS);
       } else {
         node.style.transform = 'translate(-50%,0)';
       }
     };
 
-    grabEl.addEventListener('pointerdown', onDown);
-    grabEl.addEventListener('pointermove', onMove);
-    grabEl.addEventListener('pointerup', onUp);
-    grabEl.addEventListener('pointercancel', onUp);
+    const dragSurfaces = [grabEl, node.querySelector('.sheet-head')].filter(Boolean);
+    dragSurfaces.forEach(surface => {
+      surface.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('button, input, textarea, select, a')) return;
+        onDown(e);
+      });
+      surface.addEventListener('pointermove', onMove);
+      surface.addEventListener('pointerup', onUp);
+      surface.addEventListener('pointercancel', onUp);
+    });
   }
 
   /**
@@ -137,35 +150,57 @@ const Sheet = (() => {
   function open(conf) {
     clearTimeout(closeTimer);
     closeTimer = 0;
-    if (openState) closeNow();
+    const replacing = !!openState;
     openState = conf;
-    lastFocused = document.activeElement;
+    setAttr(node, 'data-placement', conf.placement || null);
 
-    setText(titleEl, conf.title || '');
-    bodyEl.innerHTML = '';
-    footEl.innerHTML = '';
-    conf.build(bodyEl);
+    const render = () => {
+      setText(titleEl, conf.title || '');
+      bodyEl.innerHTML = '';
+      footEl.innerHTML = '';
+      conf.build(bodyEl);
 
-    if (conf.footer) {
-      footEl.hidden = false;
-      conf.footer(footEl);
-    } else {
-      footEl.hidden = true;
+      if (conf.footer) {
+        footEl.hidden = false;
+        conf.footer(footEl);
+      } else {
+        footEl.hidden = true;
+      }
+    };
+
+    // Подтверждения из уже открытого листа заменяют только содержимое.
+    // Это не заставляет шторку уезжать вниз и снова выезжать.
+    if (replacing) {
+      scrim.hidden = false;
+      node.hidden = false;
+      node.classList.add('sheet-anim');
+      node.style.transform = 'translate(-50%,0)';
+      scrim.setAttribute('data-open', '');
+      document.body.style.overflow = 'hidden';
+      node.classList.add('sheet-content-swap');
+      requestAnimationFrame(() => {
+        render();
+        requestAnimationFrame(() => node.classList.remove('sheet-content-swap'));
+      });
+      return;
     }
+
+    lastFocused = document.activeElement;
+    render();
 
     scrim.hidden = false;
     node.hidden = false;
     setAttr($('#toasts'), 'data-over-sheet', true);
     node.classList.remove('sheet-anim');
-    node.style.transform = 'translate(-50%,100%)';
+    const entrance = conf.placement === 'top' ? '-100%' : '100%';
+    node.style.transform = 'translate(-50%,' + entrance + ')';
     document.body.style.overflow = 'hidden';
+    // Затемнение стартует сразу вместе с окном, без двухкадровой задержки.
+    scrim.setAttribute('data-open', '');
 
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        node.classList.add('sheet-anim');
-        node.style.transform = 'translate(-50%,0)';
-        scrim.setAttribute('data-open', '');
-      });
+      node.classList.add('sheet-anim');
+      node.style.transform = 'translate(-50%,0)';
     });
 
     // Не открываем клавиатуру автоматически: на iPhone это меняет visual
@@ -181,6 +216,8 @@ const Sheet = (() => {
     scrim.removeAttribute('data-open');
     setAttr($('#toasts'), 'data-over-sheet', null);
     node.style.transform = '';
+    node.classList.remove('sheet-content-swap');
+    node.removeAttribute('data-placement');
     document.body.style.overflow = '';
     const conf = openState;
     openState = null;
@@ -198,10 +235,11 @@ const Sheet = (() => {
     closeDone = done || null;
     if (immediate || prefersReducedMotion()) { closeNow(); return; }
     node.classList.add('sheet-anim');
-    node.style.transform = 'translate(-50%,100%)';
+    const exit = node.getAttribute('data-placement') === 'top' ? '-100%' : '100%';
+    node.style.transform = 'translate(-50%,' + exit + ')';
     scrim.removeAttribute('data-open');
     clearTimeout(closeTimer);
-    closeTimer = setTimeout(closeNow, 220);
+    closeTimer = setTimeout(closeNow, SHEET_ANIM_MS);
   }
 
   return { mount, open, close, get isOpen() { return !!openState; } };
@@ -291,6 +329,12 @@ const Tabs = (() => {
 
     buttons.forEach(b => setAttr(b, 'aria-selected', b.dataset.tab === tab ? 'true' : 'false'));
     $$('.screen').forEach(s => setAttr(s, 'data-active', s.id === 'scr-' + tab ? true : null));
+    if (tab === 'set' && !document.documentElement.hasAttribute('data-settings-motion-seen')) {
+      const settings = $('#scr-set');
+      settings.setAttribute('data-motion-once', '');
+      document.documentElement.setAttribute('data-settings-motion-seen', '');
+      setTimeout(() => settings.removeAttribute('data-motion-once'), 300);
+    }
     movePill();
 
     Render.all();
@@ -347,7 +391,9 @@ const MonthBar = (() => {
     const monthLabel = $('#monthLabel');
     const nextLabel = keyLabel(View.key);
     if (monthLabel && monthLabel.textContent !== nextLabel) {
-      softSwap(monthLabel, () => setText(monthLabel, nextLabel));
+      // Центральная дата — опорная точка шапки: меняем без fade,
+      // чтобы при перелистывании месяца не было белого моргания текста.
+      setText(monthLabel, nextLabel);
     }
     // Вперёд можно уходить максимум на 12 месяцев от текущего
     const limit = shiftKey(View.todayKey, 12);
@@ -358,6 +404,7 @@ const MonthBar = (() => {
     let year = yearOf(View.key);
     Sheet.open({
       title: 'Выбор месяца',
+      placement: 'top',
       build(body) {
         const pager = el('div', { class: 'year-pager' });
         const prev = el('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Предыдущий год' }, [icon('left')]);

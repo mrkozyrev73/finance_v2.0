@@ -69,6 +69,7 @@
   --dur-fast: 160ms;
   --dur:      200ms;
   --dur-slow: 240ms;
+  --dur-sheet: 250ms;
   --dur-nav:   280ms;
   --swipe-settle-duration: 240ms;
   --ease:     cubic-bezier(.23, 1, .32, 1);      /* сильный ease-out */
@@ -1551,10 +1552,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   inset: 0;
   z-index: 100;
   background: rgba(12,26,20,.34);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
   opacity: 0;
-  transition: opacity var(--dur) var(--ease-io);
+  transition: opacity var(--dur-sheet) var(--ease);
+  will-change: opacity;
 }
 .scrim[data-open] { opacity: 1; }
 .scrim[hidden] { display: none !important; }
@@ -1576,7 +1576,20 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   will-change: transform;
 }
 .sheet[hidden] { display: none !important; }
-.sheet-anim { transition: transform var(--dur-slow) var(--ease-sheet); }
+.sheet-anim { transition: transform var(--dur-sheet) var(--ease-sheet); }
+.sheet[data-placement="top"] {
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  bottom: auto;
+  border-radius: 0 0 26px 26px;
+}
+.sheet-body, .sheet-foot {
+  transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.sheet-content-swap .sheet-body,
+.sheet-content-swap .sheet-foot {
+  opacity: .35;
+  transform: translateY(2px);
+}
 
 .sheet-grab {
   width: 100%;
@@ -1601,6 +1614,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   gap: 12px;
   padding: 4px 18px 12px;
   flex: none;
+  touch-action: none;
 }
 .sheet-title {
   margin: 0;
@@ -1904,7 +1918,13 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   }
   .fade-swap { transition: opacity 120ms linear; }
   .cat-drawer { transition: none; }
-  .sheet-anim { transition: opacity 140ms linear; }
+  .sheet-anim { transition: none; }
+  .sheet-content-swap .sheet-body,
+  .sheet-content-swap .sheet-foot {
+    opacity: .7;
+    transform: none;
+    transition: opacity 120ms linear;
+  }
 }
 
 /* ============================================================
@@ -2316,8 +2336,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-stats .structure-head {
   min-height: 28px;
   margin: 0 2px 12px;
-  padding-bottom: 11px;
-  padding-right: 28px;
+  padding: 0 28px 11px 20px;
   border-bottom: 1px solid var(--border);
 }
 #scr-stats .structure-scope:first-child { color: var(--text); font-weight: 650; }
@@ -2379,6 +2398,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 #dynYear .hbar[data-current] .hbar-name,
 #dynYear .hbar[data-current] .hbar-val { color: var(--accent-press); }
+@keyframes period-focus {
+  0% { opacity: .7; transform: scale(.985); }
+  55% { opacity: 1; transform: scale(1.025); }
+  100% { opacity: 1; transform: scale(1); }
+}
+#dynMonth .bar-col[data-period-focus],
+#dynYear .hbar[data-period-focus] {
+  animation: period-focus 260ms var(--ease) both;
+}
 
 @media (prefers-reduced-motion: reduce) {
   #dynMonth[data-chart-enter="month"] .bar-fill,
@@ -2892,7 +2920,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
-#scr-set .list-row { animation: settingsRowIn var(--dur-fast) var(--ease) both; }
+#scr-set[data-motion-once] .list-row { animation: settingsRowIn var(--dur-fast) var(--ease) both; }
 #scr-set .list-row:nth-child(2) { animation-delay: 30ms; }
 #scr-set .list-row:nth-child(3) { animation-delay: 60ms; }
 #scr-set .list-row:nth-child(4) { animation-delay: 90ms; }

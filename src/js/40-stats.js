@@ -178,10 +178,16 @@ const Stats = (() => {
     const attribute = mode === 'year' ? 'year' : 'month';
     layer.removeAttribute('data-chart-enter');
     nodes.forEach((n, i) => n.fill.style.setProperty('--chart-delay', Math.min(i * 24, 120) + 'ms'));
+    nodes.forEach(n => (mode === 'year' ? n.row : n.col).removeAttribute('data-period-focus'));
+    const selected = nodes.find(n => (mode === 'year' ? n.row : n.col).getAttribute('aria-pressed') === 'true');
+    if (selected) (mode === 'year' ? selected.row : selected.col).setAttribute('data-period-focus', '');
     requestAnimationFrame(() => {
       layer.setAttribute('data-chart-enter', attribute);
       clearTimeout(layer._chartEnterTimer);
       layer._chartEnterTimer = setTimeout(() => layer.removeAttribute('data-chart-enter'), 480);
+      setTimeout(() => {
+        if (selected) (mode === 'year' ? selected.row : selected.col).removeAttribute('data-period-focus');
+      }, 420);
     });
   }
 

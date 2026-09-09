@@ -88,6 +88,7 @@
   --dur-fast: 160ms;
   --dur:      200ms;
   --dur-slow: 240ms;
+  --dur-sheet: 250ms;
   --dur-nav:   280ms;
   --swipe-settle-duration: 240ms;
   --ease:     cubic-bezier(.23, 1, .32, 1);      /* сильный ease-out */
@@ -1570,10 +1571,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   inset: 0;
   z-index: 100;
   background: rgba(12,26,20,.34);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
   opacity: 0;
-  transition: opacity var(--dur) var(--ease-io);
+  transition: opacity var(--dur-sheet) var(--ease);
+  will-change: opacity;
 }
 .scrim[data-open] { opacity: 1; }
 .scrim[hidden] { display: none !important; }
@@ -1595,7 +1595,20 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   will-change: transform;
 }
 .sheet[hidden] { display: none !important; }
-.sheet-anim { transition: transform var(--dur-slow) var(--ease-sheet); }
+.sheet-anim { transition: transform var(--dur-sheet) var(--ease-sheet); }
+.sheet[data-placement="top"] {
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  bottom: auto;
+  border-radius: 0 0 26px 26px;
+}
+.sheet-body, .sheet-foot {
+  transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.sheet-content-swap .sheet-body,
+.sheet-content-swap .sheet-foot {
+  opacity: .35;
+  transform: translateY(2px);
+}
 
 .sheet-grab {
   width: 100%;
@@ -1620,6 +1633,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   gap: 12px;
   padding: 4px 18px 12px;
   flex: none;
+  touch-action: none;
 }
 .sheet-title {
   margin: 0;
@@ -1923,7 +1937,13 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   }
   .fade-swap { transition: opacity 120ms linear; }
   .cat-drawer { transition: none; }
-  .sheet-anim { transition: opacity 140ms linear; }
+  .sheet-anim { transition: none; }
+  .sheet-content-swap .sheet-body,
+  .sheet-content-swap .sheet-foot {
+    opacity: .7;
+    transform: none;
+    transition: opacity 120ms linear;
+  }
 }
 
 /* ============================================================
@@ -2335,8 +2355,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-stats .structure-head {
   min-height: 28px;
   margin: 0 2px 12px;
-  padding-bottom: 11px;
-  padding-right: 28px;
+  padding: 0 28px 11px 20px;
   border-bottom: 1px solid var(--border);
 }
 #scr-stats .structure-scope:first-child { color: var(--text); font-weight: 650; }
@@ -2398,6 +2417,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 #dynYear .hbar[data-current] .hbar-name,
 #dynYear .hbar[data-current] .hbar-val { color: var(--accent-press); }
+@keyframes period-focus {
+  0% { opacity: .7; transform: scale(.985); }
+  55% { opacity: 1; transform: scale(1.025); }
+  100% { opacity: 1; transform: scale(1); }
+}
+#dynMonth .bar-col[data-period-focus],
+#dynYear .hbar[data-period-focus] {
+  animation: period-focus 260ms var(--ease) both;
+}
 
 @media (prefers-reduced-motion: reduce) {
   #dynMonth[data-chart-enter="month"] .bar-fill,
@@ -2911,7 +2939,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
-#scr-set .list-row { animation: settingsRowIn var(--dur-fast) var(--ease) both; }
+#scr-set[data-motion-once] .list-row { animation: settingsRowIn var(--dur-fast) var(--ease) both; }
 #scr-set .list-row:nth-child(2) { animation-delay: 30ms; }
 #scr-set .list-row:nth-child(3) { animation-delay: 60ms; }
 #scr-set .list-row:nth-child(4) { animation-delay: 90ms; }
@@ -4242,6 +4270,8 @@ const Data = {
    Оболочка: вкладки, шапка месяца, листы, тосты
    ============================================================ */
 
+const SHEET_ANIM_MS = 250;
+
 /* ------------------------------------------------------------
    Тосты
    ------------------------------------------------------------ */
@@ -4342,7 +4372,10 @@ const Sheet = (() => {
       if (!dragging) return;
       const raw = e.clientY - startY;
       // Вверх — резиновое сопротивление, вниз — 1:1
-      y = raw < 0 ? -rubberband(-raw, height) : raw;
+      const fromTop = node.getAttribute('data-placement') === 'top';
+      y = fromTop
+        ? (raw > 0 ? rubberband(raw, height) : raw)
+        : (raw < 0 ? -rubberband(-raw, height) : raw);
       node.style.transform = 'translate(-50%,' + y + 'px)';
       samples.push({ t: performance.now(), y: e.clientY });
       if (samples.length > 6) samples.shift();
@@ -4355,19 +4388,27 @@ const Sheet = (() => {
       const dt = Math.max(1, last.t - first.t);
       const velocity = (last.y - first.y) / dt * 1000;      // px/s
       const projected = y + projectMomentum(velocity);
+      const fromTop = node.getAttribute('data-placement') === 'top';
       node.classList.add('sheet-anim');
-      if (projected > height * 0.4) {
-        node.style.transform = 'translate(-50%,' + height + 'px)';
-        setTimeout(() => close(true), prefersReducedMotion() ? 0 : 180);
+      if (fromTop ? projected < -height * 0.4 : projected > height * 0.4) {
+        const exit = fromTop ? -height : height;
+        node.style.transform = 'translate(-50%,' + exit + 'px)';
+        setTimeout(() => close(true), prefersReducedMotion() ? 0 : SHEET_ANIM_MS);
       } else {
         node.style.transform = 'translate(-50%,0)';
       }
     };
 
-    grabEl.addEventListener('pointerdown', onDown);
-    grabEl.addEventListener('pointermove', onMove);
-    grabEl.addEventListener('pointerup', onUp);
-    grabEl.addEventListener('pointercancel', onUp);
+    const dragSurfaces = [grabEl, node.querySelector('.sheet-head')].filter(Boolean);
+    dragSurfaces.forEach(surface => {
+      surface.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('button, input, textarea, select, a')) return;
+        onDown(e);
+      });
+      surface.addEventListener('pointermove', onMove);
+      surface.addEventListener('pointerup', onUp);
+      surface.addEventListener('pointercancel', onUp);
+    });
   }
 
   /**
@@ -4377,35 +4418,57 @@ const Sheet = (() => {
   function open(conf) {
     clearTimeout(closeTimer);
     closeTimer = 0;
-    if (openState) closeNow();
+    const replacing = !!openState;
     openState = conf;
-    lastFocused = document.activeElement;
+    setAttr(node, 'data-placement', conf.placement || null);
 
-    setText(titleEl, conf.title || '');
-    bodyEl.innerHTML = '';
-    footEl.innerHTML = '';
-    conf.build(bodyEl);
+    const render = () => {
+      setText(titleEl, conf.title || '');
+      bodyEl.innerHTML = '';
+      footEl.innerHTML = '';
+      conf.build(bodyEl);
 
-    if (conf.footer) {
-      footEl.hidden = false;
-      conf.footer(footEl);
-    } else {
-      footEl.hidden = true;
+      if (conf.footer) {
+        footEl.hidden = false;
+        conf.footer(footEl);
+      } else {
+        footEl.hidden = true;
+      }
+    };
+
+    // Подтверждения из уже открытого листа заменяют только содержимое.
+    // Это не заставляет шторку уезжать вниз и снова выезжать.
+    if (replacing) {
+      scrim.hidden = false;
+      node.hidden = false;
+      node.classList.add('sheet-anim');
+      node.style.transform = 'translate(-50%,0)';
+      scrim.setAttribute('data-open', '');
+      document.body.style.overflow = 'hidden';
+      node.classList.add('sheet-content-swap');
+      requestAnimationFrame(() => {
+        render();
+        requestAnimationFrame(() => node.classList.remove('sheet-content-swap'));
+      });
+      return;
     }
+
+    lastFocused = document.activeElement;
+    render();
 
     scrim.hidden = false;
     node.hidden = false;
     setAttr($('#toasts'), 'data-over-sheet', true);
     node.classList.remove('sheet-anim');
-    node.style.transform = 'translate(-50%,100%)';
+    const entrance = conf.placement === 'top' ? '-100%' : '100%';
+    node.style.transform = 'translate(-50%,' + entrance + ')';
     document.body.style.overflow = 'hidden';
+    // Затемнение стартует сразу вместе с окном, без двухкадровой задержки.
+    scrim.setAttribute('data-open', '');
 
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        node.classList.add('sheet-anim');
-        node.style.transform = 'translate(-50%,0)';
-        scrim.setAttribute('data-open', '');
-      });
+      node.classList.add('sheet-anim');
+      node.style.transform = 'translate(-50%,0)';
     });
 
     // Не открываем клавиатуру автоматически: на iPhone это меняет visual
@@ -4421,6 +4484,8 @@ const Sheet = (() => {
     scrim.removeAttribute('data-open');
     setAttr($('#toasts'), 'data-over-sheet', null);
     node.style.transform = '';
+    node.classList.remove('sheet-content-swap');
+    node.removeAttribute('data-placement');
     document.body.style.overflow = '';
     const conf = openState;
     openState = null;
@@ -4438,10 +4503,11 @@ const Sheet = (() => {
     closeDone = done || null;
     if (immediate || prefersReducedMotion()) { closeNow(); return; }
     node.classList.add('sheet-anim');
-    node.style.transform = 'translate(-50%,100%)';
+    const exit = node.getAttribute('data-placement') === 'top' ? '-100%' : '100%';
+    node.style.transform = 'translate(-50%,' + exit + ')';
     scrim.removeAttribute('data-open');
     clearTimeout(closeTimer);
-    closeTimer = setTimeout(closeNow, 220);
+    closeTimer = setTimeout(closeNow, SHEET_ANIM_MS);
   }
 
   return { mount, open, close, get isOpen() { return !!openState; } };
@@ -4531,6 +4597,12 @@ const Tabs = (() => {
 
     buttons.forEach(b => setAttr(b, 'aria-selected', b.dataset.tab === tab ? 'true' : 'false'));
     $$('.screen').forEach(s => setAttr(s, 'data-active', s.id === 'scr-' + tab ? true : null));
+    if (tab === 'set' && !document.documentElement.hasAttribute('data-settings-motion-seen')) {
+      const settings = $('#scr-set');
+      settings.setAttribute('data-motion-once', '');
+      document.documentElement.setAttribute('data-settings-motion-seen', '');
+      setTimeout(() => settings.removeAttribute('data-motion-once'), 300);
+    }
     movePill();
 
     Render.all();
@@ -4587,7 +4659,9 @@ const MonthBar = (() => {
     const monthLabel = $('#monthLabel');
     const nextLabel = keyLabel(View.key);
     if (monthLabel && monthLabel.textContent !== nextLabel) {
-      softSwap(monthLabel, () => setText(monthLabel, nextLabel));
+      // Центральная дата — опорная точка шапки: меняем без fade,
+      // чтобы при перелистывании месяца не было белого моргания текста.
+      setText(monthLabel, nextLabel);
     }
     // Вперёд можно уходить максимум на 12 месяцев от текущего
     const limit = shiftKey(View.todayKey, 12);
@@ -4598,6 +4672,7 @@ const MonthBar = (() => {
     let year = yearOf(View.key);
     Sheet.open({
       title: 'Выбор месяца',
+      placement: 'top',
       build(body) {
         const pager = el('div', { class: 'year-pager' });
         const prev = el('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Предыдущий год' }, [icon('left')]);
@@ -4948,6 +5023,10 @@ const IncomeList = (() => {
 function toggleReceived(id) {
   const rec = Store.byId('incomes', id);
   if (!rec) return;
+  const previousStatus = rec.status;
+  const previousStatusChangedAt = rec.statusChangedAt;
+  const previousReceivedOrder = rec.receivedOrder;
+  const title = rec.title;
   const before = Data.totalsOf(View.key);
   const next = rec.status === 'received' ? 'expected' : 'received';
   haptic(next === 'received' ? 'success' : 'light');
@@ -4955,14 +5034,21 @@ function toggleReceived(id) {
   const receivedOrder = next === 'received'
     ? Store.list('incomes').reduce((max, item) => Math.max(max, Number(item.receivedOrder) || 0), 0) + 1
     : (Number(rec.receivedOrder) || 0);
-  Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, rec.title);
+  Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, title);
   Home.flashIncome(id);
   const after = Data.totalsOf(View.key);
   Home.animateTotals(before, after);
   Toast.show(next === 'received'
     ? '«' + (rec.title || 'Доход') + '» отмечен полученным'
     : '«' + (rec.title || 'Доход') + '» снова ожидается', {
-    action: { label: 'Отменить', run: () => Store.patch('incomes', id, { status: rec.status }, rec.title) }
+    action: {
+      label: 'Отменить',
+      run: () => Store.patch('incomes', id, {
+        status: previousStatus,
+        statusChangedAt: previousStatusChangedAt,
+        receivedOrder: previousReceivedOrder
+      }, title)
+    }
   });
 }
 
@@ -5570,10 +5656,16 @@ const Stats = (() => {
     const attribute = mode === 'year' ? 'year' : 'month';
     layer.removeAttribute('data-chart-enter');
     nodes.forEach((n, i) => n.fill.style.setProperty('--chart-delay', Math.min(i * 24, 120) + 'ms'));
+    nodes.forEach(n => (mode === 'year' ? n.row : n.col).removeAttribute('data-period-focus'));
+    const selected = nodes.find(n => (mode === 'year' ? n.row : n.col).getAttribute('aria-pressed') === 'true');
+    if (selected) (mode === 'year' ? selected.row : selected.col).setAttribute('data-period-focus', '');
     requestAnimationFrame(() => {
       layer.setAttribute('data-chart-enter', attribute);
       clearTimeout(layer._chartEnterTimer);
       layer._chartEnterTimer = setTimeout(() => layer.removeAttribute('data-chart-enter'), 480);
+      setTimeout(() => {
+        if (selected) (mode === 'year' ? selected.row : selected.col).removeAttribute('data-period-focus');
+      }, 420);
     });
   }
 
