@@ -470,7 +470,8 @@ const Data = {
     return r.status === 'expected' && r.date && keyOf(r.date) < key;
   },
   categories() {
-    return Store.list('categories').sort((a, b) => (a.order || 0) - (b.order || 0));
+    return Store.list('categories').sort((a, b) =>
+      Number(b.pinned) - Number(a.pinned) || (a.order || 0) - (b.order || 0));
   },
   /** Категории в порядке «недавно использованные — первыми» */
   recentCategories() {
@@ -485,9 +486,10 @@ const Data = {
       seen.push(r.categoryId);
       if (seen.length >= all.length) break;
     }
-    const head = seen.map(id => byId.get(id));
+    const pinned = all.filter(c => c.pinned);
+    const head = seen.map(id => byId.get(id)).filter(c => !c.pinned);
     const tail = all.filter(c => !seen.includes(c.id));
-    return head.concat(tail);
+    return pinned.concat(head, tail.filter(c => !c.pinned));
   },
 
   categoryMap() {

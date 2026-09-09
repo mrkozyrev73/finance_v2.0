@@ -148,8 +148,20 @@ const Settings = (() => {
       });
     });
 
-    return el('div', { class: 'edit-row', style: 'grid-template-columns:22px 1fr auto;gap:10px' },
-      [swatch, input, del]);
+    const pin = el('button', {
+      class: 'category-pin' + (rec.pinned ? ' is-pinned' : ''),
+      type: 'button',
+      'aria-label': rec.pinned ? 'Открепить категорию' : 'Закрепить категорию',
+      'aria-pressed': rec.pinned ? 'true' : 'false',
+      text: rec.pinned ? '★' : '☆'
+    });
+    pin.addEventListener('click', () => {
+      Store.patch('categories', rec.id, { pinned: !rec.pinned }, rec.name);
+      refresh();
+    });
+
+    return el('div', { class: 'edit-row', style: 'grid-template-columns:22px 1fr auto auto;gap:8px' },
+      [swatch, input, pin, del]);
   }
 
 

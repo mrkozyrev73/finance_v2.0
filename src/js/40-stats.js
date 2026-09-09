@@ -231,6 +231,15 @@ const Stats = (() => {
     bestNode.append(document.createTextNode(bestKey ? money(bestSum) : '—'),
       el('span', { class: 'sub', text: bestKey ? keyLabel(bestKey) : 'Пока нет записей' }));
 
+    const categoryNode = $('#auditCategory');
+    const categoryRows = Data.breakdown({ type: 'month', key: View.key }).rows;
+    const topCategory = categoryRows.find(row => row.catId !== '__historical');
+    categoryNode.innerHTML = '';
+    categoryNode.append(
+      document.createTextNode(topCategory ? topCategory.name : '—'),
+      el('span', { class: 'sub', text: topCategory ? money(topCategory.amount) : 'Пока нет доходов' })
+    );
+
     /* --- Динамика --- */
     const isYear = View.dynMode === 'year';
     setAttr($('#dynMonth'), 'data-shown', isYear ? null : true);

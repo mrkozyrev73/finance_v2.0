@@ -38,6 +38,7 @@ const Render = {
 
 function boot() {
   lockPortraitOrientation();
+  initHaptics();
   Store.init();
 
   // Демонстрационный снимок для визуальной проверки финансовой аналитики.
@@ -98,6 +99,13 @@ function boot() {
   // Первый кадр отрисован — снимаем «замок» стартовой анимации
   document.documentElement.setAttribute('data-booted', '');
   registerServiceWorker();
+}
+
+function initHaptics() {
+  document.addEventListener('pointerdown', (event) => {
+    const control = event.target.closest('button, [role="tab"]');
+    if (control && !control.disabled) haptic('light');
+  }, { passive: true });
 }
 
 // В установленном PWA дополнительно просим браузер удерживать портретный режим.

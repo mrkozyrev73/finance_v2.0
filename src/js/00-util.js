@@ -161,6 +161,13 @@ function debounce(fn, ms) {
 const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Ненавязчивый тактильный отклик там, где браузер его поддерживает.
+function haptic(kind) {
+  if (!navigator.vibrate) return;
+  const duration = kind === 'success' ? 10 : 6;
+  try { navigator.vibrate(duration); } catch (_) {}
+}
+
 /** Апдейт текста без лишних перерисовок */
 function setText(node, value) {
   if (!node) return;

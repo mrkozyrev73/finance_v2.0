@@ -190,6 +190,7 @@ const IncomeList = (() => {
     ]);
 
     const row = el('div', { class: 'swipe' }, [actions, body]);
+    row.dataset.incomeId = rec.id;
     row.setAttribute('data-enter', '');
     requestAnimationFrame(() => row.removeAttribute('data-enter'));
     Swipe.attach(row, body, rec.id);
@@ -238,6 +239,9 @@ const IncomeList = (() => {
   function render(list) {
     const host = $('#incomeList');
     const seen = new Set();
+    const before = prefersReducedMotion() ? null : new Map(
+      Array.from(nodes, ([id, entry]) => [id, entry.row.getBoundingClientRect().top])
+    );
 
     list.forEach((rec, index) => {
       seen.add(rec.id);
@@ -258,6 +262,20 @@ const IncomeList = (() => {
       nodes.delete(id);
     }
 
+    // FLIP: карточки плавно занимают новое место после смены группы.
+    if (before) requestAnimationFrame(() => {
+      for (const [id, entry] of nodes) {
+        const oldTop = before.get(id);
+        if (oldTop === undefined) continue;
+        const delta = oldTop - entry.row.getBoundingClientRect().top;
+        if (Math.abs(delta) < 1) continue;
+        entry.row.animate([
+          { transform: 'translateY(' + delta + 'px)' },
+          { transform: 'translateY(0)' }
+        ], { duration: 240, easing: 'cubic-bezier(.23, 1, .32, 1)' });
+      }
+    });
+
     const empty = $('#incomeEmpty');
     empty.hidden = list.length > 0;
     if (!list.length) {
@@ -269,7 +287,17 @@ const IncomeList = (() => {
     }
   }
 
-  return { render, reset: () => nodes.clear() };
+  function flash(id) {
+    const entry = nodes.get(id);
+    if (!entry) return;
+    entry.row.removeAttribute('data-feedback');
+    requestAnimationFrame(() => {
+      entry.row.setAttribute('data-feedback', '');
+      setTimeout(() => entry.row.removeAttribute('data-feedback'), 360);
+    });
+  }
+
+  return { render, flash, reset: () => nodes.clear() };
 })();
 
 /** Отметить доход полученным или вернуть в ожидаемые — прямо из строки */
@@ -278,11 +306,13 @@ function toggleReceived(id) {
   if (!rec) return;
   const before = Data.totalsOf(View.key);
   const next = rec.status === 'received' ? 'expected' : 'received';
+  haptic(next === 'received' ? 'success' : 'light');
   const statusChangedAt = Math.max(Date.now(), Number(rec.statusChangedAt) || 0) + 1;
   const receivedOrder = next === 'received'
     ? Store.list('incomes').reduce((max, item) => Math.max(max, Number(item.receivedOrder) || 0), 0) + 1
     : (Number(rec.receivedOrder) || 0);
   Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, rec.title);
+  Home.flashIncome(id);
   const after = Data.totalsOf(View.key);
   Home.animateTotals(before, after);
   Toast.show(next === 'received'
@@ -663,7 +693,7 @@ const Home = (() => {
     countFrame = requestAnimationFrame(tick);
   }
 
-  return { mount, render, animateTotals };
+  return { mount, render, animateTotals, flashIncome: IncomeList.flash };
 })();
 
 /* ------------------------------------------------------------

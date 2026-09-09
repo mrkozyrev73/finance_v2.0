@@ -442,6 +442,12 @@ const Fin = (() => {
         el('span', { class: 'fin-chev' }, [icon('right', 17)])
       ])
     ]);
+    amount.classList.add('fin-amount--editable');
+    amount.setAttribute('title', 'Быстро изменить остаток');
+    amount.addEventListener('click', (event) => {
+      event.stopPropagation();
+      openCreditAmount(rec.id);
+    });
     card.addEventListener('click', () => creditDetail(rec.id));
     const root = wrapFinanceCard(card, 'fin-credit-' + rec.id,
       () => creditDetail(rec.id), () => removeCredit(rec.id), 'кредит');
@@ -454,6 +460,30 @@ const Fin = (() => {
     setText(entry.amount, money(rec.remaining));
     setText(entry.rate, money(rec.monthlyPayment) + '/мес');
     entry.rate.title = 'Ежемесячный платёж';
+  }
+
+  function openCreditAmount(id) {
+    const rec = Store.byId('credits', id);
+    if (!rec) return;
+    const draft = { remaining: rec.remaining };
+    Sheet.open({
+      title: 'Остаток кредита',
+      build(body) {
+        body.appendChild(field('Новая сумма, ₽', bindAmount('c-quick-rem', draft, 'remaining'), 'c-quick-rem'));
+        body.appendChild(el('p', { class: 'sheet-hint', text: 'Остальные параметры кредита останутся без изменений.' }));
+      },
+      footer(foot) {
+        foot.appendChild(el('button', {
+          class: 'btn btn--block', type: 'button', text: 'Сохранить сумму',
+          onclick: () => {
+            Store.patch('credits', rec.id, { remaining: draft.remaining }, rec.name);
+            Store.recordFinanceSnapshot();
+            Sheet.close();
+            Toast.show('Остаток кредита обновлён');
+          }
+        }));
+      }
+    });
   }
 
   return { mount, render, creditDetail };
