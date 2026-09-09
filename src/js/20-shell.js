@@ -195,6 +195,9 @@ const Sheet = (() => {
     const entrance = conf.placement === 'top' ? '-100%' : '100%';
     node.style.transform = 'translate(-50%,' + entrance + ')';
     document.body.style.overflow = 'hidden';
+    // Принудительно фиксируем стартовый кадр: без этого Safari иногда
+    // объединяет начальную и конечную позиции, из-за чего лист дёргается.
+    node.offsetHeight;
     // Затемнение стартует сразу вместе с окном, без двухкадровой задержки.
     scrim.setAttribute('data-open', '');
 

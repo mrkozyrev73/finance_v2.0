@@ -11,7 +11,8 @@ const Swipe = (() => {
   const THRESHOLD = 10;       // гистерезис до захвата направления
   const open = new Map();     // id -> {row, body}
 
-  function attach(row, body, id) {
+  function attach(row, body, id, options) {
+    const leftWidth = options && options.leftWidth ? options.leftWidth : 0;
     let active = false, locked = null, startX = 0, startY = 0;
     let base = 0, x = 0, samples = [];
 
@@ -20,7 +21,7 @@ const Swipe = (() => {
       body.style.transform = 'translateX(' + v + 'px)';
     };
 
-    const settle = (to, velocity = 0) => {
+    const settle = (to, velocity = 0, side = null) => {
       const distance = Math.abs(to - x);
       const speed = Math.max(220, Math.abs(velocity));
       const duration = distance
@@ -29,7 +30,7 @@ const Swipe = (() => {
       body.style.setProperty('--swipe-settle-duration', duration + 'ms');
       row.setAttribute('data-settling', '');
       setX(to);
-      if (to < 0) { open.set(id, { row, body }); row.setAttribute('data-open', ''); }
+      if (to !== 0) { open.set(id, { row, body, side }); row.setAttribute('data-open', ''); }
       else { open.delete(id); row.removeAttribute('data-open'); }
       clearTimeout(row._settleT);
       row._settleT = setTimeout(() => {
@@ -42,7 +43,8 @@ const Swipe = (() => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       active = true; locked = null;
       startX = e.clientX; startY = e.clientY;
-      base = open.has(id) ? -ACTIONS_W : 0;
+      const opened = open.get(id);
+      base = opened ? (opened.side === 'left' ? leftWidth : -ACTIONS_W) : 0;
       samples = [{ t: performance.now(), x: e.clientX }];
       row.removeAttribute('data-settling');
       body.style.removeProperty('--swipe-settle-duration');
@@ -66,7 +68,7 @@ const Swipe = (() => {
       if (locked !== 'x') return;
 
       let next = base + dx;
-      if (next > 0) next = rubberband(next, ACTIONS_W);              // тянем вправо — резина
+      if (next > leftWidth) next = leftWidth + rubberband(next - leftWidth, ACTIONS_W);
       else if (next < -ACTIONS_W) {
         next = -ACTIONS_W - rubberband(-ACTIONS_W - next, ACTIONS_W); // и влево тоже
       }
@@ -89,7 +91,10 @@ const Swipe = (() => {
       const dt = Math.max(1, last.t - first.t);
       const velocity = (last.x - first.x) / dt * 1000;
       const projected = x + projectMomentum(velocity);
-      settle(projected < -ACTIONS_W / 2 ? -ACTIONS_W : 0, velocity);
+      const to = leftWidth && projected > leftWidth / 2
+        ? leftWidth
+        : projected < -ACTIONS_W / 2 ? -ACTIONS_W : 0;
+      settle(to, velocity, to === leftWidth && to !== 0 ? 'left' : to ? 'right' : null);
     };
 
     body.addEventListener('pointerup', finish);
@@ -584,7 +589,11 @@ function ensureRecurring(key) {
 
 const Home = (() => {
   function mount() {
-    $('#addIncome').addEventListener('click', () => IncomeForm.open(null));
+    $('#addIncome').addEventListener('click', () => {
+      // Отделяем закрытие pressed-состояния кнопки от появления листа:
+      // это убирает белую вспышку на мобильном Safari.
+      setTimeout(() => IncomeForm.open(null), 20);
+    });
 
     $$('#incomeFilters .chip').forEach(chip => {
       chip.addEventListener('click', () => {
@@ -673,7 +682,8 @@ const Home = (() => {
       : counts.expected === 0 ? 'Всё получено'
       : counts.expected + ' ' + plural(counts.expected, 'доход ожидается', 'дохода ожидаются', 'доходов ожидаются');
     setAttr($('#incomeStatus'), 'data-state', !all.length ? 'empty' : counts.expected ? 'expected' : 'received');
-    softSwap($('#incomeStatus'), () => setText($('#incomeStatus'), statusText));
+    if (soft) softSwap($('#incomeStatus'), () => setText($('#incomeStatus'), statusText));
+    else setText($('#incomeStatus'), statusText);
 
     IncomeList.render(filtered());
   }

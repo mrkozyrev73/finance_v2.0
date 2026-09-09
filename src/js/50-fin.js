@@ -57,13 +57,13 @@ const Fin = (() => {
     const safeRow = wrapFinanceCard(safeCard, 'fin-safe', openSafe, clearSafe, 'сейф');
     safeHost.insertBefore(safeRow, safeAfter);
     safeCard.addEventListener('click', openSafe);
-    $('#safeAdd').addEventListener('click', openSafe);
-    $('#depAdd').addEventListener('click', () => openDeposit(null));
-    $('#creditAdd').addEventListener('click', () => openCredit(null));
+    $('#safeAdd').addEventListener('click', () => setTimeout(openSafe, 20));
+    $('#depAdd').addEventListener('click', () => setTimeout(() => openDeposit(null), 20));
+    $('#creditAdd').addEventListener('click', () => setTimeout(() => openCredit(null), 20));
   }
 
   function clearSafe() {
-    Store.setSingleton('safe', { name: 'Наличные дома', amount: 0 });
+    Store.setSingleton('safe', { name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null });
     Store.recordFinanceSnapshot();
     Toast.show('Сейф удалён');
   }
@@ -123,6 +123,10 @@ const Fin = (() => {
             Toast.show('Сейф обновлён');
           }
         }));
+        foot.appendChild(el('button', {
+          class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+          onclick: () => { Store.rebaseFinance('safe'); Sheet.close(); Toast.show('База сейфа обновлена'); }
+        }));
       }
     });
   }
@@ -175,6 +179,12 @@ const Fin = (() => {
         }));
         if (rec) {
           foot.appendChild(el('button', {
+            class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+            onclick: () => { Store.rebaseFinance('deposits', rec.id); Sheet.close(); Toast.show('База вклада обновлена'); }
+          }));
+        }
+        if (rec) {
+          foot.appendChild(el('button', {
             class: 'btn btn--ghost btn--block', type: 'button', text: 'Удалить вклад',
             style: 'margin-top:8px;color:var(--danger)',
             onclick: () => {
@@ -210,10 +220,16 @@ const Fin = (() => {
         ]));
       },
       footer(foot) {
-        foot.appendChild(el('button', {
-          class: 'btn btn--block', type: 'button', text: 'Изменить',
+        const actions = el('div', { class: 'sheet-actions-inline' });
+        actions.appendChild(el('button', {
+          class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+          onclick: () => { Store.rebaseFinance('deposits', id); Sheet.close(); Toast.show('База вклада обновлена'); }
+        }));
+        actions.appendChild(el('button', {
+          class: 'btn btn--block fin-detail-primary', type: 'button', text: 'Изменить',
           onclick: () => { Sheet.close(false, () => openDeposit(id)); }
         }));
+        foot.appendChild(actions);
       }
     });
   }
@@ -275,6 +291,12 @@ const Fin = (() => {
         }));
         if (rec) {
           foot.appendChild(el('button', {
+            class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+            onclick: () => { Store.rebaseFinance('credits', rec.id); Sheet.close(); Toast.show('База кредита обновлена'); }
+          }));
+        }
+        if (rec) {
+          foot.appendChild(el('button', {
             class: 'btn btn--ghost btn--block', type: 'button', text: 'Удалить кредит',
             style: 'margin-top:8px;color:var(--danger)',
             onclick: () => {
@@ -315,10 +337,16 @@ const Fin = (() => {
 
       },
       footer(foot) {
-        foot.appendChild(el('button', {
-          class: 'btn btn--block', type: 'button', text: 'Изменить',
+        const actions = el('div', { class: 'sheet-actions-inline' });
+        actions.appendChild(el('button', {
+          class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+          onclick: () => { Store.rebaseFinance('credits', id); Sheet.close(); Toast.show('База кредита обновлена'); }
+        }));
+        actions.appendChild(el('button', {
+          class: 'btn btn--block fin-detail-primary', type: 'button', text: 'Изменить',
           onclick: () => { Sheet.close(false, () => openCredit(id)); }
         }));
+        foot.appendChild(actions);
       }
     });
   }
@@ -345,37 +373,49 @@ const Fin = (() => {
   }
 
   function renderAudit(soft) {
-    const key = View.key || keyOf(new Date().toISOString());
-    const currentEnd = new Date(yearOf(key), monOf(key) + 1, 0, 23, 59, 59, 999).getTime();
-    const previousKey = shiftKey(key, -1);
-    const previousEnd = new Date(yearOf(previousKey), monOf(previousKey) + 1, 0, 23, 59, 59, 999).getTime();
-    const snapshots = (Store.state.financeSnapshots || []).slice().sort((a, b) => a.at - b.at);
-    const current = snapshots.filter(s => s.at <= currentEnd).pop();
-    const previous = snapshots.filter(s => s.at <= previousEnd).pop();
-    const baseline = previous;
-    const baselineKey = Store.state.settings?.financeBaselineKey || null;
-    const isBaselineMonth = baselineKey === key;
-    const period = () => setText($('#finAuditPeriod'), isBaselineMonth ? 'базовый месяц' : (previous ? previousKey.replace('-', ' / ') : 'нет данных'));
-    period();
+    setText($('#finAuditPeriod'), 'общая история');
+    const records = (name) => Store.state[name] || [];
+    const delta = (record, field, baseField) => {
+      if (!record || !record.baselineInitialized) return 0;
+      return (Number(record[field]) || 0) - (Number(record[baseField]) || 0);
+    };
+    const sumDelta = (name, field, baseField) => records(name)
+      .reduce((sum, record) => sum + delta(record, field, baseField), 0);
+    const safe = Store.state.safe || {};
+    const values = {
+      safe: delta(safe, 'amount', 'baselineAmount'),
+      deposits: sumDelta('deposits', 'amount', 'baselineAmount'),
+      payments: records('credits').reduce((sum, record) => sum + delta(record, 'monthlyPayment', 'baselinePayment'), 0),
+      credits: sumDelta('credits', 'remaining', 'baselineAmount')
+    };
+    const phrase = (kind, value) => {
+      if (!value) return { label: 'Без изменений', amount: '' };
+      const verbs = {
+        safe: value > 0 ? 'Увеличился' : 'Уменьшился',
+        deposits: value > 0 ? 'Стали больше' : 'Стали меньше',
+        payments: value > 0 ? 'Увеличились' : 'Уменьшились',
+        credits: value > 0 ? 'Увеличились' : 'Уменьшились'
+      };
+      return { label: verbs[kind] + ' на', amount: money(Math.abs(value)) };
+    };
     const paint = (id, value, kind) => {
       const node = $('#' + id);
       const apply = () => {
-        const isNewMetric = current && baseline && baseline[kind] === 0 && current[kind] > 0;
         const favorable = kind === 'payments' || kind === 'credits' ? value < 0 : value > 0;
         const tone = value === 0 ? 'is-flat' : favorable ? 'is-good' : 'is-bad';
         node.className = 'fade-swap fin-audit-value ' + tone;
-        // Первое появление вклада/кредита не является ухудшением:
-        // раньше такой позиции просто не было в учёте.
-        node.textContent = current && baseline && !isBaselineMonth && !isNewMetric
-          ? signedMoney(value)
-          : '—';
+        const copy = phrase(kind, value);
+        node.replaceChildren(...[
+          el('span', { class: 'fin-audit-copy', text: copy.label }),
+          copy.amount ? el('span', { class: 'fin-audit-number', text: copy.amount }) : null
+        ].filter(Boolean));
       };
       soft ? softSwap(node, apply) : apply();
     };
-    paint('finAuditSafe', !isBaselineMonth && current && baseline ? current.safe - baseline.safe : 0, 'safe');
-    paint('finAuditDeposits', !isBaselineMonth && current && baseline ? current.deposits - baseline.deposits : 0, 'deposits');
-    paint('finAuditPayments', !isBaselineMonth && current && baseline ? current.payments - baseline.payments : 0, 'payments');
-    paint('finAuditCredits', !isBaselineMonth && current && baseline ? current.credits - baseline.credits : 0, 'credits');
+    paint('finAuditSafe', values.safe, 'safe');
+    paint('finAuditDeposits', values.deposits, 'deposits');
+    paint('finAuditPayments', values.payments, 'payments');
+    paint('finAuditCredits', values.credits, 'credits');
   }
 
   function signedMoney(value) {
@@ -416,7 +456,7 @@ const Fin = (() => {
     ]);
     card.addEventListener('click', () => depositDetail(rec.id));
     const root = wrapFinanceCard(card, 'fin-deposit-' + rec.id,
-      () => depositDetail(rec.id), () => removeDeposit(rec.id), 'вклад');
+      () => openDeposit(rec.id), () => removeDeposit(rec.id), 'вклад');
     return { root, name, meta, amount, rate };
   }
 
@@ -442,15 +482,18 @@ const Fin = (() => {
         el('span', { class: 'fin-chev' }, [icon('right', 17)])
       ])
     ]);
-    amount.classList.add('fin-amount--editable');
-    amount.setAttribute('title', 'Быстро изменить остаток');
+    // Сумма только отображается: быстрое изменение доступно отдельным
+    // действием при свайпе вправо, чтобы случайный тап ничего не открывал.
     amount.addEventListener('click', (event) => {
+      event.preventDefault();
       event.stopPropagation();
-      openCreditAmount(rec.id);
     });
-    card.addEventListener('click', () => creditDetail(rec.id));
+    // Все основные параметры видны на карточке, поэтому обычный тап
+    // сразу открывает редактирование без промежуточного окна деталей.
+    card.addEventListener('click', () => openCredit(rec.id));
     const root = wrapFinanceCard(card, 'fin-credit-' + rec.id,
-      () => creditDetail(rec.id), () => removeCredit(rec.id), 'кредит');
+      () => openCredit(rec.id), () => removeCredit(rec.id), 'кредит',
+      () => openCreditAmount(rec.id));
     return { root, name, meta, amount, rate };
   }
 
@@ -489,12 +532,29 @@ const Fin = (() => {
   return { mount, render, creditDetail };
 })();
 
-function wrapFinanceCard(card, id, edit, remove, label) {
+function wrapFinanceCard(card, id, edit, remove, label, quick) {
+  const leftActions = quick ? el('div', { class: 'swipe-actions swipe-actions--left' }, [
+    el('button', {
+      class: 'swipe-action swipe-action--quick', type: 'button',
+      'aria-label': 'Изменить сумму ' + label,
+      onclick: (e) => {
+        e.stopPropagation();
+        // Не открываем лист в тот же кадр, когда закрывается панель свайпа:
+        // иначе на iPhone виден промежуточный белый кадр.
+        Swipe.closeAll();
+        setTimeout(quick, 220);
+      }
+    }, [icon('pencil'), el('span', { text: 'Сумма' })])
+  ]) : null;
   const actions = el('div', { class: 'swipe-actions' }, [
     el('button', {
       class: 'swipe-action swipe-action--edit', type: 'button',
       'aria-label': 'Изменить ' + label,
-      onclick: (e) => { e.stopPropagation(); Swipe.closeAll(); edit(); }
+      onclick: (e) => {
+        e.stopPropagation();
+        Swipe.closeAll();
+        setTimeout(edit, 220);
+      }
     }, [icon('pencil'), el('span', { text: 'Изменить' })]),
     el('button', {
       class: 'swipe-action swipe-action--del', type: 'button',
@@ -502,8 +562,8 @@ function wrapFinanceCard(card, id, edit, remove, label) {
       onclick: (e) => { e.stopPropagation(); Swipe.closeAll(); remove(); }
     }, [icon('trash'), el('span', { text: 'Удалить' })])
   ]);
-  const row = el('div', { class: 'swipe fin-swipe' }, [actions, card]);
-  Swipe.attach(row, card, id);
+  const row = el('div', { class: 'swipe fin-swipe' }, [leftActions, actions, card].filter(Boolean));
+  Swipe.attach(row, card, id, { leftWidth: quick ? 68 : 0 });
   return row;
 }
 

@@ -645,6 +645,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
      в скруглённых углах карточки. */
   visibility: hidden;
 }
+.swipe-actions--left {
+  inset: 0 auto 0 0;
+}
+.swipe-actions--left .swipe-action {
+  background: linear-gradient(145deg, #22AE78 0%, var(--accent-press) 100%);
+}
 .swipe[data-dragging] .swipe-actions,
 .swipe[data-open] .swipe-actions { visibility: visible; }
 .swipe-action {
@@ -662,8 +668,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   color: #fff;
 }
 .swipe-action svg { width: 17px; height: 17px; }
-.swipe-action--edit { background: var(--text-2); }
-.swipe-action--del  { background: var(--danger); }
+.swipe-action--edit {
+  background: linear-gradient(145deg, #87968E 0%, #6F7F77 100%);
+}
+.swipe-action--del  {
+  background: linear-gradient(145deg, #CF745E 0%, var(--danger) 100%);
+}
 
 .swipe-body {
   position: relative;
@@ -1555,6 +1565,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   opacity: 0;
   transition: opacity var(--dur-sheet) var(--ease);
   will-change: opacity;
+  transform: translateZ(0);
 }
 .scrim[data-open] { opacity: 1; }
 .scrim[hidden] { display: none !important; }
@@ -1570,19 +1581,21 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   display: flex;
   flex-direction: column;
   max-height: min(88dvh, 760px);
-  background: var(--surface);
-  border-radius: 26px 26px 0 0;
+  background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%);
+  border-radius: 22px 22px 0 0;
   box-shadow: var(--shadow-modal);
   will-change: transform;
+  backface-visibility: hidden;
 }
 .sheet[hidden] { display: none !important; }
 .sheet-anim { transition: transform var(--dur-sheet) var(--ease-sheet); }
 .sheet[data-placement="top"] {
   top: calc(env(safe-area-inset-top, 0px) + 8px);
   bottom: auto;
-  border-radius: 0 0 26px 26px;
+  border-radius: 0 0 22px 22px;
 }
 .sheet-body, .sheet-foot {
+  background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%);
   transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .sheet-content-swap .sheet-body,
@@ -1634,7 +1647,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   border-top: 1px solid var(--border);
   background: var(--surface);
   flex: none;
-  border-radius: 0 0 26px 26px;
+  border-radius: 0 0 22px 22px;
 }
 
 /* Формы */
@@ -1945,9 +1958,9 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   --accent-nav: #72D5A4;
   --border: rgba(21,32,26,.075);
   --border-strong: rgba(21,32,26,.13);
-  --r-card: 20px;
-  --r-inner: 15px;
-  --r-ctl: 12px;
+  --r-card: 18px;
+  --r-inner: 14px;
+  --r-ctl: 11px;
   --shadow-card: 0 1px 2px rgba(21,32,26,.025), 0 8px 24px rgba(21,32,26,.045);
   --shadow-modal: 0 18px 56px rgba(21,32,26,.18), 0 3px 10px rgba(21,32,26,.08);
 }
@@ -2192,8 +2205,8 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .fin-icon { border-radius: var(--r-ctl); }
 .fin-card--credit { background: linear-gradient(180deg, #FFFAF8 0%, var(--surface) 52%); }
 
-.sheet { border-radius: 24px 24px 0 0; box-shadow: var(--shadow-modal); }
-.sheet-body, .sheet-foot { background: var(--surface); }
+.sheet { border-radius: 22px 22px 0 0; box-shadow: var(--shadow-modal); }
+.sheet-body, .sheet-foot { background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%); }
 .input, .select, textarea.input { border-radius: var(--r-ctl); border-color: var(--border-strong); box-shadow: inset 0 1px 1px rgba(21,32,26,.025); }
 .input:focus, .select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(25,155,102,.12); }
 .quick-cat { border-radius: var(--r-ctl); }
@@ -2641,36 +2654,57 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   margin: 0;
 }
 #scr-fin .fin-audit-cell {
-  min-height: 78px;
-  padding: 10px 15px 9px;
+  min-height: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+}
+#scr-fin .fin-audit-cell dt { margin: 0 0 6px 3px; color: var(--text-2); font-size: 12px; font-weight: 650; }
+#scr-fin .fin-audit-cell dd {
+  min-height: 70px;
+  margin: 0;
+  padding: 9px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   border-radius: var(--r-inner);
   background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%);
   box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 7px 18px rgba(21,32,26,.04);
+  font-family: var(--num);
+  line-height: 1.08;
+  text-align: center;
+  white-space: nowrap;
 }
-#scr-fin .fin-audit-cell dt { color: var(--text-2); font-size: 13px; font-weight: 600; }
-#scr-fin .fin-audit-cell dd { margin: 4px 0 0; font-family: var(--num); font-size: 23px; line-height: 1; font-weight: 700; letter-spacing: -.035em; }
-#scr-fin .fin-audit-note { margin-top: 4px; color: var(--text-3); font-size: 11px; line-height: 1.1; }
+#scr-fin .fin-audit-copy { color: var(--text-2); font-size: 11.5px; font-weight: 620; letter-spacing: -.005em; }
+#scr-fin .fin-audit-number { font-size: 21px; font-weight: 760; letter-spacing: -.03em; }
+#scr-fin .fin-audit-note { display: none; }
+#scr-fin .fin-audit-value.is-flat { background: linear-gradient(145deg, #FBFCFB 0%, #F4F7F5 100%); box-shadow: inset 0 0 0 1px rgba(21,32,26,.035); }
+#scr-fin .fin-audit-value.is-flat .fin-audit-copy { color: var(--text-3); }
 #scr-fin .fin-audit-value.is-good { color: var(--accent-press); }
 #scr-fin .fin-audit-value.is-bad { color: var(--danger); }
 #scr-fin .fin-audit-value.is-flat { color: var(--text); }
 
 @media (max-width: 359px) {
-  #scr-fin .fin-audit-cell { padding-inline: 12px; }
-  #scr-fin .fin-audit-cell dd { font-size: 19px; }
+  #scr-fin .fin-audit-cell dt { margin-left: 1px; }
+  #scr-fin .fin-audit-cell dd { min-height: 66px; }
+  #scr-fin .fin-audit-number { font-size: 19px; }
 }
 
 /* Листы финансовых действий и деталей наследуют общую систему, но
    получают более собранные строки и читаемые числовые значения. */
 .sheet .list-row { min-height: 58px; padding-block: 10px; }
+.sheet .list-row--static { min-height: 48px; padding-block: 7px; }
 .sheet .list-row .list-label { font-weight: 620; }
 .sheet .list-row .list-note { margin-top: 3px; color: var(--text-3); }
 .sheet .list-row .list-side.mono { min-width: 112px; text-align: right; font-family: var(--num); }
 .sheet .field + .field { margin-top: 14px; }
 .sheet .field-row { gap: 10px; }
-.sheet .sheet-foot .btn + .btn { margin-top: 9px !important; }
+.sheet-actions-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.sheet-actions-inline .btn { min-width: 0; padding-inline: 8px; font-size: 12px; }
+.sheet-actions-inline .fin-detail-primary { background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%); }
 
 @media (max-width: 359px) {
   #scr-fin .fin-side { width: 122px; min-width: 122px; }
@@ -2935,7 +2969,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-home .hero {
   padding: 19px 16px 15px;
   border: 1px solid rgba(22,32,27,.045);
-  border-radius: var(--r-card);
+  border-radius: 28px;
   background: linear-gradient(145deg, #FFFFFF 0%, #FBFDFC 58%, #F0F8F4 100%);
   box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 8px 22px rgba(21,32,26,.055);
 }
@@ -3043,7 +3077,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 /* Кнопка добавления дохода повторяет зелёный перелив текущего месяца на графике. */
 #scr-home #addIncome {
-  border-radius: var(--r-card);
+  border-radius: 18px;
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
 }
 #scr-home #addIncome:active { background: var(--accent-press); }
@@ -3112,5 +3146,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   padding-top: 8px;
 }
 .sheet:has(.input--amount) .sheet-foot .btn {
-  border-radius: var(--r-card);
+  border-radius: 18px;
+}
+.sheet:has(.input--amount) .sheet-foot .btn:not(.btn--ghost) {
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
+}
+.sheet:has(.input--amount) .sheet-foot .btn:not(.btn--ghost):active {
+  background: var(--accent-press);
 }

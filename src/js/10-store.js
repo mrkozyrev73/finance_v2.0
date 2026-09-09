@@ -7,7 +7,7 @@
 
 const DB_KEY   = 'dohod.state.v1';
 const CFG_KEY  = 'dohod.supabase.v1';
-const SCHEMA   = 1;
+const SCHEMA   = 2;
 
 /** Коллекции, которые синхронизируются как наборы записей */
 const COLLECTIONS = [
@@ -58,7 +58,7 @@ function emptyState() {
     notes: [],
     history: [],
     financeSnapshots: [],
-    safe:     { name: 'Наличные дома', amount: 0, updatedAt: now() },
+    safe:     { name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null, updatedAt: now() },
     settings: {
       dynMode: 'month',
       statsKey: null,
@@ -85,7 +85,12 @@ const Store = (() => {
       const raw = localStorage.getItem(DB_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') state = migrate(parsed);
+      if (parsed && typeof parsed === 'object') {
+        state = migrate(parsed);
+        // Сохраняем добавленные при миграции базовые значения, чтобы они
+        // участвовали и в следующей синхронизации.
+        localStorage.setItem(DB_KEY, JSON.stringify(state));
+      }
     } catch (e) {
       console.warn('[store] не удалось прочитать локальные данные', e);
     }
@@ -116,6 +121,25 @@ const Store = (() => {
     const storedVersion = (data.settings && data.settings.categoriesVersion) || 0;
     upgradeCategories(base, storedVersion);
     dedupeCategories(base);
+    // Финансовая история считается от первого значения каждой позиции,
+    // а не от случайного снимка прошлого месяца. Старые данные принимаем
+    // за уже зафиксированную базу, чтобы не показывать ложный скачок.
+    const initBaseline = (record, amount, initialized) => {
+      if (record.baselineInitialized != null) return record;
+      const value = Number(amount) || 0;
+      Object.assign(record, {
+        baselineAmount: value,
+        baselineInitialized: initialized,
+        baselineAt: initialized ? (record.createdAt || now()) : null
+      });
+      return record;
+    };
+    initBaseline(base.safe, base.safe.amount, Number(base.safe.amount) > 0);
+    for (const record of base.deposits) initBaseline(record, record.amount, true);
+    for (const record of base.credits) {
+      initBaseline(record, record.remaining, true);
+      if (record.baselinePayment == null) record.baselinePayment = Number(record.monthlyPayment) || 0;
+    }
     base.schema = SCHEMA;
     return base;
   }
@@ -264,7 +288,7 @@ const Store = (() => {
     /** Тихое применение (для входящей синхронизации) — без обратной отправки */
     applyRemote(next) {
       dedupeCategories(next);
-      state = next;
+      state = migrate(next);
       try { localStorage.setItem(DB_KEY, JSON.stringify(state)); } catch (_) {}
       emit('remote');
     },
@@ -321,7 +345,19 @@ const Store = (() => {
     },
 
     add(name, data, logLabel) {
-      const rec = stampNew(data);
+      const payload = Object.assign({}, data);
+      if (name === 'deposits' && payload.baselineAmount == null) {
+        payload.baselineAmount = Number(payload.amount) || 0;
+        payload.baselineInitialized = true;
+        payload.baselineAt = now();
+      }
+      if (name === 'credits' && payload.baselineAmount == null) {
+        payload.baselineAmount = Number(payload.remaining) || 0;
+        payload.baselinePayment = Number(payload.monthlyPayment) || 0;
+        payload.baselineInitialized = true;
+        payload.baselineAt = now();
+      }
+      const rec = stampNew(payload);
       api.update(s => {
         s[name].push(rec);
         pushHistory(s, 'create', name, rec, logLabel);
@@ -370,8 +406,31 @@ const Store = (() => {
 
     setSingleton(name, data) {
       api.update(s => {
-        s[name] = Object.assign({}, s[name], data, { updatedAt: now() });
+        const current = s[name] || {};
+        const next = Object.assign({}, current, data);
+        if (name === 'safe' && !current.baselineInitialized && Number(next.amount) > 0) {
+          next.baselineAmount = Number(next.amount) || 0;
+          next.baselineInitialized = true;
+          next.baselineAt = now();
+        }
+        s[name] = Object.assign(next, { updatedAt: now() });
       }, 'set:' + name);
+    },
+
+    /** Зафиксировать текущие суммы как новую точку отсчёта. */
+    rebaseFinance(name, id) {
+      api.update(s => {
+        const record = name === 'safe' ? s.safe : (s[name] || []).find(r => r.id === id);
+        if (!record) return;
+        const amount = Number(name === 'credits' ? record.remaining : record.amount) || 0;
+        Object.assign(record, {
+          baselineAmount: amount,
+          baselinePayment: Number(record.monthlyPayment) || 0,
+          baselineInitialized: true,
+          baselineAt: now(),
+          updatedAt: now()
+        });
+      }, 'finance:rebase');
     },
 
     /** Все удалённые записи всех коллекций — для корзины */

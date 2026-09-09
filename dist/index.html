@@ -664,6 +664,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
      в скруглённых углах карточки. */
   visibility: hidden;
 }
+.swipe-actions--left {
+  inset: 0 auto 0 0;
+}
+.swipe-actions--left .swipe-action {
+  background: linear-gradient(145deg, #22AE78 0%, var(--accent-press) 100%);
+}
 .swipe[data-dragging] .swipe-actions,
 .swipe[data-open] .swipe-actions { visibility: visible; }
 .swipe-action {
@@ -681,8 +687,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   color: #fff;
 }
 .swipe-action svg { width: 17px; height: 17px; }
-.swipe-action--edit { background: var(--text-2); }
-.swipe-action--del  { background: var(--danger); }
+.swipe-action--edit {
+  background: linear-gradient(145deg, #87968E 0%, #6F7F77 100%);
+}
+.swipe-action--del  {
+  background: linear-gradient(145deg, #CF745E 0%, var(--danger) 100%);
+}
 
 .swipe-body {
   position: relative;
@@ -1574,6 +1584,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   opacity: 0;
   transition: opacity var(--dur-sheet) var(--ease);
   will-change: opacity;
+  transform: translateZ(0);
 }
 .scrim[data-open] { opacity: 1; }
 .scrim[hidden] { display: none !important; }
@@ -1589,19 +1600,21 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   display: flex;
   flex-direction: column;
   max-height: min(88dvh, 760px);
-  background: var(--surface);
-  border-radius: 26px 26px 0 0;
+  background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%);
+  border-radius: 22px 22px 0 0;
   box-shadow: var(--shadow-modal);
   will-change: transform;
+  backface-visibility: hidden;
 }
 .sheet[hidden] { display: none !important; }
 .sheet-anim { transition: transform var(--dur-sheet) var(--ease-sheet); }
 .sheet[data-placement="top"] {
   top: calc(env(safe-area-inset-top, 0px) + 8px);
   bottom: auto;
-  border-radius: 0 0 26px 26px;
+  border-radius: 0 0 22px 22px;
 }
 .sheet-body, .sheet-foot {
+  background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%);
   transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .sheet-content-swap .sheet-body,
@@ -1653,7 +1666,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   border-top: 1px solid var(--border);
   background: var(--surface);
   flex: none;
-  border-radius: 0 0 26px 26px;
+  border-radius: 0 0 22px 22px;
 }
 
 /* Формы */
@@ -1964,9 +1977,9 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   --accent-nav: #72D5A4;
   --border: rgba(21,32,26,.075);
   --border-strong: rgba(21,32,26,.13);
-  --r-card: 20px;
-  --r-inner: 15px;
-  --r-ctl: 12px;
+  --r-card: 18px;
+  --r-inner: 14px;
+  --r-ctl: 11px;
   --shadow-card: 0 1px 2px rgba(21,32,26,.025), 0 8px 24px rgba(21,32,26,.045);
   --shadow-modal: 0 18px 56px rgba(21,32,26,.18), 0 3px 10px rgba(21,32,26,.08);
 }
@@ -2211,8 +2224,8 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .fin-icon { border-radius: var(--r-ctl); }
 .fin-card--credit { background: linear-gradient(180deg, #FFFAF8 0%, var(--surface) 52%); }
 
-.sheet { border-radius: 24px 24px 0 0; box-shadow: var(--shadow-modal); }
-.sheet-body, .sheet-foot { background: var(--surface); }
+.sheet { border-radius: 22px 22px 0 0; box-shadow: var(--shadow-modal); }
+.sheet-body, .sheet-foot { background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%); }
 .input, .select, textarea.input { border-radius: var(--r-ctl); border-color: var(--border-strong); box-shadow: inset 0 1px 1px rgba(21,32,26,.025); }
 .input:focus, .select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(25,155,102,.12); }
 .quick-cat { border-radius: var(--r-ctl); }
@@ -2660,36 +2673,57 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   margin: 0;
 }
 #scr-fin .fin-audit-cell {
-  min-height: 78px;
-  padding: 10px 15px 9px;
+  min-height: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+}
+#scr-fin .fin-audit-cell dt { margin: 0 0 6px 3px; color: var(--text-2); font-size: 12px; font-weight: 650; }
+#scr-fin .fin-audit-cell dd {
+  min-height: 70px;
+  margin: 0;
+  padding: 9px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   border-radius: var(--r-inner);
   background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%);
   box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 7px 18px rgba(21,32,26,.04);
+  font-family: var(--num);
+  line-height: 1.08;
+  text-align: center;
+  white-space: nowrap;
 }
-#scr-fin .fin-audit-cell dt { color: var(--text-2); font-size: 13px; font-weight: 600; }
-#scr-fin .fin-audit-cell dd { margin: 4px 0 0; font-family: var(--num); font-size: 23px; line-height: 1; font-weight: 700; letter-spacing: -.035em; }
-#scr-fin .fin-audit-note { margin-top: 4px; color: var(--text-3); font-size: 11px; line-height: 1.1; }
+#scr-fin .fin-audit-copy { color: var(--text-2); font-size: 11.5px; font-weight: 620; letter-spacing: -.005em; }
+#scr-fin .fin-audit-number { font-size: 21px; font-weight: 760; letter-spacing: -.03em; }
+#scr-fin .fin-audit-note { display: none; }
+#scr-fin .fin-audit-value.is-flat { background: linear-gradient(145deg, #FBFCFB 0%, #F4F7F5 100%); box-shadow: inset 0 0 0 1px rgba(21,32,26,.035); }
+#scr-fin .fin-audit-value.is-flat .fin-audit-copy { color: var(--text-3); }
 #scr-fin .fin-audit-value.is-good { color: var(--accent-press); }
 #scr-fin .fin-audit-value.is-bad { color: var(--danger); }
 #scr-fin .fin-audit-value.is-flat { color: var(--text); }
 
 @media (max-width: 359px) {
-  #scr-fin .fin-audit-cell { padding-inline: 12px; }
-  #scr-fin .fin-audit-cell dd { font-size: 19px; }
+  #scr-fin .fin-audit-cell dt { margin-left: 1px; }
+  #scr-fin .fin-audit-cell dd { min-height: 66px; }
+  #scr-fin .fin-audit-number { font-size: 19px; }
 }
 
 /* Листы финансовых действий и деталей наследуют общую систему, но
    получают более собранные строки и читаемые числовые значения. */
 .sheet .list-row { min-height: 58px; padding-block: 10px; }
+.sheet .list-row--static { min-height: 48px; padding-block: 7px; }
 .sheet .list-row .list-label { font-weight: 620; }
 .sheet .list-row .list-note { margin-top: 3px; color: var(--text-3); }
 .sheet .list-row .list-side.mono { min-width: 112px; text-align: right; font-family: var(--num); }
 .sheet .field + .field { margin-top: 14px; }
 .sheet .field-row { gap: 10px; }
-.sheet .sheet-foot .btn + .btn { margin-top: 9px !important; }
+.sheet-actions-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.sheet-actions-inline .btn { min-width: 0; padding-inline: 8px; font-size: 12px; }
+.sheet-actions-inline .fin-detail-primary { background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%); }
 
 @media (max-width: 359px) {
   #scr-fin .fin-side { width: 122px; min-width: 122px; }
@@ -2954,7 +2988,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-home .hero {
   padding: 19px 16px 15px;
   border: 1px solid rgba(22,32,27,.045);
-  border-radius: var(--r-card);
+  border-radius: 28px;
   background: linear-gradient(145deg, #FFFFFF 0%, #FBFDFC 58%, #F0F8F4 100%);
   box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 8px 22px rgba(21,32,26,.055);
 }
@@ -3062,7 +3096,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 /* Кнопка добавления дохода повторяет зелёный перелив текущего месяца на графике. */
 #scr-home #addIncome {
-  border-radius: var(--r-card);
+  border-radius: 18px;
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
 }
 #scr-home #addIncome:active { background: var(--accent-press); }
@@ -3131,7 +3165,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   padding-top: 8px;
 }
 .sheet:has(.input--amount) .sheet-foot .btn {
-  border-radius: var(--r-card);
+  border-radius: 18px;
+}
+.sheet:has(.input--amount) .sheet-foot .btn:not(.btn--ghost) {
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
+}
+.sheet:has(.input--amount) .sheet-foot .btn:not(.btn--ghost):active {
+  background: var(--accent-press);
 }
 
 </style>
@@ -3307,15 +3347,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <div class="section-head">
           <div>
             <h2 class="section-title">Изменения</h2>
-            <p class="section-sub">К прошлому месяцу</p>
+            <p class="section-sub">С первого добавления</p>
           </div>
           <span class="fin-audit-period" id="finAuditPeriod">—</span>
         </div>
         <dl class="fin-audit-grid" id="finAuditGrid">
-          <div class="fin-audit-cell"><dt>Сейф</dt><dd class="fade-swap" id="finAuditSafe">—</dd><span class="fin-audit-note">сумма</span></div>
-          <div class="fin-audit-cell"><dt>Вклады</dt><dd class="fade-swap" id="finAuditDeposits">—</dd><span class="fin-audit-note">сумма</span></div>
-          <div class="fin-audit-cell"><dt>Платежи</dt><dd class="fade-swap" id="finAuditPayments">—</dd><span class="fin-audit-note">в месяц</span></div>
-          <div class="fin-audit-cell"><dt>Кредиты</dt><dd class="fade-swap" id="finAuditCredits">—</dd><span class="fin-audit-note">остаток</span></div>
+          <div class="fin-audit-cell"><dt>Сейф</dt><dd class="fade-swap" id="finAuditSafe">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
+          <div class="fin-audit-cell"><dt>Вклады</dt><dd class="fade-swap" id="finAuditDeposits">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
+          <div class="fin-audit-cell"><dt>Платежи</dt><dd class="fade-swap" id="finAuditPayments">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
+          <div class="fin-audit-cell"><dt>Кредиты</dt><dd class="fade-swap" id="finAuditCredits">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
         </dl>
       </div>
 
@@ -3331,7 +3371,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             <p class="fin-meta">Свободные средства</p>
           </div>
           <div class="fin-side">
+            <span>
             <p class="fin-amount fade-swap" id="safeAmount">0 ₽</p>
+            </span>
             <span class="fin-chev" aria-hidden="true"><svg width="17" height="17"><use href="#ic-right"/></svg></span>
           </div>
         </div>
@@ -3675,7 +3717,7 @@ var SyncHook = { push: function () {} };
 
 const DB_KEY   = 'dohod.state.v1';
 const CFG_KEY  = 'dohod.supabase.v1';
-const SCHEMA   = 1;
+const SCHEMA   = 2;
 
 /** Коллекции, которые синхронизируются как наборы записей */
 const COLLECTIONS = [
@@ -3726,7 +3768,7 @@ function emptyState() {
     notes: [],
     history: [],
     financeSnapshots: [],
-    safe:     { name: 'Наличные дома', amount: 0, updatedAt: now() },
+    safe:     { name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null, updatedAt: now() },
     settings: {
       dynMode: 'month',
       statsKey: null,
@@ -3753,7 +3795,12 @@ const Store = (() => {
       const raw = localStorage.getItem(DB_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') state = migrate(parsed);
+      if (parsed && typeof parsed === 'object') {
+        state = migrate(parsed);
+        // Сохраняем добавленные при миграции базовые значения, чтобы они
+        // участвовали и в следующей синхронизации.
+        localStorage.setItem(DB_KEY, JSON.stringify(state));
+      }
     } catch (e) {
       console.warn('[store] не удалось прочитать локальные данные', e);
     }
@@ -3784,6 +3831,25 @@ const Store = (() => {
     const storedVersion = (data.settings && data.settings.categoriesVersion) || 0;
     upgradeCategories(base, storedVersion);
     dedupeCategories(base);
+    // Финансовая история считается от первого значения каждой позиции,
+    // а не от случайного снимка прошлого месяца. Старые данные принимаем
+    // за уже зафиксированную базу, чтобы не показывать ложный скачок.
+    const initBaseline = (record, amount, initialized) => {
+      if (record.baselineInitialized != null) return record;
+      const value = Number(amount) || 0;
+      Object.assign(record, {
+        baselineAmount: value,
+        baselineInitialized: initialized,
+        baselineAt: initialized ? (record.createdAt || now()) : null
+      });
+      return record;
+    };
+    initBaseline(base.safe, base.safe.amount, Number(base.safe.amount) > 0);
+    for (const record of base.deposits) initBaseline(record, record.amount, true);
+    for (const record of base.credits) {
+      initBaseline(record, record.remaining, true);
+      if (record.baselinePayment == null) record.baselinePayment = Number(record.monthlyPayment) || 0;
+    }
     base.schema = SCHEMA;
     return base;
   }
@@ -3932,7 +3998,7 @@ const Store = (() => {
     /** Тихое применение (для входящей синхронизации) — без обратной отправки */
     applyRemote(next) {
       dedupeCategories(next);
-      state = next;
+      state = migrate(next);
       try { localStorage.setItem(DB_KEY, JSON.stringify(state)); } catch (_) {}
       emit('remote');
     },
@@ -3989,7 +4055,19 @@ const Store = (() => {
     },
 
     add(name, data, logLabel) {
-      const rec = stampNew(data);
+      const payload = Object.assign({}, data);
+      if (name === 'deposits' && payload.baselineAmount == null) {
+        payload.baselineAmount = Number(payload.amount) || 0;
+        payload.baselineInitialized = true;
+        payload.baselineAt = now();
+      }
+      if (name === 'credits' && payload.baselineAmount == null) {
+        payload.baselineAmount = Number(payload.remaining) || 0;
+        payload.baselinePayment = Number(payload.monthlyPayment) || 0;
+        payload.baselineInitialized = true;
+        payload.baselineAt = now();
+      }
+      const rec = stampNew(payload);
       api.update(s => {
         s[name].push(rec);
         pushHistory(s, 'create', name, rec, logLabel);
@@ -4038,8 +4116,31 @@ const Store = (() => {
 
     setSingleton(name, data) {
       api.update(s => {
-        s[name] = Object.assign({}, s[name], data, { updatedAt: now() });
+        const current = s[name] || {};
+        const next = Object.assign({}, current, data);
+        if (name === 'safe' && !current.baselineInitialized && Number(next.amount) > 0) {
+          next.baselineAmount = Number(next.amount) || 0;
+          next.baselineInitialized = true;
+          next.baselineAt = now();
+        }
+        s[name] = Object.assign(next, { updatedAt: now() });
       }, 'set:' + name);
+    },
+
+    /** Зафиксировать текущие суммы как новую точку отсчёта. */
+    rebaseFinance(name, id) {
+      api.update(s => {
+        const record = name === 'safe' ? s.safe : (s[name] || []).find(r => r.id === id);
+        if (!record) return;
+        const amount = Number(name === 'credits' ? record.remaining : record.amount) || 0;
+        Object.assign(record, {
+          baselineAmount: amount,
+          baselinePayment: Number(record.monthlyPayment) || 0,
+          baselineInitialized: true,
+          baselineAt: now(),
+          updatedAt: now()
+        });
+      }, 'finance:rebase');
     },
 
     /** Все удалённые записи всех коллекций — для корзины */
@@ -4463,6 +4564,9 @@ const Sheet = (() => {
     const entrance = conf.placement === 'top' ? '-100%' : '100%';
     node.style.transform = 'translate(-50%,' + entrance + ')';
     document.body.style.overflow = 'hidden';
+    // Принудительно фиксируем стартовый кадр: без этого Safari иногда
+    // объединяет начальную и конечную позиции, из-за чего лист дёргается.
+    node.offsetHeight;
     // Затемнение стартует сразу вместе с окном, без двухкадровой задержки.
     scrim.setAttribute('data-open', '');
 
@@ -4730,7 +4834,8 @@ const Swipe = (() => {
   const THRESHOLD = 10;       // гистерезис до захвата направления
   const open = new Map();     // id -> {row, body}
 
-  function attach(row, body, id) {
+  function attach(row, body, id, options) {
+    const leftWidth = options && options.leftWidth ? options.leftWidth : 0;
     let active = false, locked = null, startX = 0, startY = 0;
     let base = 0, x = 0, samples = [];
 
@@ -4739,7 +4844,7 @@ const Swipe = (() => {
       body.style.transform = 'translateX(' + v + 'px)';
     };
 
-    const settle = (to, velocity = 0) => {
+    const settle = (to, velocity = 0, side = null) => {
       const distance = Math.abs(to - x);
       const speed = Math.max(220, Math.abs(velocity));
       const duration = distance
@@ -4748,7 +4853,7 @@ const Swipe = (() => {
       body.style.setProperty('--swipe-settle-duration', duration + 'ms');
       row.setAttribute('data-settling', '');
       setX(to);
-      if (to < 0) { open.set(id, { row, body }); row.setAttribute('data-open', ''); }
+      if (to !== 0) { open.set(id, { row, body, side }); row.setAttribute('data-open', ''); }
       else { open.delete(id); row.removeAttribute('data-open'); }
       clearTimeout(row._settleT);
       row._settleT = setTimeout(() => {
@@ -4761,7 +4866,8 @@ const Swipe = (() => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       active = true; locked = null;
       startX = e.clientX; startY = e.clientY;
-      base = open.has(id) ? -ACTIONS_W : 0;
+      const opened = open.get(id);
+      base = opened ? (opened.side === 'left' ? leftWidth : -ACTIONS_W) : 0;
       samples = [{ t: performance.now(), x: e.clientX }];
       row.removeAttribute('data-settling');
       body.style.removeProperty('--swipe-settle-duration');
@@ -4785,7 +4891,7 @@ const Swipe = (() => {
       if (locked !== 'x') return;
 
       let next = base + dx;
-      if (next > 0) next = rubberband(next, ACTIONS_W);              // тянем вправо — резина
+      if (next > leftWidth) next = leftWidth + rubberband(next - leftWidth, ACTIONS_W);
       else if (next < -ACTIONS_W) {
         next = -ACTIONS_W - rubberband(-ACTIONS_W - next, ACTIONS_W); // и влево тоже
       }
@@ -4808,7 +4914,10 @@ const Swipe = (() => {
       const dt = Math.max(1, last.t - first.t);
       const velocity = (last.x - first.x) / dt * 1000;
       const projected = x + projectMomentum(velocity);
-      settle(projected < -ACTIONS_W / 2 ? -ACTIONS_W : 0, velocity);
+      const to = leftWidth && projected > leftWidth / 2
+        ? leftWidth
+        : projected < -ACTIONS_W / 2 ? -ACTIONS_W : 0;
+      settle(to, velocity, to === leftWidth && to !== 0 ? 'left' : to ? 'right' : null);
     };
 
     body.addEventListener('pointerup', finish);
@@ -5303,7 +5412,11 @@ function ensureRecurring(key) {
 
 const Home = (() => {
   function mount() {
-    $('#addIncome').addEventListener('click', () => IncomeForm.open(null));
+    $('#addIncome').addEventListener('click', () => {
+      // Отделяем закрытие pressed-состояния кнопки от появления листа:
+      // это убирает белую вспышку на мобильном Safari.
+      setTimeout(() => IncomeForm.open(null), 20);
+    });
 
     $$('#incomeFilters .chip').forEach(chip => {
       chip.addEventListener('click', () => {
@@ -5392,7 +5505,8 @@ const Home = (() => {
       : counts.expected === 0 ? 'Всё получено'
       : counts.expected + ' ' + plural(counts.expected, 'доход ожидается', 'дохода ожидаются', 'доходов ожидаются');
     setAttr($('#incomeStatus'), 'data-state', !all.length ? 'empty' : counts.expected ? 'expected' : 'received');
-    softSwap($('#incomeStatus'), () => setText($('#incomeStatus'), statusText));
+    if (soft) softSwap($('#incomeStatus'), () => setText($('#incomeStatus'), statusText));
+    else setText($('#incomeStatus'), statusText);
 
     IncomeList.render(filtered());
   }
@@ -5980,13 +6094,13 @@ const Fin = (() => {
     const safeRow = wrapFinanceCard(safeCard, 'fin-safe', openSafe, clearSafe, 'сейф');
     safeHost.insertBefore(safeRow, safeAfter);
     safeCard.addEventListener('click', openSafe);
-    $('#safeAdd').addEventListener('click', openSafe);
-    $('#depAdd').addEventListener('click', () => openDeposit(null));
-    $('#creditAdd').addEventListener('click', () => openCredit(null));
+    $('#safeAdd').addEventListener('click', () => setTimeout(openSafe, 20));
+    $('#depAdd').addEventListener('click', () => setTimeout(() => openDeposit(null), 20));
+    $('#creditAdd').addEventListener('click', () => setTimeout(() => openCredit(null), 20));
   }
 
   function clearSafe() {
-    Store.setSingleton('safe', { name: 'Наличные дома', amount: 0 });
+    Store.setSingleton('safe', { name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null });
     Store.recordFinanceSnapshot();
     Toast.show('Сейф удалён');
   }
@@ -6046,6 +6160,10 @@ const Fin = (() => {
             Toast.show('Сейф обновлён');
           }
         }));
+        foot.appendChild(el('button', {
+          class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+          onclick: () => { Store.rebaseFinance('safe'); Sheet.close(); Toast.show('База сейфа обновлена'); }
+        }));
       }
     });
   }
@@ -6098,6 +6216,12 @@ const Fin = (() => {
         }));
         if (rec) {
           foot.appendChild(el('button', {
+            class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+            onclick: () => { Store.rebaseFinance('deposits', rec.id); Sheet.close(); Toast.show('База вклада обновлена'); }
+          }));
+        }
+        if (rec) {
+          foot.appendChild(el('button', {
             class: 'btn btn--ghost btn--block', type: 'button', text: 'Удалить вклад',
             style: 'margin-top:8px;color:var(--danger)',
             onclick: () => {
@@ -6133,10 +6257,16 @@ const Fin = (() => {
         ]));
       },
       footer(foot) {
-        foot.appendChild(el('button', {
-          class: 'btn btn--block', type: 'button', text: 'Изменить',
+        const actions = el('div', { class: 'sheet-actions-inline' });
+        actions.appendChild(el('button', {
+          class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+          onclick: () => { Store.rebaseFinance('deposits', id); Sheet.close(); Toast.show('База вклада обновлена'); }
+        }));
+        actions.appendChild(el('button', {
+          class: 'btn btn--block fin-detail-primary', type: 'button', text: 'Изменить',
           onclick: () => { Sheet.close(false, () => openDeposit(id)); }
         }));
+        foot.appendChild(actions);
       }
     });
   }
@@ -6198,6 +6328,12 @@ const Fin = (() => {
         }));
         if (rec) {
           foot.appendChild(el('button', {
+            class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+            onclick: () => { Store.rebaseFinance('credits', rec.id); Sheet.close(); Toast.show('База кредита обновлена'); }
+          }));
+        }
+        if (rec) {
+          foot.appendChild(el('button', {
             class: 'btn btn--ghost btn--block', type: 'button', text: 'Удалить кредит',
             style: 'margin-top:8px;color:var(--danger)',
             onclick: () => {
@@ -6238,10 +6374,16 @@ const Fin = (() => {
 
       },
       footer(foot) {
-        foot.appendChild(el('button', {
-          class: 'btn btn--block', type: 'button', text: 'Изменить',
+        const actions = el('div', { class: 'sheet-actions-inline' });
+        actions.appendChild(el('button', {
+          class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+          onclick: () => { Store.rebaseFinance('credits', id); Sheet.close(); Toast.show('База кредита обновлена'); }
+        }));
+        actions.appendChild(el('button', {
+          class: 'btn btn--block fin-detail-primary', type: 'button', text: 'Изменить',
           onclick: () => { Sheet.close(false, () => openCredit(id)); }
         }));
+        foot.appendChild(actions);
       }
     });
   }
@@ -6268,37 +6410,49 @@ const Fin = (() => {
   }
 
   function renderAudit(soft) {
-    const key = View.key || keyOf(new Date().toISOString());
-    const currentEnd = new Date(yearOf(key), monOf(key) + 1, 0, 23, 59, 59, 999).getTime();
-    const previousKey = shiftKey(key, -1);
-    const previousEnd = new Date(yearOf(previousKey), monOf(previousKey) + 1, 0, 23, 59, 59, 999).getTime();
-    const snapshots = (Store.state.financeSnapshots || []).slice().sort((a, b) => a.at - b.at);
-    const current = snapshots.filter(s => s.at <= currentEnd).pop();
-    const previous = snapshots.filter(s => s.at <= previousEnd).pop();
-    const baseline = previous;
-    const baselineKey = Store.state.settings?.financeBaselineKey || null;
-    const isBaselineMonth = baselineKey === key;
-    const period = () => setText($('#finAuditPeriod'), isBaselineMonth ? 'базовый месяц' : (previous ? previousKey.replace('-', ' / ') : 'нет данных'));
-    period();
+    setText($('#finAuditPeriod'), 'общая история');
+    const records = (name) => Store.state[name] || [];
+    const delta = (record, field, baseField) => {
+      if (!record || !record.baselineInitialized) return 0;
+      return (Number(record[field]) || 0) - (Number(record[baseField]) || 0);
+    };
+    const sumDelta = (name, field, baseField) => records(name)
+      .reduce((sum, record) => sum + delta(record, field, baseField), 0);
+    const safe = Store.state.safe || {};
+    const values = {
+      safe: delta(safe, 'amount', 'baselineAmount'),
+      deposits: sumDelta('deposits', 'amount', 'baselineAmount'),
+      payments: records('credits').reduce((sum, record) => sum + delta(record, 'monthlyPayment', 'baselinePayment'), 0),
+      credits: sumDelta('credits', 'remaining', 'baselineAmount')
+    };
+    const phrase = (kind, value) => {
+      if (!value) return { label: 'Без изменений', amount: '' };
+      const verbs = {
+        safe: value > 0 ? 'Увеличился' : 'Уменьшился',
+        deposits: value > 0 ? 'Стали больше' : 'Стали меньше',
+        payments: value > 0 ? 'Увеличились' : 'Уменьшились',
+        credits: value > 0 ? 'Увеличились' : 'Уменьшились'
+      };
+      return { label: verbs[kind] + ' на', amount: money(Math.abs(value)) };
+    };
     const paint = (id, value, kind) => {
       const node = $('#' + id);
       const apply = () => {
-        const isNewMetric = current && baseline && baseline[kind] === 0 && current[kind] > 0;
         const favorable = kind === 'payments' || kind === 'credits' ? value < 0 : value > 0;
         const tone = value === 0 ? 'is-flat' : favorable ? 'is-good' : 'is-bad';
         node.className = 'fade-swap fin-audit-value ' + tone;
-        // Первое появление вклада/кредита не является ухудшением:
-        // раньше такой позиции просто не было в учёте.
-        node.textContent = current && baseline && !isBaselineMonth && !isNewMetric
-          ? signedMoney(value)
-          : '—';
+        const copy = phrase(kind, value);
+        node.replaceChildren(...[
+          el('span', { class: 'fin-audit-copy', text: copy.label }),
+          copy.amount ? el('span', { class: 'fin-audit-number', text: copy.amount }) : null
+        ].filter(Boolean));
       };
       soft ? softSwap(node, apply) : apply();
     };
-    paint('finAuditSafe', !isBaselineMonth && current && baseline ? current.safe - baseline.safe : 0, 'safe');
-    paint('finAuditDeposits', !isBaselineMonth && current && baseline ? current.deposits - baseline.deposits : 0, 'deposits');
-    paint('finAuditPayments', !isBaselineMonth && current && baseline ? current.payments - baseline.payments : 0, 'payments');
-    paint('finAuditCredits', !isBaselineMonth && current && baseline ? current.credits - baseline.credits : 0, 'credits');
+    paint('finAuditSafe', values.safe, 'safe');
+    paint('finAuditDeposits', values.deposits, 'deposits');
+    paint('finAuditPayments', values.payments, 'payments');
+    paint('finAuditCredits', values.credits, 'credits');
   }
 
   function signedMoney(value) {
@@ -6339,7 +6493,7 @@ const Fin = (() => {
     ]);
     card.addEventListener('click', () => depositDetail(rec.id));
     const root = wrapFinanceCard(card, 'fin-deposit-' + rec.id,
-      () => depositDetail(rec.id), () => removeDeposit(rec.id), 'вклад');
+      () => openDeposit(rec.id), () => removeDeposit(rec.id), 'вклад');
     return { root, name, meta, amount, rate };
   }
 
@@ -6365,15 +6519,18 @@ const Fin = (() => {
         el('span', { class: 'fin-chev' }, [icon('right', 17)])
       ])
     ]);
-    amount.classList.add('fin-amount--editable');
-    amount.setAttribute('title', 'Быстро изменить остаток');
+    // Сумма только отображается: быстрое изменение доступно отдельным
+    // действием при свайпе вправо, чтобы случайный тап ничего не открывал.
     amount.addEventListener('click', (event) => {
+      event.preventDefault();
       event.stopPropagation();
-      openCreditAmount(rec.id);
     });
-    card.addEventListener('click', () => creditDetail(rec.id));
+    // Все основные параметры видны на карточке, поэтому обычный тап
+    // сразу открывает редактирование без промежуточного окна деталей.
+    card.addEventListener('click', () => openCredit(rec.id));
     const root = wrapFinanceCard(card, 'fin-credit-' + rec.id,
-      () => creditDetail(rec.id), () => removeCredit(rec.id), 'кредит');
+      () => openCredit(rec.id), () => removeCredit(rec.id), 'кредит',
+      () => openCreditAmount(rec.id));
     return { root, name, meta, amount, rate };
   }
 
@@ -6412,12 +6569,29 @@ const Fin = (() => {
   return { mount, render, creditDetail };
 })();
 
-function wrapFinanceCard(card, id, edit, remove, label) {
+function wrapFinanceCard(card, id, edit, remove, label, quick) {
+  const leftActions = quick ? el('div', { class: 'swipe-actions swipe-actions--left' }, [
+    el('button', {
+      class: 'swipe-action swipe-action--quick', type: 'button',
+      'aria-label': 'Изменить сумму ' + label,
+      onclick: (e) => {
+        e.stopPropagation();
+        // Не открываем лист в тот же кадр, когда закрывается панель свайпа:
+        // иначе на iPhone виден промежуточный белый кадр.
+        Swipe.closeAll();
+        setTimeout(quick, 220);
+      }
+    }, [icon('pencil'), el('span', { text: 'Сумма' })])
+  ]) : null;
   const actions = el('div', { class: 'swipe-actions' }, [
     el('button', {
       class: 'swipe-action swipe-action--edit', type: 'button',
       'aria-label': 'Изменить ' + label,
-      onclick: (e) => { e.stopPropagation(); Swipe.closeAll(); edit(); }
+      onclick: (e) => {
+        e.stopPropagation();
+        Swipe.closeAll();
+        setTimeout(edit, 220);
+      }
     }, [icon('pencil'), el('span', { text: 'Изменить' })]),
     el('button', {
       class: 'swipe-action swipe-action--del', type: 'button',
@@ -6425,8 +6599,8 @@ function wrapFinanceCard(card, id, edit, remove, label) {
       onclick: (e) => { e.stopPropagation(); Swipe.closeAll(); remove(); }
     }, [icon('trash'), el('span', { text: 'Удалить' })])
   ]);
-  const row = el('div', { class: 'swipe fin-swipe' }, [actions, card]);
-  Swipe.attach(row, card, id);
+  const row = el('div', { class: 'swipe fin-swipe' }, [leftActions, actions, card].filter(Boolean));
+  Swipe.attach(row, card, id, { leftWidth: quick ? 68 : 0 });
   return row;
 }
 
