@@ -37,6 +37,7 @@ const Render = {
 };
 
 function boot() {
+  lockPortraitOrientation();
   Store.init();
 
   // Демонстрационный снимок для визуальной проверки финансовой аналитики.
@@ -97,6 +98,19 @@ function boot() {
   // Первый кадр отрисован — снимаем «замок» стартовой анимации
   document.documentElement.setAttribute('data-booted', '');
   registerServiceWorker();
+}
+
+// В установленном PWA дополнительно просим браузер удерживать портретный режим.
+// Манифест покрывает поддерживаемые платформы, а этот вызов помогает браузерам
+// с Screen Orientation API и безопасно ничего не делает на iOS Safari.
+function lockPortraitOrientation() {
+  const orientation = screen.orientation;
+  if (!orientation || typeof orientation.lock !== 'function') return;
+  const lock = () => orientation.lock('portrait').catch(() => {});
+  lock();
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) lock();
+  }, { passive: true });
 }
 
 function registerServiceWorker() {
