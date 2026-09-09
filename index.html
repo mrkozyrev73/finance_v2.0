@@ -875,6 +875,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   transition: opacity var(--dur) var(--ease-io);
 }
 .chart-layer[data-shown] { opacity: 1; visibility: visible; }
+/* При смене режима новый слой включается сразу: рост столбцов остаётся
+   анимированным, но промежуточный белый кадр между слоями исчезает. */
+#dynMonth, #dynYear { transition: none; }
 
 /* Столбцы — режим «Месяц» */
 #dynMonth { display: flex; align-items: flex-end; }
