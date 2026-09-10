@@ -2990,18 +2990,29 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 /* Главная — тот же мягкий материал, что и на странице статистики. */
 #scr-home .hero {
   padding: 19px 16px 15px;
-  border: 1px solid rgba(22,32,27,.045);
+  border: 1px solid rgba(22,32,27,.035);
   border-radius: 28px;
-  background: linear-gradient(145deg, #FFFFFF 0%, #FBFDFC 58%, #F0F8F4 100%);
-  box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 8px 22px rgba(21,32,26,.055);
+  background: radial-gradient(circle at 50% -34%, rgba(255,255,255,.98) 0%, rgba(255,255,255,.54) 40%, transparent 72%), linear-gradient(145deg, #FFFFFF 0%, #FBFDFC 62%, #F6F8F7 100%);
+  box-shadow: 0 1px 2px rgba(21,32,26,.02), 0 9px 24px rgba(21,32,26,.06);
+  position: relative;
 }
-#scr-home .hero::before { display: none; }
+#scr-home .hero::before { display: block; box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
+#scr-home .hero::after {
+  display: none;
+}
 #scr-home .hero-split {
   width: min(100%, 320px);
   margin-top: 19px;
   padding-top: 10px;
+  transition: margin-top var(--dur-slow) var(--ease), padding-top var(--dur-slow) var(--ease), gap var(--dur-slow) var(--ease);
 }
-#scr-home .hero-cell { padding-block: 7px; }
+#scr-home .hero-cell { padding-block: 7px; transition: padding var(--dur-slow) var(--ease), background var(--dur-slow) var(--ease); }
+
+#scr-home .home-flow > .section:first-child { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  #scr-home .hero, #scr-home .hero-split, #scr-home .hero-cell { transition: none; }
+}
 
 #scr-home #incomeList {
   margin-top: 10px !important;
@@ -3322,24 +3333,25 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
     <!-- ================= ГЛАВНАЯ ================= -->
     <section class="screen" id="scr-home" data-active role="tabpanel" aria-labelledby="tab-home">
-      <div class="section">
-        <div class="hero">
-          <p class="hero-label">Получено в этом месяце</p>
-          <p class="hero-amount fade-swap" id="heroReceived">0 ₽</p>
-          <dl class="hero-split">
-            <div class="hero-cell hero-cell--pending">
-              <dt>Ещё ожидается</dt>
-              <dd class="fade-swap" id="heroExpected">0 ₽</dd>
-            </div>
-            <div class="hero-cell">
-              <dt>Всего с учётом ожидаемого</dt>
-              <dd class="fade-swap" id="heroTotal">0 ₽</dd>
-            </div>
-          </dl>
+      <div class="home-flow">
+        <div class="section">
+          <div class="hero">
+            <p class="hero-label">Получено в этом месяце</p>
+            <p class="hero-amount fade-swap" id="heroReceived">0 ₽</p>
+            <dl class="hero-split">
+              <div class="hero-cell hero-cell--pending">
+                <dt>Ещё ожидается</dt>
+                <dd class="fade-swap" id="heroExpected">0 ₽</dd>
+              </div>
+              <div class="hero-cell">
+                <dt>Всего с учётом ожидаемого</dt>
+                <dd class="fade-swap" id="heroTotal">0 ₽</dd>
+              </div>
+            </dl>
+          </div>
         </div>
-      </div>
 
-      <div class="section">
+        <div class="section">
         <div class="section-head">
           <h2 class="section-title">Доходы</h2>
           <p class="section-sub fade-swap" id="incomeStatus">Всё получено</p>
@@ -3365,7 +3377,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         </div>
 
         <div class="row-gap" id="incomeList" style="margin-top:12px"></div>
-        <div class="empty" id="incomeEmpty" hidden>Доходов за этот месяц пока нет</div>
+          <div class="empty" id="incomeEmpty" hidden>Доходов за этот месяц пока нет</div>
+        </div>
       </div>
     </section>
 
@@ -3434,7 +3447,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
           <span class="fin-audit-period" id="finAuditPeriod">—</span>
         </div>
         <dl class="fin-audit-grid" id="finAuditGrid">
-          <div class="fin-audit-cell"><dt>Сейф</dt><dd class="fade-swap" id="finAuditSafe">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
+          <div class="fin-audit-cell"><dt>Сбережения</dt><dd class="fade-swap" id="finAuditSafe">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
           <div class="fin-audit-cell"><dt>Вклады</dt><dd class="fade-swap" id="finAuditDeposits">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
           <div class="fin-audit-cell"><dt>Платежи</dt><dd class="fade-swap" id="finAuditPayments">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
           <div class="fin-audit-cell"><dt>Кредиты</dt><dd class="fade-swap" id="finAuditCredits">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
@@ -3443,22 +3456,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
       <div class="section">
         <div class="section-head">
-          <h2 class="section-title">Сейф</h2>
-          <button class="fin-add" id="safeAdd" type="button" aria-label="Изменить сейф"><svg aria-hidden="true"><use href="#ic-plus"/></svg></button>
+          <h2 class="section-title">Сбережения</h2>
+          <button class="fin-add" id="safeAdd" type="button" aria-label="Добавить сбережения"><svg aria-hidden="true"><use href="#ic-plus"/></svg></button>
         </div>
-        <div class="fin-card fin-card--static" id="safeCard">
-          <span class="fin-icon fin-icon--safe"><svg aria-hidden="true"><use href="#ic-safe"/></svg></span>
-          <div class="fin-body">
-            <p class="fin-name" id="safeName">Наличные дома</p>
-            <p class="fin-meta">Свободные средства</p>
-          </div>
-          <div class="fin-side">
-            <span>
-            <p class="fin-amount fade-swap" id="safeAmount">0 ₽</p>
-            </span>
-            <span class="fin-chev" aria-hidden="true"><svg width="17" height="17"><use href="#ic-right"/></svg></span>
-          </div>
-        </div>
+        <div class="row-gap" id="safeList"></div>
+        <div class="empty" id="safeEmpty" hidden>Сбережений пока нет.<br>Добавьте сбережение кнопкой «+» рядом с заголовком</div>
       </div>
 
       <div class="section">
@@ -3804,7 +3806,7 @@ const SCHEMA   = 2;
 /** Коллекции, которые синхронизируются как наборы записей */
 const COLLECTIONS = [
   'incomes', 'categories', 'recurring', 'historical',
-  'deposits', 'credits', 'notes', 'history', 'financeSnapshots'
+  'deposits', 'savings', 'credits', 'notes', 'history', 'financeSnapshots'
 ];
 /** Одиночные объекты — сливаются целиком по своему updatedAt */
 const SINGLETONS = ['safe', 'settings'];
@@ -3846,6 +3848,7 @@ function emptyState() {
     recurring: [],
     historical: [],
     deposits: [],
+    savings: [stampNew({ name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null })],
     credits: [],
     notes: [],
     history: [],
@@ -3899,6 +3902,13 @@ const Store = (() => {
         base[key] = Object.assign({}, base[key], data[key]);
       }
     }
+    // До поддержки нескольких сбережений старый сейф хранился singleton-объектом.
+    // Переносим его в коллекцию, не удаляя legacy-поле для обратной совместимости.
+    if (!Array.isArray(data.savings)) {
+      base.savings = data.safe && typeof data.safe === 'object'
+        ? [Object.assign({}, data.safe, { id: data.safe.id || 'legacy-safe' })]
+        : [stampNew({ name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null })];
+    }
     const palette = new Map(DEFAULT_CATEGORIES.map(c => [c.name, c.color]));
     base.categories = base.categories.map(c => Object.assign({}, c, {
       color: c.color && c.color !== '#7C8C85' ? c.color : (palette.get(c.name) || c.color)
@@ -3927,6 +3937,7 @@ const Store = (() => {
       return record;
     };
     initBaseline(base.safe, base.safe.amount, Number(base.safe.amount) > 0);
+    for (const record of base.savings) initBaseline(record, record.amount, Number(record.amount) > 0);
     for (const record of base.deposits) initBaseline(record, record.amount, true);
     for (const record of base.credits) {
       initBaseline(record, record.remaining, true);
@@ -4098,8 +4109,8 @@ const Store = (() => {
     /** Первый месяц с финансовыми данными — стартовая точка аудита. */
     ensureFinanceBaseline(key) {
       if (state.settings && state.settings.financeBaselineKey) return;
-      const safe = state.safe || {};
-      const hasFinanceData = Number(safe.amount) > 0 || api.list('deposits').length > 0 || api.list('credits').length > 0;
+      const savings = api.list('savings');
+      const hasFinanceData = savings.some(r => Number(r.amount) > 0) || api.list('deposits').length > 0 || api.list('credits').length > 0;
       if (!hasFinanceData) return;
       api.update(s => {
         s.settings = Object.assign({}, s.settings, {
@@ -4111,12 +4122,12 @@ const Store = (() => {
 
     /** Снимок финансов на момент ручного изменения — для помесячного аудита. */
     recordFinanceSnapshot() {
-      const safe = state.safe || {};
+      const savings = api.list('savings');
       const deposits = api.list('deposits');
       const credits = api.list('credits');
       const snapshot = {
         at: now(),
-        safe: Number(safe.amount) || 0,
+        safe: savings.reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
         deposits: deposits.reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
         credits: credits.reduce((sum, r) => sum + (Number(r.remaining) || 0), 0),
         payments: credits.reduce((sum, r) => sum + (Number(r.monthlyPayment) || 0), 0)
@@ -4138,6 +4149,11 @@ const Store = (() => {
 
     add(name, data, logLabel) {
       const payload = Object.assign({}, data);
+      if (name === 'savings' && payload.baselineAmount == null) {
+        payload.baselineAmount = Number(payload.amount) || 0;
+        payload.baselineInitialized = Number(payload.amount) > 0;
+        payload.baselineAt = payload.baselineInitialized ? now() : null;
+      }
       if (name === 'deposits' && payload.baselineAmount == null) {
         payload.baselineAmount = Number(payload.amount) || 0;
         payload.baselineInitialized = true;
@@ -4250,7 +4266,7 @@ const HISTORY_LIMIT = 200;
 const COLLECTION_LABELS = {
   incomes: 'Доход', categories: 'Категория',
   recurring: 'Регулярный доход', historical: 'Ранее заработанное',
-  deposits: 'Вклад', credits: 'Кредит', notes: 'Заметка'
+  deposits: 'Вклад', savings: 'Сбережение', credits: 'Кредит', notes: 'Заметка'
 };
 const ACTION_LABELS = {
   create: 'добавлен', update: 'изменён', delete: 'удалён', restore: 'восстановлен'
@@ -4764,7 +4780,6 @@ const Tabs = (() => {
     buttons.forEach(btn => {
       btn.addEventListener('click', () => select(btn.dataset.tab));
     });
-
     // Позиция капсулы без анимации на первом кадре
     movePill(false);
     requestAnimationFrame(() => requestAnimationFrame(() => bar.setAttribute('data-ready', '')));
@@ -4797,7 +4812,6 @@ const Tabs = (() => {
 
     Render.all();
     window.scrollTo({ top: View.scroll[tab] || 0, behavior: 'auto' });
-
     Store.setSingleton('settings', { lastTab: tab });
   }
 
@@ -6162,25 +6176,13 @@ function monthsLabel(n) {
 
 const Fin = (() => {
   const depNodes = new Map();
+  const savingNodes = new Map();
   const credNodes = new Map();
 
   function mount() {
-    const safeCard = $('#safeCard');
-    safeCard.classList.add('swipe-body');
-    const safeHost = safeCard.parentNode;
-    const safeAfter = safeCard.nextSibling;
-    const safeRow = wrapFinanceCard(safeCard, 'fin-safe', openSafe, clearSafe, 'сейф');
-    safeHost.insertBefore(safeRow, safeAfter);
-    safeCard.addEventListener('click', openSafe);
-    $('#safeAdd').addEventListener('click', () => setTimeout(openSafe, 20));
+    $('#safeAdd').addEventListener('click', () => setTimeout(() => openSafe(null), 20));
     $('#depAdd').addEventListener('click', () => setTimeout(() => openDeposit(null), 20));
     $('#creditAdd').addEventListener('click', () => setTimeout(() => openCredit(null), 20));
-  }
-
-  function clearSafe() {
-    Store.setSingleton('safe', { name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null });
-    Store.recordFinanceSnapshot();
-    Toast.show('Сейф удалён');
   }
 
   function openMenu() {
@@ -6210,11 +6212,11 @@ const Fin = (() => {
 
   /* ---------- Сейф ---------- */
 
-  function openSafe() {
-    const safe = Store.state.safe;
-    const draft = { name: safe.name, amount: safe.amount };
+  function openSafe(id) {
+    const rec = id ? Store.byId('savings', id) : null;
+    const draft = { name: rec ? rec.name : '', amount: rec ? rec.amount : 0 };
     Sheet.open({
-      title: 'Сейф',
+      title: rec ? 'Изменить сбережение' : 'Новое сбережение',
       build(body) {
         const nameInput = el('input', { class: 'input', id: 's-name', value: draft.name, 'data-autofocus': true });
         nameInput.addEventListener('input', () => { draft.name = nameInput.value; });
@@ -6223,7 +6225,7 @@ const Fin = (() => {
 
         const amt = el('input', {
           class: 'input input--amount', id: 's-amt', type: 'text', inputmode: 'decimal',
-          value: nf0.format(safe.amount || 0)
+          value: rec ? nf0.format(rec.amount || 0) : ''
         });
         amt.addEventListener('input', () => { draft.amount = parseNum(amt.value); });
         body.appendChild(field('Сумма, ₽', amt, 's-amt'));
@@ -6232,16 +6234,34 @@ const Fin = (() => {
         foot.appendChild(el('button', {
           class: 'btn btn--block', type: 'button', text: 'Сохранить',
           onclick: () => {
-            Store.setSingleton('safe', { name: draft.name.trim() || 'Наличные дома', amount: draft.amount });
+            const payload = { name: draft.name.trim() || 'Сбережения', amount: draft.amount };
+            if (rec) Store.patch('savings', rec.id, payload, payload.name);
+            else Store.add('savings', payload, payload.name);
             Store.recordFinanceSnapshot();
             Sheet.close();
-            Toast.show('Сейф обновлён');
+            Toast.show(rec ? 'Сбережение обновлено' : 'Сбережение добавлено');
           }
         }));
-        foot.appendChild(el('button', {
-          class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
-          onclick: () => { Store.rebaseFinance('safe'); Sheet.close(); Toast.show('База сейфа обновлена'); }
-        }));
+        if (rec) {
+          foot.appendChild(el('button', {
+            class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+            onclick: () => { Store.rebaseFinance('savings', rec.id); Sheet.close(); Toast.show('База сбережения обновлена'); }
+          }));
+          foot.appendChild(el('button', {
+            class: 'btn btn--ghost btn--block', type: 'button', text: 'Удалить сбережение',
+            style: 'margin-top:8px;color:var(--danger)',
+            onclick: () => {
+              Sheet.close();
+              setTimeout(() => {
+                Store.remove('savings', rec.id, rec.name);
+                Store.recordFinanceSnapshot();
+                Toast.show('Сбережение в корзине', {
+                  action: { label: 'Вернуть', run: () => Store.restore('savings', rec.id) }
+                });
+              }, 80);
+            }
+          }));
+        }
       }
     });
   }
@@ -6470,10 +6490,9 @@ const Fin = (() => {
 
   function render(opts) {
     const soft = opts && opts.soft;
-    const safe = Store.state.safe;
-    setText($('#safeName'), safe.name || 'Наличные дома');
-    const applySafe = () => setText($('#safeAmount'), money(safe.amount));
-    soft ? softSwap($('#safeAmount'), applySafe) : applySafe();
+    const savings = Store.list('savings');
+    reconcile($('#safeList'), savings, savingNodes, buildSaving, paintSaving, soft);
+    $('#safeEmpty').hidden = savings.length > 0;
 
     /* Вклады */
     const deposits = Store.list('deposits');
@@ -6496,9 +6515,8 @@ const Fin = (() => {
     };
     const sumDelta = (name, field, baseField) => records(name)
       .reduce((sum, record) => sum + delta(record, field, baseField), 0);
-    const safe = Store.state.safe || {};
     const values = {
-      safe: delta(safe, 'amount', 'baselineAmount'),
+      safe: records('savings').reduce((sum, record) => sum + delta(record, 'amount', 'baselineAmount'), 0),
       deposits: sumDelta('deposits', 'amount', 'baselineAmount'),
       payments: records('credits').reduce((sum, record) => sum + delta(record, 'monthlyPayment', 'baselinePayment'), 0),
       credits: sumDelta('credits', 'remaining', 'baselineAmount')
@@ -6539,13 +6557,13 @@ const Fin = (() => {
     return (n > 0 ? '+' : '−') + money(Math.abs(n));
   }
 
-  function reconcile(host, list, map, build, paint) {
+  function reconcile(host, list, map, build, paint, soft) {
     const seen = new Set();
     list.forEach((rec, index) => {
       seen.add(rec.id);
       let entry = map.get(rec.id);
       if (!entry) { entry = build(rec); map.set(rec.id, entry); }
-      paint(entry, rec);
+      paint(entry, rec, soft);
       const at = host.children[index];
       if (at !== entry.root) host.insertBefore(entry.root, at || null);
     });
@@ -6554,6 +6572,30 @@ const Fin = (() => {
       entry.root.remove();
       map.delete(id);
     }
+  }
+
+  function buildSaving(rec) {
+    const name = el('p', { class: 'fin-name' });
+    const meta = el('p', { class: 'fin-meta', text: 'Свободные средства' });
+    const amount = el('p', { class: 'fin-amount fade-swap' });
+    const card = el('button', { class: 'fin-card swipe-body', type: 'button' }, [
+      el('span', { class: 'fin-icon fin-icon--safe' }, [icon('safe')]),
+      el('span', { class: 'fin-body' }, [name, meta]),
+      el('span', { class: 'fin-side' }, [
+        el('span', {}, [amount]),
+        el('span', { class: 'fin-chev' }, [icon('right', 17)])
+      ])
+    ]);
+    card.addEventListener('click', () => openSafe(rec.id));
+    const root = wrapFinanceCard(card, 'fin-saving-' + rec.id,
+      () => openSafe(rec.id), () => removeSaving(rec.id), 'сбережение');
+    return { root, name, amount };
+  }
+
+  function paintSaving(entry, rec, soft) {
+    setText(entry.name, rec.name);
+    const apply = () => setText(entry.amount, money(rec.amount));
+    soft ? softSwap(entry.amount, apply) : apply();
   }
 
   function buildDeposit(rec) {
@@ -6689,6 +6731,16 @@ function removeDeposit(id) {
   Store.recordFinanceSnapshot();
   Toast.show('Вклад в корзине', {
     action: { label: 'Вернуть', run: () => Store.restore('deposits', id) }
+  });
+}
+
+function removeSaving(id) {
+  const rec = Store.byId('savings', id);
+  if (!rec) return;
+  Store.remove('savings', id, rec.name);
+  Store.recordFinanceSnapshot();
+  Toast.show('Сбережение в корзине', {
+    action: { label: 'Вернуть', run: () => Store.restore('savings', id) }
   });
 }
 

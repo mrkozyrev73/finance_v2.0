@@ -47,25 +47,13 @@ function monthsLabel(n) {
 
 const Fin = (() => {
   const depNodes = new Map();
+  const savingNodes = new Map();
   const credNodes = new Map();
 
   function mount() {
-    const safeCard = $('#safeCard');
-    safeCard.classList.add('swipe-body');
-    const safeHost = safeCard.parentNode;
-    const safeAfter = safeCard.nextSibling;
-    const safeRow = wrapFinanceCard(safeCard, 'fin-safe', openSafe, clearSafe, 'сейф');
-    safeHost.insertBefore(safeRow, safeAfter);
-    safeCard.addEventListener('click', openSafe);
-    $('#safeAdd').addEventListener('click', () => setTimeout(openSafe, 20));
+    $('#safeAdd').addEventListener('click', () => setTimeout(() => openSafe(null), 20));
     $('#depAdd').addEventListener('click', () => setTimeout(() => openDeposit(null), 20));
     $('#creditAdd').addEventListener('click', () => setTimeout(() => openCredit(null), 20));
-  }
-
-  function clearSafe() {
-    Store.setSingleton('safe', { name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null });
-    Store.recordFinanceSnapshot();
-    Toast.show('Сейф удалён');
   }
 
   function openMenu() {
@@ -95,11 +83,11 @@ const Fin = (() => {
 
   /* ---------- Сейф ---------- */
 
-  function openSafe() {
-    const safe = Store.state.safe;
-    const draft = { name: safe.name, amount: safe.amount };
+  function openSafe(id) {
+    const rec = id ? Store.byId('savings', id) : null;
+    const draft = { name: rec ? rec.name : '', amount: rec ? rec.amount : 0 };
     Sheet.open({
-      title: 'Сейф',
+      title: rec ? 'Изменить сбережение' : 'Новое сбережение',
       build(body) {
         const nameInput = el('input', { class: 'input', id: 's-name', value: draft.name, 'data-autofocus': true });
         nameInput.addEventListener('input', () => { draft.name = nameInput.value; });
@@ -108,7 +96,7 @@ const Fin = (() => {
 
         const amt = el('input', {
           class: 'input input--amount', id: 's-amt', type: 'text', inputmode: 'decimal',
-          value: nf0.format(safe.amount || 0)
+          value: rec ? nf0.format(rec.amount || 0) : ''
         });
         amt.addEventListener('input', () => { draft.amount = parseNum(amt.value); });
         body.appendChild(field('Сумма, ₽', amt, 's-amt'));
@@ -117,16 +105,34 @@ const Fin = (() => {
         foot.appendChild(el('button', {
           class: 'btn btn--block', type: 'button', text: 'Сохранить',
           onclick: () => {
-            Store.setSingleton('safe', { name: draft.name.trim() || 'Наличные дома', amount: draft.amount });
+            const payload = { name: draft.name.trim() || 'Сбережения', amount: draft.amount };
+            if (rec) Store.patch('savings', rec.id, payload, payload.name);
+            else Store.add('savings', payload, payload.name);
             Store.recordFinanceSnapshot();
             Sheet.close();
-            Toast.show('Сейф обновлён');
+            Toast.show(rec ? 'Сбережение обновлено' : 'Сбережение добавлено');
           }
         }));
-        foot.appendChild(el('button', {
-          class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
-          onclick: () => { Store.rebaseFinance('safe'); Sheet.close(); Toast.show('База сейфа обновлена'); }
-        }));
+        if (rec) {
+          foot.appendChild(el('button', {
+            class: 'btn btn--ghost btn--block', type: 'button', text: 'Зафиксировать как базу',
+            onclick: () => { Store.rebaseFinance('savings', rec.id); Sheet.close(); Toast.show('База сбережения обновлена'); }
+          }));
+          foot.appendChild(el('button', {
+            class: 'btn btn--ghost btn--block', type: 'button', text: 'Удалить сбережение',
+            style: 'margin-top:8px;color:var(--danger)',
+            onclick: () => {
+              Sheet.close();
+              setTimeout(() => {
+                Store.remove('savings', rec.id, rec.name);
+                Store.recordFinanceSnapshot();
+                Toast.show('Сбережение в корзине', {
+                  action: { label: 'Вернуть', run: () => Store.restore('savings', rec.id) }
+                });
+              }, 80);
+            }
+          }));
+        }
       }
     });
   }
@@ -355,10 +361,9 @@ const Fin = (() => {
 
   function render(opts) {
     const soft = opts && opts.soft;
-    const safe = Store.state.safe;
-    setText($('#safeName'), safe.name || 'Наличные дома');
-    const applySafe = () => setText($('#safeAmount'), money(safe.amount));
-    soft ? softSwap($('#safeAmount'), applySafe) : applySafe();
+    const savings = Store.list('savings');
+    reconcile($('#safeList'), savings, savingNodes, buildSaving, paintSaving, soft);
+    $('#safeEmpty').hidden = savings.length > 0;
 
     /* Вклады */
     const deposits = Store.list('deposits');
@@ -381,9 +386,8 @@ const Fin = (() => {
     };
     const sumDelta = (name, field, baseField) => records(name)
       .reduce((sum, record) => sum + delta(record, field, baseField), 0);
-    const safe = Store.state.safe || {};
     const values = {
-      safe: delta(safe, 'amount', 'baselineAmount'),
+      safe: records('savings').reduce((sum, record) => sum + delta(record, 'amount', 'baselineAmount'), 0),
       deposits: sumDelta('deposits', 'amount', 'baselineAmount'),
       payments: records('credits').reduce((sum, record) => sum + delta(record, 'monthlyPayment', 'baselinePayment'), 0),
       credits: sumDelta('credits', 'remaining', 'baselineAmount')
@@ -424,13 +428,13 @@ const Fin = (() => {
     return (n > 0 ? '+' : '−') + money(Math.abs(n));
   }
 
-  function reconcile(host, list, map, build, paint) {
+  function reconcile(host, list, map, build, paint, soft) {
     const seen = new Set();
     list.forEach((rec, index) => {
       seen.add(rec.id);
       let entry = map.get(rec.id);
       if (!entry) { entry = build(rec); map.set(rec.id, entry); }
-      paint(entry, rec);
+      paint(entry, rec, soft);
       const at = host.children[index];
       if (at !== entry.root) host.insertBefore(entry.root, at || null);
     });
@@ -439,6 +443,30 @@ const Fin = (() => {
       entry.root.remove();
       map.delete(id);
     }
+  }
+
+  function buildSaving(rec) {
+    const name = el('p', { class: 'fin-name' });
+    const meta = el('p', { class: 'fin-meta', text: 'Свободные средства' });
+    const amount = el('p', { class: 'fin-amount fade-swap' });
+    const card = el('button', { class: 'fin-card swipe-body', type: 'button' }, [
+      el('span', { class: 'fin-icon fin-icon--safe' }, [icon('safe')]),
+      el('span', { class: 'fin-body' }, [name, meta]),
+      el('span', { class: 'fin-side' }, [
+        el('span', {}, [amount]),
+        el('span', { class: 'fin-chev' }, [icon('right', 17)])
+      ])
+    ]);
+    card.addEventListener('click', () => openSafe(rec.id));
+    const root = wrapFinanceCard(card, 'fin-saving-' + rec.id,
+      () => openSafe(rec.id), () => removeSaving(rec.id), 'сбережение');
+    return { root, name, amount };
+  }
+
+  function paintSaving(entry, rec, soft) {
+    setText(entry.name, rec.name);
+    const apply = () => setText(entry.amount, money(rec.amount));
+    soft ? softSwap(entry.amount, apply) : apply();
   }
 
   function buildDeposit(rec) {
@@ -574,6 +602,16 @@ function removeDeposit(id) {
   Store.recordFinanceSnapshot();
   Toast.show('Вклад в корзине', {
     action: { label: 'Вернуть', run: () => Store.restore('deposits', id) }
+  });
+}
+
+function removeSaving(id) {
+  const rec = Store.byId('savings', id);
+  if (!rec) return;
+  Store.remove('savings', id, rec.name);
+  Store.recordFinanceSnapshot();
+  Toast.show('Сбережение в корзине', {
+    action: { label: 'Вернуть', run: () => Store.restore('savings', id) }
   });
 }
 

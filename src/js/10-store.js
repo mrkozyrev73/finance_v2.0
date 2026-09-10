@@ -12,7 +12,7 @@ const SCHEMA   = 2;
 /** Коллекции, которые синхронизируются как наборы записей */
 const COLLECTIONS = [
   'incomes', 'categories', 'recurring', 'historical',
-  'deposits', 'credits', 'notes', 'history', 'financeSnapshots'
+  'deposits', 'savings', 'credits', 'notes', 'history', 'financeSnapshots'
 ];
 /** Одиночные объекты — сливаются целиком по своему updatedAt */
 const SINGLETONS = ['safe', 'settings'];
@@ -54,6 +54,7 @@ function emptyState() {
     recurring: [],
     historical: [],
     deposits: [],
+    savings: [stampNew({ name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null })],
     credits: [],
     notes: [],
     history: [],
@@ -107,6 +108,13 @@ const Store = (() => {
         base[key] = Object.assign({}, base[key], data[key]);
       }
     }
+    // До поддержки нескольких сбережений старый сейф хранился singleton-объектом.
+    // Переносим его в коллекцию, не удаляя legacy-поле для обратной совместимости.
+    if (!Array.isArray(data.savings)) {
+      base.savings = data.safe && typeof data.safe === 'object'
+        ? [Object.assign({}, data.safe, { id: data.safe.id || 'legacy-safe' })]
+        : [stampNew({ name: 'Наличные дома', amount: 0, baselineAmount: 0, baselineInitialized: false, baselineAt: null })];
+    }
     const palette = new Map(DEFAULT_CATEGORIES.map(c => [c.name, c.color]));
     base.categories = base.categories.map(c => Object.assign({}, c, {
       color: c.color && c.color !== '#7C8C85' ? c.color : (palette.get(c.name) || c.color)
@@ -135,6 +143,7 @@ const Store = (() => {
       return record;
     };
     initBaseline(base.safe, base.safe.amount, Number(base.safe.amount) > 0);
+    for (const record of base.savings) initBaseline(record, record.amount, Number(record.amount) > 0);
     for (const record of base.deposits) initBaseline(record, record.amount, true);
     for (const record of base.credits) {
       initBaseline(record, record.remaining, true);
@@ -306,8 +315,8 @@ const Store = (() => {
     /** Первый месяц с финансовыми данными — стартовая точка аудита. */
     ensureFinanceBaseline(key) {
       if (state.settings && state.settings.financeBaselineKey) return;
-      const safe = state.safe || {};
-      const hasFinanceData = Number(safe.amount) > 0 || api.list('deposits').length > 0 || api.list('credits').length > 0;
+      const savings = api.list('savings');
+      const hasFinanceData = savings.some(r => Number(r.amount) > 0) || api.list('deposits').length > 0 || api.list('credits').length > 0;
       if (!hasFinanceData) return;
       api.update(s => {
         s.settings = Object.assign({}, s.settings, {
@@ -319,12 +328,12 @@ const Store = (() => {
 
     /** Снимок финансов на момент ручного изменения — для помесячного аудита. */
     recordFinanceSnapshot() {
-      const safe = state.safe || {};
+      const savings = api.list('savings');
       const deposits = api.list('deposits');
       const credits = api.list('credits');
       const snapshot = {
         at: now(),
-        safe: Number(safe.amount) || 0,
+        safe: savings.reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
         deposits: deposits.reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
         credits: credits.reduce((sum, r) => sum + (Number(r.remaining) || 0), 0),
         payments: credits.reduce((sum, r) => sum + (Number(r.monthlyPayment) || 0), 0)
@@ -346,6 +355,11 @@ const Store = (() => {
 
     add(name, data, logLabel) {
       const payload = Object.assign({}, data);
+      if (name === 'savings' && payload.baselineAmount == null) {
+        payload.baselineAmount = Number(payload.amount) || 0;
+        payload.baselineInitialized = Number(payload.amount) > 0;
+        payload.baselineAt = payload.baselineInitialized ? now() : null;
+      }
       if (name === 'deposits' && payload.baselineAmount == null) {
         payload.baselineAmount = Number(payload.amount) || 0;
         payload.baselineInitialized = true;
@@ -458,7 +472,7 @@ const HISTORY_LIMIT = 200;
 const COLLECTION_LABELS = {
   incomes: 'Доход', categories: 'Категория',
   recurring: 'Регулярный доход', historical: 'Ранее заработанное',
-  deposits: 'Вклад', credits: 'Кредит', notes: 'Заметка'
+  deposits: 'Вклад', savings: 'Сбережение', credits: 'Кредит', notes: 'Заметка'
 };
 const ACTION_LABELS = {
   create: 'добавлен', update: 'изменён', delete: 'удалён', restore: 'восстановлен'

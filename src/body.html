@@ -61,24 +61,25 @@
 
     <!-- ================= ГЛАВНАЯ ================= -->
     <section class="screen" id="scr-home" data-active role="tabpanel" aria-labelledby="tab-home">
-      <div class="section">
-        <div class="hero">
-          <p class="hero-label">Получено в этом месяце</p>
-          <p class="hero-amount fade-swap" id="heroReceived">0 ₽</p>
-          <dl class="hero-split">
-            <div class="hero-cell hero-cell--pending">
-              <dt>Ещё ожидается</dt>
-              <dd class="fade-swap" id="heroExpected">0 ₽</dd>
-            </div>
-            <div class="hero-cell">
-              <dt>Всего с учётом ожидаемого</dt>
-              <dd class="fade-swap" id="heroTotal">0 ₽</dd>
-            </div>
-          </dl>
+      <div class="home-flow">
+        <div class="section">
+          <div class="hero">
+            <p class="hero-label">Получено в этом месяце</p>
+            <p class="hero-amount fade-swap" id="heroReceived">0 ₽</p>
+            <dl class="hero-split">
+              <div class="hero-cell hero-cell--pending">
+                <dt>Ещё ожидается</dt>
+                <dd class="fade-swap" id="heroExpected">0 ₽</dd>
+              </div>
+              <div class="hero-cell">
+                <dt>Всего с учётом ожидаемого</dt>
+                <dd class="fade-swap" id="heroTotal">0 ₽</dd>
+              </div>
+            </dl>
+          </div>
         </div>
-      </div>
 
-      <div class="section">
+        <div class="section">
         <div class="section-head">
           <h2 class="section-title">Доходы</h2>
           <p class="section-sub fade-swap" id="incomeStatus">Всё получено</p>
@@ -104,7 +105,8 @@
         </div>
 
         <div class="row-gap" id="incomeList" style="margin-top:12px"></div>
-        <div class="empty" id="incomeEmpty" hidden>Доходов за этот месяц пока нет</div>
+          <div class="empty" id="incomeEmpty" hidden>Доходов за этот месяц пока нет</div>
+        </div>
       </div>
     </section>
 
@@ -173,7 +175,7 @@
           <span class="fin-audit-period" id="finAuditPeriod">—</span>
         </div>
         <dl class="fin-audit-grid" id="finAuditGrid">
-          <div class="fin-audit-cell"><dt>Сейф</dt><dd class="fade-swap" id="finAuditSafe">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
+          <div class="fin-audit-cell"><dt>Сбережения</dt><dd class="fade-swap" id="finAuditSafe">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
           <div class="fin-audit-cell"><dt>Вклады</dt><dd class="fade-swap" id="finAuditDeposits">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
           <div class="fin-audit-cell"><dt>Платежи</dt><dd class="fade-swap" id="finAuditPayments">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
           <div class="fin-audit-cell"><dt>Кредиты</dt><dd class="fade-swap" id="finAuditCredits">Без изменений</dd><span class="fin-audit-note">с первого добавления</span></div>
@@ -182,22 +184,11 @@
 
       <div class="section">
         <div class="section-head">
-          <h2 class="section-title">Сейф</h2>
-          <button class="fin-add" id="safeAdd" type="button" aria-label="Изменить сейф"><svg aria-hidden="true"><use href="#ic-plus"/></svg></button>
+          <h2 class="section-title">Сбережения</h2>
+          <button class="fin-add" id="safeAdd" type="button" aria-label="Добавить сбережения"><svg aria-hidden="true"><use href="#ic-plus"/></svg></button>
         </div>
-        <div class="fin-card fin-card--static" id="safeCard">
-          <span class="fin-icon fin-icon--safe"><svg aria-hidden="true"><use href="#ic-safe"/></svg></span>
-          <div class="fin-body">
-            <p class="fin-name" id="safeName">Наличные дома</p>
-            <p class="fin-meta">Свободные средства</p>
-          </div>
-          <div class="fin-side">
-            <span>
-            <p class="fin-amount fade-swap" id="safeAmount">0 ₽</p>
-            </span>
-            <span class="fin-chev" aria-hidden="true"><svg width="17" height="17"><use href="#ic-right"/></svg></span>
-          </div>
-        </div>
+        <div class="row-gap" id="safeList"></div>
+        <div class="empty" id="safeEmpty" hidden>Сбережений пока нет.<br>Добавьте сбережение кнопкой «+» рядом с заголовком</div>
       </div>
 
       <div class="section">

@@ -309,7 +309,6 @@ const Tabs = (() => {
     buttons.forEach(btn => {
       btn.addEventListener('click', () => select(btn.dataset.tab));
     });
-
     // Позиция капсулы без анимации на первом кадре
     movePill(false);
     requestAnimationFrame(() => requestAnimationFrame(() => bar.setAttribute('data-ready', '')));
@@ -342,7 +341,6 @@ const Tabs = (() => {
 
     Render.all();
     window.scrollTo({ top: View.scroll[tab] || 0, behavior: 'auto' });
-
     Store.setSingleton('settings', { lastTab: tab });
   }
 
