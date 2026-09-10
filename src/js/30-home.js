@@ -355,12 +355,13 @@ const IncomeForm = (() => {
   function open(id) {
     const editing = id ? Store.byId('incomes', id) : null;
     const cats = Data.categories();
+    const quickCats = Data.recentCategories();
 
     const draft = {
       title:      editing ? editing.title : '',
       amount:     editing ? editing.amount : '',
       status:     editing ? editing.status : 'expected',
-      categoryId: editing ? editing.categoryId : (cats[0] && cats[0].id) || '',
+      categoryId: editing ? editing.categoryId : (quickCats[0] && quickCats[0].id) || (cats[0] && cats[0].id) || '',
       date:       editing ? editing.date : defaultDate(),
       repeat:     editing ? !!editing.recurringId : false
     };
@@ -371,7 +372,9 @@ const IncomeForm = (() => {
         /* Сумма */
         const amountInput = el('input', {
           class: 'input input--amount', type: 'text', inputmode: 'decimal',
-          id: 'f-amount', placeholder: '0', 'data-autofocus': true,
+          id: 'f-amount', name: 'income-amount', placeholder: '0',
+          autocomplete: 'off', autocorrect: 'off', autocapitalize: 'off',
+          spellcheck: 'false', 'aria-autocomplete': 'none', 'data-autofocus': true,
           value: draft.amount === '' ? '' : nf0.format(draft.amount)
         });
         amountInput.addEventListener('input', () => {
@@ -384,22 +387,18 @@ const IncomeForm = (() => {
             if (caretAtEnd) amountInput.setSelectionRange(formatted.length, formatted.length);
           }
         });
-        body.appendChild(field('Сумма, ₽', amountInput, 'f-amount'));
+        const amountField = field('Сумма, ₽', amountInput, 'f-amount');
 
         /* Статус — переключатель фиксированной высоты */
         const statusSeg = segmented([
           { value: 'expected', label: 'Ожидается' },
-          { value: 'received', label: 'Уже получен' }
+          { value: 'received', label: 'Получен' }
         ], draft.status, (v) => { draft.status = v; });
         statusSeg.classList.add('segmented--status');
-        body.appendChild(field('Статус', statusSeg));
+        const statusField = field('Статус', statusSeg);
+        body.appendChild(el('div', { class: 'amount-status-row' }, [amountField, statusField]));
 
-        /* Категория: список + быстрые кнопки */
-        const catSelect = el('select', { class: 'select', id: 'f-cat' },
-          cats.map(c => el('option', { value: c.id, text: c.name, selected: c.id === draft.categoryId })));
-        if (!cats.length) catSelect.appendChild(el('option', { value: '', text: 'Категорий нет' }));
-
-        // Недавно использованные — первыми; строка листается пальцем
+        /* Категория: все варианты видны сразу, лента листается по горизонтали */
         const quick = el('div', { class: 'quick-cats' });
         const quickWrap = el('div', { class: 'quick-wrap' }, [quick]);
 
@@ -411,7 +410,7 @@ const IncomeForm = (() => {
           });
         };
 
-        Data.recentCategories().forEach(c => {
+        quickCats.forEach(c => {
           const b = el('button', {
             class: 'quick-cat', type: 'button', text: c.name, 'aria-pressed': 'false',
             style: '--dot:' + c.color + ';--tint:' + c.color + '1f'
@@ -419,15 +418,9 @@ const IncomeForm = (() => {
           b.dataset.id = c.id;
           b.addEventListener('click', () => {
             draft.categoryId = c.id;
-            catSelect.value = c.id;
             syncQuick();
           });
           quick.appendChild(b);
-        });
-
-        catSelect.addEventListener('change', () => {
-          draft.categoryId = catSelect.value;
-          syncQuick(true);
         });
 
         const updateFade = () => {
@@ -436,8 +429,7 @@ const IncomeForm = (() => {
         };
         quick.addEventListener('scroll', updateFade, { passive: true });
 
-        const catField = field('Категория', catSelect, 'f-cat');
-        catField.appendChild(quickWrap);
+        const catField = field('Категория', quickWrap);
         body.appendChild(catField);
 
         // Измеряем после того, как лист показан
@@ -464,7 +456,7 @@ const IncomeForm = (() => {
           setAttr(sw, 'aria-checked', draft.repeat ? 'true' : 'false');
         });
         body.appendChild(el('div', { class: 'field' }, [
-          el('div', { class: 'switch-row' }, [
+          el('div', { class: 'switch-row repeat-row' }, [
             el('span', {}, [
               el('span', { class: 't', text: 'Повторять каждый месяц' }),
               el('span', { class: 's', text: 'Доход появится в следующих месяцах' })

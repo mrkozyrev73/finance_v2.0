@@ -1694,12 +1694,12 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-/* Недавние категории: одна строка, листается пальцем.
-   Не бордюрные «таблетки», а метка цветом самой категории. */
+/* Категории: два спокойных ряда, листаются по горизонтали как нативная лента. */
 .quick-wrap {
   position: relative;
   margin-top: 8px;
-  min-height: 34px;
+  min-height: 72px;
+  overflow: hidden;
 }
 .quick-wrap::after {          /* подсказка, что строка продолжается */
   content: "";
@@ -1714,10 +1714,13 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 .quick-wrap[data-more]::after { opacity: 1; }
 
 .quick-cats {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 34px);
+  grid-auto-columns: max-content;
   gap: 4px;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -1727,8 +1730,8 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 .quick-cats::-webkit-scrollbar { display: none; }
 
 .quick-cat {
-  flex: none;
   height: 34px;
+  max-width: 172px;
   padding: 0 11px 0 9px;
   display: inline-flex;
   align-items: center;
@@ -3120,25 +3123,104 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   color: var(--text);
   font-size: 28px;
 }
+.sheet:has(.input--amount) .amount-status-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 176px);
+  align-items: start;
+  gap: 12px;
+}
+.sheet:has(.input--amount) .amount-status-row > .field {
+  min-width: 0;
+  margin: 0;
+}
+.sheet:has(.input--amount) .amount-status-row > .field:last-child {
+  align-items: stretch;
+}
+.sheet:has(.input--amount) .amount-status-row > .field:last-child .field-label {
+  padding-left: 0;
+}
 .sheet:has(.input--amount) .segmented--status {
+  width: 100%;
+  height: 58px;
+  display: grid;
+  gap: 3px;
   background: var(--surface-sunk);
-  border-radius: var(--r-ctl);
+  border: 1px solid var(--border);
+  border-radius: 999px;
   padding: 3px;
+  box-shadow: inset 0 1px 1px rgba(21,32,26,.025);
 }
 .sheet:has(.input--amount) .segmented--status .seg {
+  min-width: 0;
+  height: 100%;
+  padding: 0 8px;
   border: 0;
+  border-radius: 999px;
   background: transparent;
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 650;
   box-shadow: none;
 }
 .sheet:has(.input--amount) .segmented--status .seg[aria-selected="true"] {
+  color: var(--text);
   background: var(--surface);
-  box-shadow: 0 1px 3px rgba(21,32,26,.08);
+  box-shadow: 0 1px 3px rgba(21,32,26,.1);
 }
 .sheet:has(.input--amount) .quick-cat[aria-pressed="true"] {
   background: var(--surface-sunk);
 }
 .sheet:has(.input--amount) .switch-row {
-  min-height: 56px;
+  min-height: 30px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.sheet:has(.input--amount) .switch-row .t {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+.sheet:has(.input--amount) .switch-row .s {
+  margin-top: 1px;
+  font-size: 10px;
+}
+.sheet:has(.input--amount) .repeat-row {
+  gap: 8px;
+}
+.sheet:has(.input--amount) .repeat-row .switch {
+  width: 21px;
+  height: 21px;
+  border-radius: 6px;
+  background: var(--surface-sunk);
+  box-shadow: inset 0 0 0 1px rgba(21,32,26,.08);
+  transition: background var(--dur-fast) var(--ease-io), transform var(--dur-fast) var(--ease);
+}
+.sheet:has(.input--amount) .repeat-row .switch::after {
+  content: '✓';
+  top: 2px;
+  left: 4px;
+  width: 13px;
+  height: 16px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #fff;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 700;
+  opacity: 0;
+  transform: none;
+  transition: opacity var(--dur-fast) var(--ease-io);
+}
+.sheet:has(.input--amount) .repeat-row .switch[aria-checked="true"] {
+  background: var(--accent);
+}
+.sheet:has(.input--amount) .repeat-row .switch[aria-checked="true"]::after {
+  opacity: 1;
+}
+.sheet:has(.input--amount) .quick-wrap {
+  min-height: 72px;
 }
 .sheet:has(.input--amount) .sheet-foot {
   border-top: 0;

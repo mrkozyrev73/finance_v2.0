@@ -532,23 +532,27 @@ const Data = {
     return Store.list('categories').sort((a, b) =>
       Number(b.pinned) - Number(a.pinned) || (a.order || 0) - (b.order || 0));
   },
-  /** Категории в порядке «недавно использованные — первыми» */
+  /** Категории в порядке частоты использования — самые востребованные первыми */
   recentCategories() {
     const all = Data.categories();
     const byId = new Map(all.map(c => [c.id, c]));
-    const seen = [];
+    const usage = new Map();
+    const lastUsed = new Map();
     const incomes = Store.list('incomes')
       .slice()
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     for (const r of incomes) {
-      if (!byId.has(r.categoryId) || seen.includes(r.categoryId)) continue;
-      seen.push(r.categoryId);
-      if (seen.length >= all.length) break;
+      if (!byId.has(r.categoryId)) continue;
+      usage.set(r.categoryId, (usage.get(r.categoryId) || 0) + 1);
+      if (!lastUsed.has(r.categoryId)) lastUsed.set(r.categoryId, r.createdAt || 0);
     }
-    const pinned = all.filter(c => c.pinned);
-    const head = seen.map(id => byId.get(id)).filter(c => !c.pinned);
-    const tail = all.filter(c => !seen.includes(c.id));
-    return pinned.concat(head, tail.filter(c => !c.pinned));
+    return all.slice().sort((a, b) => {
+      const countDiff = (usage.get(b.id) || 0) - (usage.get(a.id) || 0);
+      if (countDiff) return countDiff;
+      const recentDiff = (lastUsed.get(b.id) || 0) - (lastUsed.get(a.id) || 0);
+      if (recentDiff) return recentDiff;
+      return Number(b.pinned) - Number(a.pinned) || (a.order || 0) - (b.order || 0);
+    });
   },
 
   categoryMap() {

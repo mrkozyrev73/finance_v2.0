@@ -1713,12 +1713,12 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-/* Недавние категории: одна строка, листается пальцем.
-   Не бордюрные «таблетки», а метка цветом самой категории. */
+/* Категории: два спокойных ряда, листаются по горизонтали как нативная лента. */
 .quick-wrap {
   position: relative;
   margin-top: 8px;
-  min-height: 34px;
+  min-height: 72px;
+  overflow: hidden;
 }
 .quick-wrap::after {          /* подсказка, что строка продолжается */
   content: "";
@@ -1733,10 +1733,13 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 .quick-wrap[data-more]::after { opacity: 1; }
 
 .quick-cats {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 34px);
+  grid-auto-columns: max-content;
   gap: 4px;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -1746,8 +1749,8 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 .quick-cats::-webkit-scrollbar { display: none; }
 
 .quick-cat {
-  flex: none;
   height: 34px;
+  max-width: 172px;
   padding: 0 11px 0 9px;
   display: inline-flex;
   align-items: center;
@@ -3139,25 +3142,104 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   color: var(--text);
   font-size: 28px;
 }
+.sheet:has(.input--amount) .amount-status-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 176px);
+  align-items: start;
+  gap: 12px;
+}
+.sheet:has(.input--amount) .amount-status-row > .field {
+  min-width: 0;
+  margin: 0;
+}
+.sheet:has(.input--amount) .amount-status-row > .field:last-child {
+  align-items: stretch;
+}
+.sheet:has(.input--amount) .amount-status-row > .field:last-child .field-label {
+  padding-left: 0;
+}
 .sheet:has(.input--amount) .segmented--status {
+  width: 100%;
+  height: 58px;
+  display: grid;
+  gap: 3px;
   background: var(--surface-sunk);
-  border-radius: var(--r-ctl);
+  border: 1px solid var(--border);
+  border-radius: 999px;
   padding: 3px;
+  box-shadow: inset 0 1px 1px rgba(21,32,26,.025);
 }
 .sheet:has(.input--amount) .segmented--status .seg {
+  min-width: 0;
+  height: 100%;
+  padding: 0 8px;
   border: 0;
+  border-radius: 999px;
   background: transparent;
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 650;
   box-shadow: none;
 }
 .sheet:has(.input--amount) .segmented--status .seg[aria-selected="true"] {
+  color: var(--text);
   background: var(--surface);
-  box-shadow: 0 1px 3px rgba(21,32,26,.08);
+  box-shadow: 0 1px 3px rgba(21,32,26,.1);
 }
 .sheet:has(.input--amount) .quick-cat[aria-pressed="true"] {
   background: var(--surface-sunk);
 }
 .sheet:has(.input--amount) .switch-row {
-  min-height: 56px;
+  min-height: 30px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.sheet:has(.input--amount) .switch-row .t {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+.sheet:has(.input--amount) .switch-row .s {
+  margin-top: 1px;
+  font-size: 10px;
+}
+.sheet:has(.input--amount) .repeat-row {
+  gap: 8px;
+}
+.sheet:has(.input--amount) .repeat-row .switch {
+  width: 21px;
+  height: 21px;
+  border-radius: 6px;
+  background: var(--surface-sunk);
+  box-shadow: inset 0 0 0 1px rgba(21,32,26,.08);
+  transition: background var(--dur-fast) var(--ease-io), transform var(--dur-fast) var(--ease);
+}
+.sheet:has(.input--amount) .repeat-row .switch::after {
+  content: '✓';
+  top: 2px;
+  left: 4px;
+  width: 13px;
+  height: 16px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #fff;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 700;
+  opacity: 0;
+  transform: none;
+  transition: opacity var(--dur-fast) var(--ease-io);
+}
+.sheet:has(.input--amount) .repeat-row .switch[aria-checked="true"] {
+  background: var(--accent);
+}
+.sheet:has(.input--amount) .repeat-row .switch[aria-checked="true"]::after {
+  opacity: 1;
+}
+.sheet:has(.input--amount) .quick-wrap {
+  min-height: 72px;
 }
 .sheet:has(.input--amount) .sheet-foot {
   border-top: 0;
@@ -4242,23 +4324,27 @@ const Data = {
     return Store.list('categories').sort((a, b) =>
       Number(b.pinned) - Number(a.pinned) || (a.order || 0) - (b.order || 0));
   },
-  /** Категории в порядке «недавно использованные — первыми» */
+  /** Категории в порядке частоты использования — самые востребованные первыми */
   recentCategories() {
     const all = Data.categories();
     const byId = new Map(all.map(c => [c.id, c]));
-    const seen = [];
+    const usage = new Map();
+    const lastUsed = new Map();
     const incomes = Store.list('incomes')
       .slice()
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     for (const r of incomes) {
-      if (!byId.has(r.categoryId) || seen.includes(r.categoryId)) continue;
-      seen.push(r.categoryId);
-      if (seen.length >= all.length) break;
+      if (!byId.has(r.categoryId)) continue;
+      usage.set(r.categoryId, (usage.get(r.categoryId) || 0) + 1);
+      if (!lastUsed.has(r.categoryId)) lastUsed.set(r.categoryId, r.createdAt || 0);
     }
-    const pinned = all.filter(c => c.pinned);
-    const head = seen.map(id => byId.get(id)).filter(c => !c.pinned);
-    const tail = all.filter(c => !seen.includes(c.id));
-    return pinned.concat(head, tail.filter(c => !c.pinned));
+    return all.slice().sort((a, b) => {
+      const countDiff = (usage.get(b.id) || 0) - (usage.get(a.id) || 0);
+      if (countDiff) return countDiff;
+      const recentDiff = (lastUsed.get(b.id) || 0) - (lastUsed.get(a.id) || 0);
+      if (recentDiff) return recentDiff;
+      return Number(b.pinned) - Number(a.pinned) || (a.order || 0) - (b.order || 0);
+    });
   },
 
   categoryMap() {
@@ -5178,12 +5264,13 @@ const IncomeForm = (() => {
   function open(id) {
     const editing = id ? Store.byId('incomes', id) : null;
     const cats = Data.categories();
+    const quickCats = Data.recentCategories();
 
     const draft = {
       title:      editing ? editing.title : '',
       amount:     editing ? editing.amount : '',
       status:     editing ? editing.status : 'expected',
-      categoryId: editing ? editing.categoryId : (cats[0] && cats[0].id) || '',
+      categoryId: editing ? editing.categoryId : (quickCats[0] && quickCats[0].id) || (cats[0] && cats[0].id) || '',
       date:       editing ? editing.date : defaultDate(),
       repeat:     editing ? !!editing.recurringId : false
     };
@@ -5194,7 +5281,9 @@ const IncomeForm = (() => {
         /* Сумма */
         const amountInput = el('input', {
           class: 'input input--amount', type: 'text', inputmode: 'decimal',
-          id: 'f-amount', placeholder: '0', 'data-autofocus': true,
+          id: 'f-amount', name: 'income-amount', placeholder: '0',
+          autocomplete: 'off', autocorrect: 'off', autocapitalize: 'off',
+          spellcheck: 'false', 'aria-autocomplete': 'none', 'data-autofocus': true,
           value: draft.amount === '' ? '' : nf0.format(draft.amount)
         });
         amountInput.addEventListener('input', () => {
@@ -5207,22 +5296,18 @@ const IncomeForm = (() => {
             if (caretAtEnd) amountInput.setSelectionRange(formatted.length, formatted.length);
           }
         });
-        body.appendChild(field('Сумма, ₽', amountInput, 'f-amount'));
+        const amountField = field('Сумма, ₽', amountInput, 'f-amount');
 
         /* Статус — переключатель фиксированной высоты */
         const statusSeg = segmented([
           { value: 'expected', label: 'Ожидается' },
-          { value: 'received', label: 'Уже получен' }
+          { value: 'received', label: 'Получен' }
         ], draft.status, (v) => { draft.status = v; });
         statusSeg.classList.add('segmented--status');
-        body.appendChild(field('Статус', statusSeg));
+        const statusField = field('Статус', statusSeg);
+        body.appendChild(el('div', { class: 'amount-status-row' }, [amountField, statusField]));
 
-        /* Категория: список + быстрые кнопки */
-        const catSelect = el('select', { class: 'select', id: 'f-cat' },
-          cats.map(c => el('option', { value: c.id, text: c.name, selected: c.id === draft.categoryId })));
-        if (!cats.length) catSelect.appendChild(el('option', { value: '', text: 'Категорий нет' }));
-
-        // Недавно использованные — первыми; строка листается пальцем
+        /* Категория: все варианты видны сразу, лента листается по горизонтали */
         const quick = el('div', { class: 'quick-cats' });
         const quickWrap = el('div', { class: 'quick-wrap' }, [quick]);
 
@@ -5234,7 +5319,7 @@ const IncomeForm = (() => {
           });
         };
 
-        Data.recentCategories().forEach(c => {
+        quickCats.forEach(c => {
           const b = el('button', {
             class: 'quick-cat', type: 'button', text: c.name, 'aria-pressed': 'false',
             style: '--dot:' + c.color + ';--tint:' + c.color + '1f'
@@ -5242,15 +5327,9 @@ const IncomeForm = (() => {
           b.dataset.id = c.id;
           b.addEventListener('click', () => {
             draft.categoryId = c.id;
-            catSelect.value = c.id;
             syncQuick();
           });
           quick.appendChild(b);
-        });
-
-        catSelect.addEventListener('change', () => {
-          draft.categoryId = catSelect.value;
-          syncQuick(true);
         });
 
         const updateFade = () => {
@@ -5259,8 +5338,7 @@ const IncomeForm = (() => {
         };
         quick.addEventListener('scroll', updateFade, { passive: true });
 
-        const catField = field('Категория', catSelect, 'f-cat');
-        catField.appendChild(quickWrap);
+        const catField = field('Категория', quickWrap);
         body.appendChild(catField);
 
         // Измеряем после того, как лист показан
@@ -5287,7 +5365,7 @@ const IncomeForm = (() => {
           setAttr(sw, 'aria-checked', draft.repeat ? 'true' : 'false');
         });
         body.appendChild(el('div', { class: 'field' }, [
-          el('div', { class: 'switch-row' }, [
+          el('div', { class: 'switch-row repeat-row' }, [
             el('span', {}, [
               el('span', { class: 't', text: 'Повторять каждый месяц' }),
               el('span', { class: 's', text: 'Доход появится в следующих месяцах' })
@@ -7855,7 +7933,7 @@ function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
   if (location.protocol === 'file:') return;      // из файла SW не регистрируется
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => {
+    navigator.serviceWorker.register('sw.js?v=2').catch(err => {
       console.info('[pwa] service worker не зарегистрирован:', err.message);
     });
   });
