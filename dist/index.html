@@ -647,15 +647,21 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 .swipe {
   position: relative;
-  border-radius: var(--r-inner);
+  border-radius: var(--r-card);
   background: var(--surface);
   overflow: hidden;              /* края всегда скруглены */
+  isolation: isolate;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
   touch-action: pan-y;           /* вертикальный скролл не перехватывается */
 }
 
 .swipe-actions {
   position: absolute;
   inset: 0 0 0 auto;
+  border-radius: inherit;
+  overflow: hidden;
   display: flex;
   align-items: stretch;
   gap: 0;
@@ -698,7 +704,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-inner);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  clip-path: inset(0 round var(--r-card));
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
   will-change: transform;
   touch-action: pan-y;
 }
@@ -2630,6 +2639,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-fin .fin-swipe .swipe-body {
   border: 0;
   border-radius: var(--r-card);
+  overflow: hidden;
+  clip-path: inset(0 round var(--r-card));
   box-shadow: var(--shadow-card);
 }
 #scr-fin .fin-swipe .fin-card:active { transform: none; }
@@ -2897,6 +2908,75 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .tabbar-inner[data-ready] .tab-pill {
   transition: transform var(--dur-nav) var(--ease), width var(--dur-nav) var(--ease);
+}
+
+/* Telegram-подобная плавающая навигация: лёгкая капсула вместо
+   полноширинной панели, активный пункт — мягкий зелёный материал. */
+.tabbar {
+  left: 50%;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  width: calc(100% - 24px);
+  padding: 5px;
+  background: rgba(255,255,255,.86);
+  border: 1px solid rgba(21,32,26,.07);
+  border-radius: 30px;
+  box-shadow: 0 10px 28px rgba(21,32,26,.12), 0 1px 3px rgba(21,32,26,.06);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
+  backdrop-filter: blur(22px) saturate(155%);
+}
+.tabbar-inner {
+  height: 54px;
+  border-radius: 25px;
+  overflow: hidden;
+}
+.tabbar .tab-pill {
+  top: 3px;
+  bottom: 3px;
+  height: auto;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #E8F5EE 0%, #D9F0E4 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82), 0 2px 8px rgba(25,155,102,.10);
+}
+.tabbar .tab[aria-selected="true"] { color: var(--accent-press); }
+.tabbar .tab[aria-selected="true"] svg { color: var(--accent-press); }
+
+/* Действия свайпа — отдельные скруглённые кнопки под карточкой. */
+.swipe-actions {
+  inset: 0 0 0 auto;
+  width: 146px;
+  padding: 6px;
+  gap: 6px;
+  align-items: stretch;
+  visibility: hidden;
+  background: var(--surface-sunk);
+}
+.swipe-actions--left {
+  inset: 0 auto 0 0;
+  width: 76px;
+  justify-content: flex-start;
+}
+.swipe-action {
+  width: 64px;
+  min-width: 64px;
+  margin: 0;
+  border-radius: 16px;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 650;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 2px 6px rgba(21,32,26,.08);
+}
+.swipe-actions--left .swipe-action,
+.swipe-action--edit {
+  background: linear-gradient(145deg, #25B77F 0%, var(--accent-press) 100%);
+}
+.swipe-action--del {
+  background: linear-gradient(145deg, #D97861 0%, #B94F3A 100%);
+}
+.swipe-action:active { transform: scale(.96); }
+.swipe-body { z-index: 1; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
 /* Единый кегль заголовков секций во всём приложении. */
@@ -3284,7 +3364,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     <path d="M19.4 8.2V7a1.6 1.6 0 0 0-1.6-1.6H5.6A1.6 1.6 0 0 0 4 7v10a1.6 1.6 0 0 0 1.6 1.6h12.2a1.6 1.6 0 0 0 1.6-1.6v-1.2"/><path d="M20.6 10.2h-4a1.9 1.9 0 0 0 0 3.8h4a.8.8 0 0 0 .8-.8v-2.2a.8.8 0 0 0-.8-.8Z"/>
   </symbol>
   <symbol id="ic-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="2.9"/><path d="M19.1 14.4a1.5 1.5 0 0 0 .3 1.6l.1.1a1.7 1.7 0 1 1-2.4 2.4l-.1-.1a1.5 1.5 0 0 0-1.6-.3 1.5 1.5 0 0 0-.9 1.3v.2a1.7 1.7 0 1 1-3.4 0v-.1a1.5 1.5 0 0 0-1-1.3 1.5 1.5 0 0 0-1.6.3l-.1.1a1.7 1.7 0 1 1-2.4-2.4l.1-.1a1.5 1.5 0 0 0 .3-1.6 1.5 1.5 0 0 0-1.3-.9h-.2a1.7 1.7 0 1 1 0-3.4h.1a1.5 1.5 0 0 0 1.3-1 1.5 1.5 0 0 0-.3-1.6l-.1-.1a1.7 1.7 0 1 1 2.4-2.4l.1.1a1.5 1.5 0 0 0 1.6.3h.1a1.5 1.5 0 0 0 .9-1.3v-.2a1.7 1.7 0 1 1 3.4 0v.1a1.5 1.5 0 0 0 .9 1.3 1.5 1.5 0 0 0 1.6-.3l.1-.1a1.7 1.7 0 1 1 2.4 2.4l-.1.1a1.5 1.5 0 0 0-.3 1.6v.1a1.5 1.5 0 0 0 1.3.9h.2a1.7 1.7 0 1 1 0 3.4h-.1a1.5 1.5 0 0 0-1.3.9Z"/>
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+    <circle cx="12" cy="12" r="3.1"/>
   </symbol>
   <symbol id="ic-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></symbol>
   <symbol id="ic-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></symbol>
@@ -4930,7 +5011,7 @@ const MonthBar = (() => {
    ------------------------------------------------------------ */
 
 const Swipe = (() => {
-  const ACTIONS_W = 136;      // две кнопки по 68
+  const ACTIONS_W = 146;      // две кнопки по 64 + gap и внутренние отступы
   const THRESHOLD = 10;       // гистерезис до захвата направления
   const open = new Map();     // id -> {row, body}
 
@@ -4991,7 +5072,10 @@ const Swipe = (() => {
       if (locked !== 'x') return;
 
       let next = base + dx;
-      if (next > leftWidth) next = leftWidth + rubberband(next - leftWidth, ACTIONS_W);
+      if (next > leftWidth) {
+        // Если слева нет действия, не тянем строку в пустую область.
+        next = leftWidth ? leftWidth + rubberband(next - leftWidth, ACTIONS_W) : 0;
+      }
       else if (next < -ACTIONS_W) {
         next = -ACTIONS_W - rubberband(-ACTIONS_W - next, ACTIONS_W); // и влево тоже
       }
@@ -6266,6 +6350,30 @@ const Fin = (() => {
     });
   }
 
+  function openSavingAmount(id) {
+    const rec = Store.byId('savings', id);
+    if (!rec) return;
+    const draft = { amount: rec.amount };
+    Sheet.open({
+      title: 'Сумма сбережения',
+      build(body) {
+        body.appendChild(field('Новая сумма, ₽', bindAmount('s-quick-amt', draft, 'amount'), 's-quick-amt'));
+        body.appendChild(el('p', { class: 'sheet-hint', text: 'Название и остальные данные останутся без изменений.' }));
+      },
+      footer(foot) {
+        foot.appendChild(el('button', {
+          class: 'btn btn--block', type: 'button', text: 'Сохранить сумму',
+          onclick: () => {
+            Store.patch('savings', rec.id, { amount: draft.amount }, rec.name);
+            Store.recordFinanceSnapshot();
+            Sheet.close();
+            Toast.show('Сумма сбережения обновлена');
+          }
+        }));
+      }
+    });
+  }
+
   /* ---------- Вклады ---------- */
 
   function openDeposit(id) {
@@ -6588,7 +6696,8 @@ const Fin = (() => {
     ]);
     card.addEventListener('click', () => openSafe(rec.id));
     const root = wrapFinanceCard(card, 'fin-saving-' + rec.id,
-      () => openSafe(rec.id), () => removeSaving(rec.id), 'сбережение');
+      () => openSafe(rec.id), () => removeSaving(rec.id), 'сбережение',
+      () => openSavingAmount(rec.id));
     return { root, name, amount };
   }
 
@@ -6693,7 +6802,7 @@ function wrapFinanceCard(card, id, edit, remove, label, quick) {
   const leftActions = quick ? el('div', { class: 'swipe-actions swipe-actions--left' }, [
     el('button', {
       class: 'swipe-action swipe-action--quick', type: 'button',
-      'aria-label': 'Изменить сумму ' + label,
+      'aria-label': 'Изменить сумму ' + (label === 'сбережение' ? 'сбережения' : label),
       onclick: (e) => {
         e.stopPropagation();
         // Не открываем лист в тот же кадр, когда закрывается панель свайпа:
@@ -6720,7 +6829,7 @@ function wrapFinanceCard(card, id, edit, remove, label, quick) {
     }, [icon('trash'), el('span', { text: 'Удалить' })])
   ]);
   const row = el('div', { class: 'swipe fin-swipe' }, [leftActions, actions, card].filter(Boolean));
-  Swipe.attach(row, card, id, { leftWidth: quick ? 68 : 0 });
+  Swipe.attach(row, card, id, { leftWidth: quick ? 76 : 0 });
   return row;
 }
 

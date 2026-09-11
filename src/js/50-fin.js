@@ -137,6 +137,30 @@ const Fin = (() => {
     });
   }
 
+  function openSavingAmount(id) {
+    const rec = Store.byId('savings', id);
+    if (!rec) return;
+    const draft = { amount: rec.amount };
+    Sheet.open({
+      title: 'Сумма сбережения',
+      build(body) {
+        body.appendChild(field('Новая сумма, ₽', bindAmount('s-quick-amt', draft, 'amount'), 's-quick-amt'));
+        body.appendChild(el('p', { class: 'sheet-hint', text: 'Название и остальные данные останутся без изменений.' }));
+      },
+      footer(foot) {
+        foot.appendChild(el('button', {
+          class: 'btn btn--block', type: 'button', text: 'Сохранить сумму',
+          onclick: () => {
+            Store.patch('savings', rec.id, { amount: draft.amount }, rec.name);
+            Store.recordFinanceSnapshot();
+            Sheet.close();
+            Toast.show('Сумма сбережения обновлена');
+          }
+        }));
+      }
+    });
+  }
+
   /* ---------- Вклады ---------- */
 
   function openDeposit(id) {
@@ -459,7 +483,8 @@ const Fin = (() => {
     ]);
     card.addEventListener('click', () => openSafe(rec.id));
     const root = wrapFinanceCard(card, 'fin-saving-' + rec.id,
-      () => openSafe(rec.id), () => removeSaving(rec.id), 'сбережение');
+      () => openSafe(rec.id), () => removeSaving(rec.id), 'сбережение',
+      () => openSavingAmount(rec.id));
     return { root, name, amount };
   }
 
@@ -564,7 +589,7 @@ function wrapFinanceCard(card, id, edit, remove, label, quick) {
   const leftActions = quick ? el('div', { class: 'swipe-actions swipe-actions--left' }, [
     el('button', {
       class: 'swipe-action swipe-action--quick', type: 'button',
-      'aria-label': 'Изменить сумму ' + label,
+      'aria-label': 'Изменить сумму ' + (label === 'сбережение' ? 'сбережения' : label),
       onclick: (e) => {
         e.stopPropagation();
         // Не открываем лист в тот же кадр, когда закрывается панель свайпа:
@@ -591,7 +616,7 @@ function wrapFinanceCard(card, id, edit, remove, label, quick) {
     }, [icon('trash'), el('span', { text: 'Удалить' })])
   ]);
   const row = el('div', { class: 'swipe fin-swipe' }, [leftActions, actions, card].filter(Boolean));
-  Swipe.attach(row, card, id, { leftWidth: quick ? 68 : 0 });
+  Swipe.attach(row, card, id, { leftWidth: quick ? 76 : 0 });
   return row;
 }
 

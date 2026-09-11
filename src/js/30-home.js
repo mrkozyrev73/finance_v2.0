@@ -7,7 +7,7 @@
    ------------------------------------------------------------ */
 
 const Swipe = (() => {
-  const ACTIONS_W = 136;      // две кнопки по 68
+  const ACTIONS_W = 146;      // две кнопки по 64 + gap и внутренние отступы
   const THRESHOLD = 10;       // гистерезис до захвата направления
   const open = new Map();     // id -> {row, body}
 
@@ -68,7 +68,10 @@ const Swipe = (() => {
       if (locked !== 'x') return;
 
       let next = base + dx;
-      if (next > leftWidth) next = leftWidth + rubberband(next - leftWidth, ACTIONS_W);
+      if (next > leftWidth) {
+        // Если слева нет действия, не тянем строку в пустую область.
+        next = leftWidth ? leftWidth + rubberband(next - leftWidth, ACTIONS_W) : 0;
+      }
       else if (next < -ACTIONS_W) {
         next = -ACTIONS_W - rubberband(-ACTIONS_W - next, ACTIONS_W); // и влево тоже
       }

@@ -628,15 +628,21 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 .swipe {
   position: relative;
-  border-radius: var(--r-inner);
+  border-radius: var(--r-card);
   background: var(--surface);
   overflow: hidden;              /* края всегда скруглены */
+  isolation: isolate;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
   touch-action: pan-y;           /* вертикальный скролл не перехватывается */
 }
 
 .swipe-actions {
   position: absolute;
   inset: 0 0 0 auto;
+  border-radius: inherit;
+  overflow: hidden;
   display: flex;
   align-items: stretch;
   gap: 0;
@@ -679,7 +685,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-inner);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  clip-path: inset(0 round var(--r-card));
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
   will-change: transform;
   touch-action: pan-y;
 }
@@ -2611,6 +2620,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-fin .fin-swipe .swipe-body {
   border: 0;
   border-radius: var(--r-card);
+  overflow: hidden;
+  clip-path: inset(0 round var(--r-card));
   box-shadow: var(--shadow-card);
 }
 #scr-fin .fin-swipe .fin-card:active { transform: none; }
@@ -2878,6 +2889,75 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .tabbar-inner[data-ready] .tab-pill {
   transition: transform var(--dur-nav) var(--ease), width var(--dur-nav) var(--ease);
+}
+
+/* Telegram-подобная плавающая навигация: лёгкая капсула вместо
+   полноширинной панели, активный пункт — мягкий зелёный материал. */
+.tabbar {
+  left: 50%;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  width: calc(100% - 24px);
+  padding: 5px;
+  background: rgba(255,255,255,.86);
+  border: 1px solid rgba(21,32,26,.07);
+  border-radius: 30px;
+  box-shadow: 0 10px 28px rgba(21,32,26,.12), 0 1px 3px rgba(21,32,26,.06);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
+  backdrop-filter: blur(22px) saturate(155%);
+}
+.tabbar-inner {
+  height: 54px;
+  border-radius: 25px;
+  overflow: hidden;
+}
+.tabbar .tab-pill {
+  top: 3px;
+  bottom: 3px;
+  height: auto;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #E8F5EE 0%, #D9F0E4 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82), 0 2px 8px rgba(25,155,102,.10);
+}
+.tabbar .tab[aria-selected="true"] { color: var(--accent-press); }
+.tabbar .tab[aria-selected="true"] svg { color: var(--accent-press); }
+
+/* Действия свайпа — отдельные скруглённые кнопки под карточкой. */
+.swipe-actions {
+  inset: 0 0 0 auto;
+  width: 146px;
+  padding: 6px;
+  gap: 6px;
+  align-items: stretch;
+  visibility: hidden;
+  background: var(--surface-sunk);
+}
+.swipe-actions--left {
+  inset: 0 auto 0 0;
+  width: 76px;
+  justify-content: flex-start;
+}
+.swipe-action {
+  width: 64px;
+  min-width: 64px;
+  margin: 0;
+  border-radius: 16px;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 650;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 2px 6px rgba(21,32,26,.08);
+}
+.swipe-actions--left .swipe-action,
+.swipe-action--edit {
+  background: linear-gradient(145deg, #25B77F 0%, var(--accent-press) 100%);
+}
+.swipe-action--del {
+  background: linear-gradient(145deg, #D97861 0%, #B94F3A 100%);
+}
+.swipe-action:active { transform: scale(.96); }
+.swipe-body { z-index: 1; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .tabbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
 /* Единый кегль заголовков секций во всём приложении. */
