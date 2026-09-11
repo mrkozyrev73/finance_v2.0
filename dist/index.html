@@ -3881,6 +3881,7 @@ var SyncHook = { push: function () {} };
    ============================================================ */
 
 const DB_KEY   = 'dohod.state.v1';
+const DEMO_DB_KEY = 'dohod.demo.v1';
 const CFG_KEY  = 'dohod.supabase.v1';
 const SCHEMA   = 2;
 
@@ -3955,17 +3956,19 @@ const Store = (() => {
   const listeners = new Set();
   let channel = null;
   let suppressBroadcast = false;
+  let demoMode = false;
+  const activeDbKey = () => demoMode ? DEMO_DB_KEY : DB_KEY;
 
   function load() {
     try {
-      const raw = localStorage.getItem(DB_KEY);
+      const raw = localStorage.getItem(activeDbKey());
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
         state = migrate(parsed);
         // Сохраняем добавленные при миграции базовые значения, чтобы они
         // участвовали и в следующей синхронизации.
-        localStorage.setItem(DB_KEY, JSON.stringify(state));
+        localStorage.setItem(activeDbKey(), JSON.stringify(state));
       }
     } catch (e) {
       console.warn('[store] не удалось прочитать локальные данные', e);
@@ -4114,7 +4117,7 @@ const Store = (() => {
 
   const persist = debounce(() => {
     try {
-      localStorage.setItem(DB_KEY, JSON.stringify(state));
+      localStorage.setItem(activeDbKey(), JSON.stringify(state));
     } catch (e) {
       console.warn('[store] запись не удалась', e);
       Toast.show('Не удалось сохранить локально — хранилище переполнено', { kind: 'err' });
@@ -4141,9 +4144,10 @@ const Store = (() => {
   const api = {
     get state() { return state; },
 
-    init() {
+    init(options) {
+      demoMode = !!(options && options.demo);
       load();
-      if ('BroadcastChannel' in window) {
+      if (!demoMode && 'BroadcastChannel' in window) {
         channel = new BroadcastChannel('dohod-sync');
         channel.onmessage = (ev) => {
           if (!ev.data || ev.data.type !== 'state') return;
@@ -4154,13 +4158,23 @@ const Store = (() => {
         };
       }
       window.addEventListener('storage', (ev) => {
-        if (ev.key !== DB_KEY) return;
+        if (ev.key !== activeDbKey()) return;
         load();
         emit('external');
       });
     },
 
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+
+    get isDemo() { return demoMode; },
+
+    /** Заменить состояние демонстрационными данными в отдельном хранилище. */
+    loadDemo(next) {
+      if (!demoMode) return;
+      state = migrate(next);
+      try { localStorage.setItem(activeDbKey(), JSON.stringify(state)); } catch (_) {}
+      emit('demo');
+    },
 
     /** Изменить состояние. mutator получает state; всё остальное — на нас. */
     update(mutator, reason) {
@@ -4173,7 +4187,7 @@ const Store = (() => {
     applyRemote(next) {
       dedupeCategories(next);
       state = migrate(next);
-      try { localStorage.setItem(DB_KEY, JSON.stringify(state)); } catch (_) {}
+      try { localStorage.setItem(activeDbKey(), JSON.stringify(state)); } catch (_) {}
       emit('remote');
     },
 
@@ -6722,7 +6736,8 @@ const Fin = (() => {
     ]);
     card.addEventListener('click', () => depositDetail(rec.id));
     const root = wrapFinanceCard(card, 'fin-deposit-' + rec.id,
-      () => openDeposit(rec.id), () => removeDeposit(rec.id), 'вклад');
+      () => openDeposit(rec.id), () => removeDeposit(rec.id), 'вклад',
+      () => openDepositAmount(rec.id));
     return { root, name, meta, amount, rate };
   }
 
@@ -6733,6 +6748,30 @@ const Fin = (() => {
     setText(entry.amount, money(rec.amount));
     setText(entry.rate, percent(rec.rate));
     entry.rate.title = percent(rec.rate) + ' годовых';
+  }
+
+  function openDepositAmount(id) {
+    const rec = Store.byId('deposits', id);
+    if (!rec) return;
+    const draft = { amount: rec.amount };
+    Sheet.open({
+      title: 'Сумма вклада',
+      build(body) {
+        body.appendChild(field('Новая сумма, ₽', bindAmount('d-quick-amt', draft, 'amount'), 'd-quick-amt'));
+        body.appendChild(el('p', { class: 'sheet-hint', text: 'Название и остальные данные останутся без изменений.' }));
+      },
+      footer(foot) {
+        foot.appendChild(el('button', {
+          class: 'btn btn--block', type: 'button', text: 'Сохранить сумму',
+          onclick: () => {
+            Store.patch('deposits', rec.id, { amount: draft.amount }, rec.name);
+            Store.recordFinanceSnapshot();
+            Sheet.close();
+            Toast.show('Сумма вклада обновлена');
+          }
+        }));
+      }
+    });
   }
 
   function buildCredit(rec) {
@@ -7963,7 +8002,10 @@ alter publication supabase_realtime add table public.app_state;`;
   };
 })();
 
-SyncHook.push = () => Sync.schedulePush();
+SyncHook.push = () => {
+  if (window.__DEMO_MODE__) return;
+  Sync.schedulePush();
+};
 
 
 /* ===== 99-boot.js ===== */
@@ -8008,11 +8050,17 @@ const Render = {
 function boot() {
   lockPortraitOrientation();
   initHaptics();
-  Store.init();
+  const demoMode = new URLSearchParams(location.search).get('demo') === '1';
+  window.__DEMO_MODE__ = demoMode;
+  Store.init({ demo: demoMode });
+
+  if (demoMode && !Store.list('incomes').length) {
+    Store.loadDemo(createDemoState());
+  }
 
   // Демонстрационный снимок для визуальной проверки финансовой аналитики.
   // Включается только адресом ?demoFinance=1 и не меняет сами финансовые записи.
-  if (new URLSearchParams(location.search).get('demoFinance') === '1') {
+  if (!demoMode && new URLSearchParams(location.search).get('demoFinance') === '1') {
     const demoKey = shiftKey(View.key, -1);
     const demoAt = new Date(yearOf(demoKey), monOf(demoKey) + 1, 0, 18, 0, 0, 0).getTime();
     Store.update(s => {
@@ -8063,11 +8111,55 @@ function boot() {
     else Render.all();
   });
 
-  Sync.init();
+  if (!demoMode) Sync.init();
 
   // Первый кадр отрисован — снимаем «замок» стартовой анимации
   document.documentElement.setAttribute('data-booted', '');
   registerServiceWorker();
+}
+
+function createDemoState() {
+  const s = emptyState();
+  const key = View.key;
+  const previous = shiftKey(key, -1);
+  const categoryId = (name) => {
+    const category = s.categories.find(c => c.name === name);
+    return category ? category.id : s.categories[0].id;
+  };
+  const addIncome = (month, day, title, amount, category, status) => {
+    s.incomes.push(stampNew({
+      title, amount, categoryId: categoryId(category), status,
+      date: month + '-' + String(day).padStart(2, '0'),
+      note: 'Демонстрационная запись'
+    }));
+  };
+
+  addIncome(key, 3, 'Продажа камеры', 42000, 'Продажа Авито', 'received');
+  addIncome(key, 7, 'Интеграция с брендом', 68000, 'Интеграция PRO АВТО', 'received');
+  addIncome(key, 12, 'Обзор товара', 29500, 'Обзор', 'received');
+  addIncome(key, 18, 'Новый проект', 54000, 'Контракт', 'expected');
+  addIncome(key, 25, 'Кешбек за месяц', 4800, 'Кешбек сервисы', 'expected');
+  addIncome(previous, 9, 'Продажа аксессуаров', 31500, 'Продажа Авито', 'received');
+  addIncome(previous, 16, 'Статья', 22000, 'Статья на Дзен', 'received');
+
+  const demoNow = now();
+  s.safe = Object.assign({}, s.safe, {
+    name: 'Резерв', amount: 185000, baselineAmount: 150000,
+    baselineInitialized: true, baselineAt: demoNow, updatedAt: demoNow
+  });
+  s.savings = [
+    stampNew({ name: 'Резерв', amount: 185000, baselineAmount: 150000, baselineInitialized: true, baselineAt: demoNow }),
+    stampNew({ name: 'На отпуск', amount: 76000, baselineAmount: 50000, baselineInitialized: true, baselineAt: demoNow })
+  ];
+  s.deposits = [
+    stampNew({ name: 'Накопительный счёт', bank: 'Т-Банк', amount: 320000, rate: 14.5, endsAt: '' })
+  ];
+  s.credits = [
+    stampNew({ name: 'Ипотека', type: 'Ипотека', bank: 'Сбер', remaining: 4280000, rate: 4.6, monthlyPayment: 29085 }),
+    stampNew({ name: 'На ремонт', type: 'Потребительский', bank: 'Т-Банк', remaining: 486000, rate: 18.9, monthlyPayment: 18500 })
+  ];
+  s.settings.lastTab = 'home';
+  return s;
 }
 
 function initHaptics() {

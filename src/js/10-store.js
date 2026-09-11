@@ -6,6 +6,7 @@
    ============================================================ */
 
 const DB_KEY   = 'dohod.state.v1';
+const DEMO_DB_KEY = 'dohod.demo.v1';
 const CFG_KEY  = 'dohod.supabase.v1';
 const SCHEMA   = 2;
 
@@ -80,17 +81,19 @@ const Store = (() => {
   const listeners = new Set();
   let channel = null;
   let suppressBroadcast = false;
+  let demoMode = false;
+  const activeDbKey = () => demoMode ? DEMO_DB_KEY : DB_KEY;
 
   function load() {
     try {
-      const raw = localStorage.getItem(DB_KEY);
+      const raw = localStorage.getItem(activeDbKey());
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
         state = migrate(parsed);
         // Сохраняем добавленные при миграции базовые значения, чтобы они
         // участвовали и в следующей синхронизации.
-        localStorage.setItem(DB_KEY, JSON.stringify(state));
+        localStorage.setItem(activeDbKey(), JSON.stringify(state));
       }
     } catch (e) {
       console.warn('[store] не удалось прочитать локальные данные', e);
@@ -239,7 +242,7 @@ const Store = (() => {
 
   const persist = debounce(() => {
     try {
-      localStorage.setItem(DB_KEY, JSON.stringify(state));
+      localStorage.setItem(activeDbKey(), JSON.stringify(state));
     } catch (e) {
       console.warn('[store] запись не удалась', e);
       Toast.show('Не удалось сохранить локально — хранилище переполнено', { kind: 'err' });
@@ -266,9 +269,10 @@ const Store = (() => {
   const api = {
     get state() { return state; },
 
-    init() {
+    init(options) {
+      demoMode = !!(options && options.demo);
       load();
-      if ('BroadcastChannel' in window) {
+      if (!demoMode && 'BroadcastChannel' in window) {
         channel = new BroadcastChannel('dohod-sync');
         channel.onmessage = (ev) => {
           if (!ev.data || ev.data.type !== 'state') return;
@@ -279,13 +283,23 @@ const Store = (() => {
         };
       }
       window.addEventListener('storage', (ev) => {
-        if (ev.key !== DB_KEY) return;
+        if (ev.key !== activeDbKey()) return;
         load();
         emit('external');
       });
     },
 
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+
+    get isDemo() { return demoMode; },
+
+    /** Заменить состояние демонстрационными данными в отдельном хранилище. */
+    loadDemo(next) {
+      if (!demoMode) return;
+      state = migrate(next);
+      try { localStorage.setItem(activeDbKey(), JSON.stringify(state)); } catch (_) {}
+      emit('demo');
+    },
 
     /** Изменить состояние. mutator получает state; всё остальное — на нас. */
     update(mutator, reason) {
@@ -298,7 +312,7 @@ const Store = (() => {
     applyRemote(next) {
       dedupeCategories(next);
       state = migrate(next);
-      try { localStorage.setItem(DB_KEY, JSON.stringify(state)); } catch (_) {}
+      try { localStorage.setItem(activeDbKey(), JSON.stringify(state)); } catch (_) {}
       emit('remote');
     },
 

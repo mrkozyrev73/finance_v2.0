@@ -509,7 +509,8 @@ const Fin = (() => {
     ]);
     card.addEventListener('click', () => depositDetail(rec.id));
     const root = wrapFinanceCard(card, 'fin-deposit-' + rec.id,
-      () => openDeposit(rec.id), () => removeDeposit(rec.id), 'вклад');
+      () => openDeposit(rec.id), () => removeDeposit(rec.id), 'вклад',
+      () => openDepositAmount(rec.id));
     return { root, name, meta, amount, rate };
   }
 
@@ -520,6 +521,30 @@ const Fin = (() => {
     setText(entry.amount, money(rec.amount));
     setText(entry.rate, percent(rec.rate));
     entry.rate.title = percent(rec.rate) + ' годовых';
+  }
+
+  function openDepositAmount(id) {
+    const rec = Store.byId('deposits', id);
+    if (!rec) return;
+    const draft = { amount: rec.amount };
+    Sheet.open({
+      title: 'Сумма вклада',
+      build(body) {
+        body.appendChild(field('Новая сумма, ₽', bindAmount('d-quick-amt', draft, 'amount'), 'd-quick-amt'));
+        body.appendChild(el('p', { class: 'sheet-hint', text: 'Название и остальные данные останутся без изменений.' }));
+      },
+      footer(foot) {
+        foot.appendChild(el('button', {
+          class: 'btn btn--block', type: 'button', text: 'Сохранить сумму',
+          onclick: () => {
+            Store.patch('deposits', rec.id, { amount: draft.amount }, rec.name);
+            Store.recordFinanceSnapshot();
+            Sheet.close();
+            Toast.show('Сумма вклада обновлена');
+          }
+        }));
+      }
+    });
   }
 
   function buildCredit(rec) {

@@ -39,11 +39,17 @@ const Render = {
 function boot() {
   lockPortraitOrientation();
   initHaptics();
-  Store.init();
+  const demoMode = new URLSearchParams(location.search).get('demo') === '1';
+  window.__DEMO_MODE__ = demoMode;
+  Store.init({ demo: demoMode });
+
+  if (demoMode && !Store.list('incomes').length) {
+    Store.loadDemo(createDemoState());
+  }
 
   // Демонстрационный снимок для визуальной проверки финансовой аналитики.
   // Включается только адресом ?demoFinance=1 и не меняет сами финансовые записи.
-  if (new URLSearchParams(location.search).get('demoFinance') === '1') {
+  if (!demoMode && new URLSearchParams(location.search).get('demoFinance') === '1') {
     const demoKey = shiftKey(View.key, -1);
     const demoAt = new Date(yearOf(demoKey), monOf(demoKey) + 1, 0, 18, 0, 0, 0).getTime();
     Store.update(s => {
@@ -94,11 +100,55 @@ function boot() {
     else Render.all();
   });
 
-  Sync.init();
+  if (!demoMode) Sync.init();
 
   // Первый кадр отрисован — снимаем «замок» стартовой анимации
   document.documentElement.setAttribute('data-booted', '');
   registerServiceWorker();
+}
+
+function createDemoState() {
+  const s = emptyState();
+  const key = View.key;
+  const previous = shiftKey(key, -1);
+  const categoryId = (name) => {
+    const category = s.categories.find(c => c.name === name);
+    return category ? category.id : s.categories[0].id;
+  };
+  const addIncome = (month, day, title, amount, category, status) => {
+    s.incomes.push(stampNew({
+      title, amount, categoryId: categoryId(category), status,
+      date: month + '-' + String(day).padStart(2, '0'),
+      note: 'Демонстрационная запись'
+    }));
+  };
+
+  addIncome(key, 3, 'Продажа камеры', 42000, 'Продажа Авито', 'received');
+  addIncome(key, 7, 'Интеграция с брендом', 68000, 'Интеграция PRO АВТО', 'received');
+  addIncome(key, 12, 'Обзор товара', 29500, 'Обзор', 'received');
+  addIncome(key, 18, 'Новый проект', 54000, 'Контракт', 'expected');
+  addIncome(key, 25, 'Кешбек за месяц', 4800, 'Кешбек сервисы', 'expected');
+  addIncome(previous, 9, 'Продажа аксессуаров', 31500, 'Продажа Авито', 'received');
+  addIncome(previous, 16, 'Статья', 22000, 'Статья на Дзен', 'received');
+
+  const demoNow = now();
+  s.safe = Object.assign({}, s.safe, {
+    name: 'Резерв', amount: 185000, baselineAmount: 150000,
+    baselineInitialized: true, baselineAt: demoNow, updatedAt: demoNow
+  });
+  s.savings = [
+    stampNew({ name: 'Резерв', amount: 185000, baselineAmount: 150000, baselineInitialized: true, baselineAt: demoNow }),
+    stampNew({ name: 'На отпуск', amount: 76000, baselineAmount: 50000, baselineInitialized: true, baselineAt: demoNow })
+  ];
+  s.deposits = [
+    stampNew({ name: 'Накопительный счёт', bank: 'Т-Банк', amount: 320000, rate: 14.5, endsAt: '' })
+  ];
+  s.credits = [
+    stampNew({ name: 'Ипотека', type: 'Ипотека', bank: 'Сбер', remaining: 4280000, rate: 4.6, monthlyPayment: 29085 }),
+    stampNew({ name: 'На ремонт', type: 'Потребительский', bank: 'Т-Банк', remaining: 486000, rate: 18.9, monthlyPayment: 18500 })
+  ];
+  s.settings.lastTab = 'home';
+  return s;
 }
 
 function initHaptics() {

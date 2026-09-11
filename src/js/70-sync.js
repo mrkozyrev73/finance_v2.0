@@ -618,4 +618,7 @@ alter publication supabase_realtime add table public.app_state;`;
   };
 })();
 
-SyncHook.push = () => Sync.schedulePush();
+SyncHook.push = () => {
+  if (window.__DEMO_MODE__) return;
+  Sync.schedulePush();
+};
