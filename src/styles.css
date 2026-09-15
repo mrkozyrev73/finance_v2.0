@@ -3096,13 +3096,22 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 /* Нейтральный отклик после отметки: без зелёной заливки и без сдвига списка. */
 @keyframes income-feedback {
-  0% { transform: scale(.994); opacity: .78; }
-  55% { transform: scale(1.002); opacity: 1; }
+  0% { transform: scale(.997); opacity: .86; }
+  42% { transform: scale(1.001); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
 #scr-home #incomeList .swipe[data-feedback] .swipe-body {
-  animation: income-feedback 360ms var(--ease) both;
-  box-shadow: 0 0 0 1px rgba(21,32,26,.12), 0 6px 16px rgba(21,32,26,.07);
+  animation: income-feedback 1100ms var(--ease) both;
+  box-shadow: 0 0 0 1px rgba(21,32,26,.10), 0 6px 16px rgba(21,32,26,.06);
+}
+#scr-home #incomeList .swipe[data-feedback] .income-flag {
+  color: var(--accent-press);
+  font-weight: 700;
+  transition: color 180ms var(--ease-io), font-weight 180ms var(--ease-io);
+}
+#scr-home #incomeList .status-dot:disabled {
+  cursor: default;
+  pointer-events: none;
 }
 
 /* Единый короткий spring-like отклик на нажатие, без влияния на layout. */

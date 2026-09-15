@@ -150,6 +150,8 @@ const Swipe = (() => {
 
 const IncomeList = (() => {
   const nodes = new Map();   // id -> {row, refs}
+  const feedbackTimers = new Map();
+  const heldPositions = new Map();
 
   function build(rec) {
     const actions = el('div', { class: 'swipe-actions' }, [
@@ -247,6 +249,14 @@ const IncomeList = (() => {
   function render(list) {
     const host = $('#incomeList');
     const seen = new Set();
+    // После отметки сначала показываем новое состояние на прежнем месте.
+    // Реальное перемещение запускается отдельным render после короткого отклика.
+    for (const [id, position] of heldPositions) {
+      const current = list.findIndex(rec => rec.id === id);
+      if (current < 0) continue;
+      const [rec] = list.splice(current, 1);
+      list.splice(Math.min(position, list.length), 0, rec);
+    }
     const before = prefersReducedMotion() ? null : new Map(
       Array.from(nodes, ([id, entry]) => [id, entry.row.getBoundingClientRect().top])
     );
@@ -298,47 +308,92 @@ const IncomeList = (() => {
   function flash(id) {
     const entry = nodes.get(id);
     if (!entry) return;
+    clearTimeout(feedbackTimers.get(id));
     entry.row.removeAttribute('data-feedback');
+    entry.dot.disabled = true;
     requestAnimationFrame(() => {
       entry.row.setAttribute('data-feedback', '');
-      setTimeout(() => entry.row.removeAttribute('data-feedback'), 360);
+      const timer = setTimeout(() => {
+        entry.row.removeAttribute('data-feedback');
+        entry.dot.disabled = false;
+        feedbackTimers.delete(id);
+      }, 1700);
+      feedbackTimers.set(id, timer);
     });
   }
 
-  return { render, flash, reset: () => nodes.clear() };
+  function preview(id, status) {
+    const entry = nodes.get(id);
+    const rec = Store.byId('incomes', id);
+    if (!entry || !rec) return;
+    paint(entry, Object.assign({}, rec, { status }));
+  }
+
+  function hold(id) {
+    const entry = nodes.get(id);
+    const host = $('#incomeList');
+    if (!entry || !host) return;
+    heldPositions.set(id, Array.prototype.indexOf.call(host.children, entry.row));
+  }
+
+  function release(id) {
+    heldPositions.delete(id);
+  }
+
+  return { render, flash, preview, hold, release, reset: () => { nodes.clear(); heldPositions.clear(); } };
 })();
 
 /** Отметить доход полученным или вернуть в ожидаемые — прямо из строки */
 function toggleReceived(id) {
+  if (toggleReceived.busy && toggleReceived.busy.has(id)) return;
   const rec = Store.byId('incomes', id);
   if (!rec) return;
+  if (!toggleReceived.busy) toggleReceived.busy = new Set();
+  toggleReceived.busy.add(id);
   const previousStatus = rec.status;
   const previousStatusChangedAt = rec.statusChangedAt;
   const previousReceivedOrder = rec.receivedOrder;
   const title = rec.title;
   const before = Data.totalsOf(View.key);
   const next = rec.status === 'received' ? 'expected' : 'received';
-  haptic(next === 'received' ? 'success' : 'light');
-  const statusChangedAt = Math.max(Date.now(), Number(rec.statusChangedAt) || 0) + 1;
-  const receivedOrder = next === 'received'
-    ? Store.list('incomes').reduce((max, item) => Math.max(max, Number(item.receivedOrder) || 0), 0) + 1
-    : (Number(rec.receivedOrder) || 0);
-  Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, title);
+  // Сначала меняем только визуальное состояние. Данные и сортировка
+  // остаются прежними до окончания короткой паузы.
+  Home.previewIncome(id, next);
   Home.flashIncome(id);
-  const after = Data.totalsOf(View.key);
-  Home.animateTotals(before, after);
-  Toast.show(next === 'received'
-    ? '«' + (rec.title || 'Доход') + '» отмечен полученным'
-    : '«' + (rec.title || 'Доход') + '» снова ожидается', {
-    action: {
-      label: 'Отменить',
-      run: () => Store.patch('incomes', id, {
-        status: previousStatus,
-        statusChangedAt: previousStatusChangedAt,
-        receivedOrder: previousReceivedOrder
-      }, title)
+  haptic(next === 'received' ? 'success' : 'light');
+  // Сохраняем статус только после паузы: до этого сортировке нечего
+  // перестраивать, поэтому строка гарантированно остаётся на месте.
+  setTimeout(() => {
+    const current = Store.byId('incomes', id);
+    if (!current) {
+      toggleReceived.busy.delete(id);
+      return;
     }
-  });
+    const statusChangedAt = Math.max(Date.now(), Number(current.statusChangedAt) || 0) + 1;
+    const receivedOrder = next === 'received'
+      ? Store.list('incomes').reduce((max, item) => Math.max(max, Number(item.receivedOrder) || 0), 0) + 1
+      : (Number(current.receivedOrder) || 0);
+    Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, title);
+    const after = Data.totalsOf(View.key);
+    Home.animateTotals(before, after);
+    Toast.show(next === 'received'
+      ? '«' + (title || 'Доход') + '» · ' + money(current.amount) + ' — получен'
+      : '«' + (title || 'Доход') + '» · ' + money(current.amount) + ' — снова ожидается', {
+      duration: 7000,
+      action: {
+        label: 'Отменить',
+        run: () => {
+          Store.patch('incomes', id, {
+            status: previousStatus,
+            statusChangedAt: previousStatusChangedAt,
+            receivedOrder: previousReceivedOrder
+          }, title);
+          toggleReceived.busy.delete(id);
+        }
+      }
+    });
+  }, prefersReducedMotion() ? 0 : 850);
+  setTimeout(() => toggleReceived.busy.delete(id), 1300);
 }
 
 function deleteIncome(id) {
@@ -620,7 +675,9 @@ const Home = (() => {
 
   function filtered() {
     let list = Data.incomesOf(View.key);
-    if (View.filter !== 'all') list = list.filter(r => r.status === View.filter);
+    if (View.filter !== 'all') {
+      list = list.filter(r => r.status === View.filter);
+    }
     if (View.query) {
       const q = View.query.toLowerCase();
       list = list.filter(r =>
@@ -630,19 +687,25 @@ const Home = (() => {
     // Две понятные группы: ожидаемые сверху, полученные ниже.
     // Внутри группы последняя изменённая запись становится первой.
     return list.slice().sort((a, b) => {
-      const groupA = a.status === 'expected' ? 0 : 1;
-      const groupB = b.status === 'expected' ? 0 : 1;
+      const sortStatusA = a.status;
+      const sortStatusB = b.status;
+      const groupA = sortStatusA === 'expected' ? 0 : 1;
+      const groupB = sortStatusB === 'expected' ? 0 : 1;
       if (groupA !== groupB) return groupA - groupB;
-      if (a.status === 'received') {
+      if (sortStatusA === 'received') {
         const hasOrderA = Number(a.receivedOrder) > 0;
         const hasOrderB = Number(b.receivedOrder) > 0;
         if (hasOrderA !== hasOrderB) return hasOrderA ? -1 : 1;
       }
-      const timeA = a.status === 'received'
-        ? (Number(a.receivedOrder) > 0 ? a.receivedOrder : (a.statusChangedAt || a.updatedAt || a.createdAt || 0))
+      const timeA = sortStatusA === 'received'
+        ? (Number(a.receivedOrder) > 0
+          ? a.receivedOrder
+          : (a.statusChangedAt || a.updatedAt || a.createdAt || 0))
         : (a.updatedAt || a.createdAt || 0);
-      const timeB = b.status === 'received'
-        ? (Number(b.receivedOrder) > 0 ? b.receivedOrder : (b.statusChangedAt || b.updatedAt || b.createdAt || 0))
+      const timeB = sortStatusB === 'received'
+        ? (Number(b.receivedOrder) > 0
+          ? b.receivedOrder
+          : (b.statusChangedAt || b.updatedAt || b.createdAt || 0))
         : (b.updatedAt || b.createdAt || 0);
       return timeB - timeA;
     });
@@ -709,7 +772,13 @@ const Home = (() => {
     countFrame = requestAnimationFrame(tick);
   }
 
-  return { mount, render, animateTotals, flashIncome: IncomeList.flash };
+  return {
+    mount, render, animateTotals,
+    flashIncome: IncomeList.flash,
+    previewIncome: IncomeList.preview,
+    holdIncome: IncomeList.hold,
+    releaseIncome: IncomeList.release
+  };
 })();
 
 /* ------------------------------------------------------------
