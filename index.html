@@ -5337,16 +5337,22 @@ const IncomeList = (() => {
     if (!entry) return;
     clearTimeout(feedbackTimers.get(id));
     entry.row.removeAttribute('data-feedback');
-    entry.dot.disabled = true;
     requestAnimationFrame(() => {
       entry.row.setAttribute('data-feedback', '');
       const timer = setTimeout(() => {
         entry.row.removeAttribute('data-feedback');
-        entry.dot.disabled = false;
         feedbackTimers.delete(id);
       }, 1700);
       feedbackTimers.set(id, timer);
     });
+  }
+
+  function clearFeedback(id) {
+    const entry = nodes.get(id);
+    if (!entry) return;
+    clearTimeout(feedbackTimers.get(id));
+    feedbackTimers.delete(id);
+    entry.row.removeAttribute('data-feedback');
   }
 
   function preview(id, status) {
@@ -5367,11 +5373,22 @@ const IncomeList = (() => {
     heldPositions.delete(id);
   }
 
-  return { render, flash, preview, hold, release, reset: () => { nodes.clear(); heldPositions.clear(); } };
+  return { render, flash, clearFeedback, preview, hold, release, reset: () => { nodes.clear(); heldPositions.clear(); } };
 })();
 
 /** Отметить доход полученным или вернуть в ожидаемые — прямо из строки */
 function toggleReceived(id) {
+  const pending = toggleReceived.pending && toggleReceived.pending.get(id);
+  if (pending) {
+    clearTimeout(pending.timer);
+    toggleReceived.pending.delete(id);
+    toggleReceived.busy && toggleReceived.busy.delete(id);
+    const rec = Store.byId('incomes', id);
+    if (rec) Home.previewIncome(id, rec.status);
+    Home.clearIncomeFeedback(id);
+    haptic('light');
+    return;
+  }
   if (toggleReceived.busy && toggleReceived.busy.has(id)) return;
   const rec = Store.byId('incomes', id);
   if (!rec) return;
@@ -5390,7 +5407,9 @@ function toggleReceived(id) {
   haptic(next === 'received' ? 'success' : 'light');
   // Сохраняем статус только после паузы: до этого сортировке нечего
   // перестраивать, поэтому строка гарантированно остаётся на месте.
-  setTimeout(() => {
+  if (!toggleReceived.pending) toggleReceived.pending = new Map();
+  const timer = setTimeout(() => {
+    toggleReceived.pending.delete(id);
     const current = Store.byId('incomes', id);
     if (!current) {
       toggleReceived.busy.delete(id);
@@ -5420,6 +5439,7 @@ function toggleReceived(id) {
       }
     });
   }, prefersReducedMotion() ? 0 : 850);
+  toggleReceived.pending.set(id, { timer });
   setTimeout(() => toggleReceived.busy.delete(id), 1300);
 }
 
@@ -5802,6 +5822,7 @@ const Home = (() => {
   return {
     mount, render, animateTotals,
     flashIncome: IncomeList.flash,
+    clearIncomeFeedback: IncomeList.clearFeedback,
     previewIncome: IncomeList.preview,
     holdIncome: IncomeList.hold,
     releaseIncome: IncomeList.release
