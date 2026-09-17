@@ -12,7 +12,7 @@ const SCHEMA   = 2;
 
 /** Коллекции, которые синхронизируются как наборы записей */
 const COLLECTIONS = [
-  'incomes', 'categories', 'recurring', 'historical',
+  'incomes', 'wishes', 'categories', 'recurring', 'historical',
   'deposits', 'savings', 'credits', 'notes', 'history', 'financeSnapshots'
 ];
 /** Одиночные объекты — сливаются целиком по своему updatedAt */
@@ -51,6 +51,7 @@ function emptyState() {
   const s = {
     schema: SCHEMA,
     incomes: [],
+    wishes: [],
     categories: DEFAULT_CATEGORIES.map((c, i) => stampNew({ name: c.name, color: c.color, order: i })),
     recurring: [],
     historical: [],
@@ -484,7 +485,7 @@ const Store = (() => {
 
 const HISTORY_LIMIT = 200;
 const COLLECTION_LABELS = {
-  incomes: 'Доход', categories: 'Категория',
+  incomes: 'Доход', wishes: 'Желание', categories: 'Категория',
   recurring: 'Регулярный доход', historical: 'Ранее заработанное',
   deposits: 'Вклад', savings: 'Сбережение', credits: 'Кредит', notes: 'Заметка'
 };

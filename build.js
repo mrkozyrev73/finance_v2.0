@@ -52,6 +52,9 @@ const html = `<!doctype html>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="data:image/png;base64,${favicon}">
+<script>
+(()=>{try{const t=localStorage.getItem('dohod.accent-theme.v1');if(['green','blue','violet','terracotta','graphite'].includes(t))document.documentElement.dataset.accentTheme=t;}catch(_){}})();
+</script>
 <style>
 ${css}
 </style>

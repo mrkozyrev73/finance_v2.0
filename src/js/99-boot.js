@@ -21,6 +21,7 @@ const Render = {
       ensureRecurring(View.key);
       MonthBar.render();
       Home.render(o);
+      Wishlist.render();
       Stats.render(o);
       Fin.render(o);
       Settings.render();
@@ -42,6 +43,7 @@ function boot() {
   const demoMode = new URLSearchParams(location.search).get('demo') === '1';
   window.__DEMO_MODE__ = demoMode;
   Store.init({ demo: demoMode });
+  $('#app').setAttribute('data-active-tab', View.tab);
 
   if (demoMode && !Store.list('incomes').length) {
     Store.loadDemo(createDemoState());
@@ -72,6 +74,7 @@ function boot() {
   Tabs.mount();
   MonthBar.mount();
   Home.mount();
+  Wishlist.mount();
   Stats.mount();
   Fin.mount();
   Settings.mount();

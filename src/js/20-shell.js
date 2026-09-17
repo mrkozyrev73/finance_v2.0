@@ -16,7 +16,17 @@ const Toast = (() => {
     if (!host) host = $('#toasts');
     if (!host) return;
     const o = opts || {};
+    const duplicate = Array.from(alive).find(node => node.querySelector('.t')?.textContent === text);
+    if (duplicate) {
+      duplicate.removeAttribute('data-in');
+      requestAnimationFrame(() => duplicate.setAttribute('data-in', ''));
+      return () => {
+        duplicate.removeAttribute('data-in');
+        setTimeout(() => duplicate.remove(), 220);
+      };
+    }
     const node = el('div', { class: 'toast' + (o.kind === 'err' ? ' toast--err' : ''), role: 'status' }, [
+      el('span', { class: 'toast-mark', 'aria-hidden': 'true', text: o.kind === 'err' ? '!' : '✓' }),
       el('span', { class: 't', text: text })
     ]);
     let timer = 0;
@@ -195,16 +205,14 @@ const Sheet = (() => {
     const entrance = conf.placement === 'top' ? '-100%' : '100%';
     node.style.transform = 'translate(-50%,' + entrance + ')';
     document.body.style.overflow = 'hidden';
-    // Принудительно фиксируем стартовый кадр: без этого Safari иногда
-    // объединяет начальную и конечную позиции, из-за чего лист дёргается.
-    node.offsetHeight;
-    // Затемнение стартует сразу вместе с окном, без двухкадровой задержки.
-    scrim.setAttribute('data-open', '');
-
-    requestAnimationFrame(() => {
+    // Даём браузеру отдельно отрисовать стартовое состояние. Принудительное
+    // чтение offsetHeight здесь вызывало синхронную перерисовку всей страницы
+    // и заметную вспышку фона на мобильном Safari.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       node.classList.add('sheet-anim');
       node.style.transform = 'translate(-50%,0)';
-    });
+      scrim.setAttribute('data-open', '');
+    }));
 
     // Не открываем клавиатуру автоматически: на iPhone это меняет visual
     // viewport во время появления листа и вызывает заметный рывок экрана.
@@ -291,7 +299,7 @@ const View = {
   statsYear: new Date().getFullYear(),
   openCat: null,
   openSwipeId: null,
-  scroll: { home: 0, stats: 0, fin: 0, set: 0 }
+  scroll: { home: 0, stats: 0, fin: 0, wishlist: 0, set: 0 }
 };
 
 /* ------------------------------------------------------------
@@ -328,6 +336,7 @@ const Tabs = (() => {
     }
     View.scroll[View.tab] = window.scrollY;
     View.tab = tab;
+    $('#app').setAttribute('data-active-tab', tab);
 
     buttons.forEach(b => setAttr(b, 'aria-selected', b.dataset.tab === tab ? 'true' : 'false'));
     $$('.screen').forEach(s => setAttr(s, 'data-active', s.id === 'scr-' + tab ? true : null));

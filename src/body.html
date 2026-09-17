@@ -11,6 +11,10 @@
   <symbol id="ic-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">
     <path d="M19.4 8.2V7a1.6 1.6 0 0 0-1.6-1.6H5.6A1.6 1.6 0 0 0 4 7v10a1.6 1.6 0 0 0 1.6 1.6h12.2a1.6 1.6 0 0 0 1.6-1.6v-1.2"/><path d="M20.6 10.2h-4a1.9 1.9 0 0 0 0 3.8h4a.8.8 0 0 0 .8-.8v-2.2a.8.8 0 0 0-.8-.8Z"/>
   </symbol>
+  <symbol id="ic-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 10h16v10H4zM3 6.5h18V10H3zM12 6.5V20"/><path d="M12 6.5H8.1a2.1 2.1 0 1 1 2.1-2.1C10.2 5.6 12 6.5 12 6.5Zm0 0h3.9a2.1 2.1 0 1 0-2.1-2.1C13.8 5.6 12 6.5 12 6.5Z"/>
+  </symbol>
+  <symbol id="ic-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 5h6v6M19 5l-9 9"/><path d="M18 13v5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V7.5A1.5 1.5 0 0 1 6.5 6H12"/></symbol>
   <symbol id="ic-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
     <circle cx="12" cy="12" r="3.1"/>
@@ -108,6 +112,26 @@
         <div class="row-gap" id="incomeList" style="margin-top:12px"></div>
           <div class="empty" id="incomeEmpty" hidden>Доходов за этот месяц пока нет</div>
         </div>
+      </div>
+    </section>
+
+    <!-- ================= ВИШЛИСТ ================= -->
+    <section class="screen" id="scr-wishlist" role="tabpanel" aria-labelledby="tab-wishlist">
+      <div class="section wishlist-section">
+        <div class="section-head">
+          <div><h2 class="section-title">Вишлист</h2><p class="section-sub">Идеи подарков для вашей семьи</p></div>
+        </div>
+        <button class="btn btn--block" id="addWish" type="button">
+          <svg aria-hidden="true"><use href="#ic-plus"/></svg>
+          Добавить желание
+        </button>
+        <ul class="chips wishlist-status" id="wishFilters" role="group" aria-label="Фильтр желаний">
+          <li><button class="chip" type="button" data-filter="all" aria-pressed="true">Все <span class="chip-count" data-count="all">0</span></button></li>
+          <li><button class="chip" type="button" data-filter="wanted" aria-pressed="false">Хотим <span class="chip-count" data-count="wanted">0</span></button></li>
+          <li><button class="chip" type="button" data-filter="gifted" aria-pressed="false">Подарено <span class="chip-count" data-count="gifted">0</span></button></li>
+        </ul>
+        <div class="row-gap" id="wishList"></div>
+        <div class="empty" id="wishEmpty" hidden>Пока желаний нет.<br>Добавьте первое кнопкой выше.</div>
       </div>
     </section>
 
@@ -221,6 +245,11 @@
             <span><span class="list-label">Категории доходов</span></span>
             <span class="list-side"><span class="list-badge" id="badgeCats">0</span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
           </button>
+          <button class="list-row" type="button" data-open="wishlistPeople">
+            <span class="list-ico"><svg aria-hidden="true"><use href="#ic-gift"/></svg></span>
+            <span><span class="list-label">Имена вишлиста</span></span>
+            <span class="list-side"><span class="list-badge" id="badgeWishPeople">0</span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
+          </button>
           <button class="list-row" type="button" data-open="recurring">
             <span class="list-ico"><svg aria-hidden="true"><use href="#ic-repeat"/></svg></span>
             <span><span class="list-label">Регулярные доходы</span></span>
@@ -240,6 +269,17 @@
             <span class="list-ico"><svg aria-hidden="true"><use href="#ic-archive"/></svg></span>
             <span><span class="list-label">Ранее заработанные доходы</span></span>
             <span class="list-side"><span class="list-badge" id="badgeHistorical">0</span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2 class="section-title">Внешний вид</h2></div>
+        <div class="list">
+          <button class="list-row" type="button" data-open="accentTheme">
+            <span class="list-ico accent-setting-ico"><svg aria-hidden="true"><use href="#ic-settings"/></svg></span>
+            <span><span class="list-label">Цвет акцента</span></span>
+            <span class="list-side"><span class="accent-current"><i class="accent-setting-swatch" id="accentThemeSwatch" aria-hidden="true"></i><span id="accentThemeName">Зелёный</span></span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
           </button>
         </div>
       </div>
@@ -275,6 +315,9 @@
       </button>
       <button class="tab" id="tab-fin" type="button" role="tab" data-tab="fin" aria-selected="false" aria-controls="scr-fin">
         <svg aria-hidden="true"><use href="#ic-wallet"/></svg><span class="tab-label">Финансы</span>
+      </button>
+      <button class="tab" id="tab-wishlist" type="button" role="tab" data-tab="wishlist" aria-selected="false" aria-controls="scr-wishlist">
+        <svg aria-hidden="true"><use href="#ic-gift"/></svg><span class="tab-label">Вишлист</span>
       </button>
       <button class="tab" id="tab-set" type="button" role="tab" data-tab="set" aria-selected="false" aria-controls="scr-set">
         <svg aria-hidden="true"><use href="#ic-settings"/></svg><span class="tab-label">Настройки</span>

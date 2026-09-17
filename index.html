@@ -16,6 +16,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAFoElEQVR4nO3dy1EbURCF4RblFRAGESkYgiAYIiIMzBYvsCg9RjN37rv7/N/SLkvjqnO670hjfLDJfH79/R59DWjn+fHpMPoazg29GMIOs7Gl6P7GhB5repeh25sRfOzRqwjN34Tgo0TrIjR7cYKPmloVofqLEny0VLsIDzVfjPCjtdoZq9Imgo8RamyD4g1A+DFKjewVFYDwY7TSDGYXgPBjFiVZzCoA4cdscjO5uwCEH7PKyeauAhB+zG5vRpMLQPjhxZ6sJhWA8MOb1MxuFoDww6uU7FZ9FALwZrUATH94t5XhuwUg/IhiLcscgSBtsQBMf0RzL9NsAEi7KQDTH1EtZZsNAGkXBWD6I7rrjLMBIO23AEx/qDjPOhsA0igApD2YcfyBnlPm2QCQRgEgjQJAGgWAtAM3wFDGBoA0CgBpFADSKACk/Rl9ARjj5f315tc+jm/N/tys+BRIzFKAa/FYBI5AQlqGv8frt0ABRPQKp7cSUAABvUPpqQQUANIoQHCjprGXLUABII0CQBoFgDQKAGkUIDiP3872RAEgjQIIYAvcRwFEUIJlFEAIJbhFAcR8HN8owhn+QYyo6xJ4eXShNjYAZMNvRgEgjgKIU57+ZhQA4iiAMPXpb0YBII4CiGL6/6AAaMLLl20UANIogKDWxx8v09+MAqAyT+E3owBy+Nmgl3gYDsU8Bv+EAgipMf09h30JRyBIowAimP7LKACkUQAkiTj9zSiABJ77uY8CYFPU6W9GAcJj+q+jAFgVefqbUYDQmP7bKACkUYCg+OIrDQWANAqARQrT34wChMTNbzoKgBsq09+MAoTD9N+HAuCC0vQ3owChMP33owD4pTb9zShAGEz/PBQA0ihAADz2kI8CQBoFgOz0N6MA7nHzW4YCiFOe/mYUwDWmfzkKIEx9+ptRALeY/nVQAEjjx6NnWprAvY4UfPFVDwXYaS18p98jXH5QgER7pu7sRZj1ukbgHiBB7pGjxY0qN791UYANpYF7eX+dKrRM/0sUYEXN4NZ4rZmKFAUFuKPV8WVkiJn+tyjAgtYhzSkC078NCnClZ9AI9XiHz6+/36MvYhazHk/44qsdNsB/o6fx6PdXxQaw+cJ3Pq2Z/m3Jb4DZwm825zVFJb0BFILG9F8nuwEUwo9tkgVQCT/Tf5tcAVTCjzRSBVAKP9M/jVQBWiFsfskUoNX0P4X/4/hGERyS+Bi0dfh7vmcKipgu/AYYEf6U38ccQm+AUeHvdR1LKN4+YTfALOHP/TPoI+QGmCn811puA4q2X7gNMHP4a74O6gi1AWYP/7Wa10ux8oTZAN7Cf3ptgjtWiAJ4DP+I98Et90cg7+G/lvP3oUD5XG+AiA+37Q0z4S/jdgMofJz48v5qH8e3oT+KPTqXBVAIP/pwdwQi/KjJVQEIP2pzUwDCjxbcFKAVwq/NRQGifdaPebgoQAuEH2aiBSD8OJErAOHHOakCEH5cc1GAGsEl/FjiogClCD/ucVOA3BATfqxxUwAzHhVGfa4KYJYeasKPFC4fhz7hOXmUcl0AoJS7IxBQEwWANAoAaRQA0h6eH58Ooy8CGOH58enABoA0CgBpFADSKACkPZj93AyMvhCgp1Pm2QCQRgEg7bcAHIOg4jzrbABIuygAWwDRXWecDQBpNwVgCyCqpWyzASBtsQBsAURzL9NsAEi7WwC2AKJYy/LqBqAE8G4rwxyBIG2zAGwBeJWS3aQNQAngTWpmk49AlABe7MnqrnsASoDZ7c3o7ptgSoBZ5WQz61MgSoDZ5GYy+2NQSoBZlGSx6HsASoDRSjNY/EUYJcAoNbJXNbz8ZxvooebQrfooBNsArdXOWLPAsg1QU6vh2nxiUwSUaH2q6HZkoQjYo9dxuvuZnSJgTe/7yKE3rZQBZmM/PJnuUxtKEdtsnxT+AxHxFYjmcMm0AAAAAElFTkSuQmCC">
+<script>
+(()=>{try{const t=localStorage.getItem('dohod.accent-theme.v1');if(['green','blue','violet','terracotta','graphite'].includes(t))document.documentElement.dataset.accentTheme=t;}catch(_){}})();
+</script>
 <style>
 /* ============================================================
    Доход — дизайн-система
@@ -289,7 +292,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .tabbar-inner {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: stretch;
   height: 50px;
 }
@@ -331,6 +334,162 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   line-height: 1;
   letter-spacing: var(--tr-xs);
   font-weight: 600;
+}
+
+/* Вишлист сохраняет общую шапку месяца, как и остальные разделы. */
+#scr-wishlist .wishlist-section { margin-top: 20px; }
+#scr-wishlist .section-head { align-items: flex-start; margin-bottom: 14px; }
+#scr-wishlist .section-sub { margin-top: 4px; }
+#scr-wishlist #addWish {
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-press) 100%);
+}
+#scr-wishlist #addWish:active { background: var(--accent-press); }
+#scr-wishlist .wishlist-status { margin-top: 8px; }
+#scr-wishlist #wishList { margin-top: 14px; }
+#scr-wishlist .wish-group-title {
+  margin: 0 2px 7px;
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  line-height: 1.25;
+  font-weight: 620;
+  letter-spacing: .01em;
+}
+#scr-wishlist .wish-group-list { gap: 10px; }
+#scr-wishlist .wish-row { gap: 8px; }
+#scr-wishlist .wish-row .swipe-body {
+  border-color: transparent;
+  background: linear-gradient(145deg, #FFFFFF 0%, #FCFDFC 100%);
+  box-shadow: 0 1px 2px rgba(21,32,26,.025), 0 5px 14px rgba(21,32,26,.035);
+  cursor: pointer;
+}
+#scr-wishlist .wish-row .income { min-height: 62px; padding: 10px 13px; }
+#scr-wishlist .wish-row .wish-income { grid-template-columns: 32px minmax(0, 1fr) 32px 100px; align-items: center; gap: 8px; }
+#scr-wishlist .wish-row .income-title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+#scr-wishlist .wish-link {
+  display: inline-grid;
+  align-items: center;
+  justify-content: center;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunk);
+  color: var(--text-2);
+  text-decoration: none;
+  transition: background var(--dur-fast) var(--ease-io), color var(--dur-fast) var(--ease-io), transform var(--dur-fast) var(--ease);
+  grid-column: 3;
+}
+#scr-wishlist .wish-link svg { width: 16px; height: 16px; }
+#scr-wishlist .wish-link:active { transform: scale(.96); background: var(--accent-soft); color: var(--accent-press); }
+#scr-wishlist .wish-link[hidden] { display: none; }
+#scr-wishlist .wish-row .income-meta { text-transform: none; }
+#scr-wishlist .wish-desire {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  margin-top: 4px;
+  color: var(--text-3);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+#scr-wishlist .wish-desire::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .72;
+}
+#scr-wishlist .wish-desire--strong { color: #B85E4A; }
+#scr-wishlist .wish-desire--want { color: #A34D7A; }
+#scr-wishlist .wish-desire--try { color: #2E8B8B; }
+#scr-wishlist .wish-desire--dream { color: #A34D7A; }
+#scr-wishlist .wish-desire--nice { color: #A96F31; }
+#scr-wishlist .wish-desire--fun { color: #6268A9; }
+#scr-wishlist .wish-desire--someday { color: #718179; }
+#scr-wishlist .wish-desire[hidden] { display: none; }
+#scr-wishlist .wish-desire-picker { margin-top: 0; }
+#scr-wishlist .wish-desire-picker .quick-cat { box-sizing: border-box; width: max-content; min-width: max-content; max-width: none; padding-right: 20px; white-space: nowrap; }
+#scr-wishlist .wish-desire-picker .quick-cat[aria-pressed="true"] { font-weight: 540; }
+#scr-wishlist .wish-price-owner-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; gap: 10px; }
+#scr-wishlist .wish-price-owner-row .field { min-width: 0; }
+.sheet .wish-owner-picker {
+  width: 100%;
+  height: 58px;
+  display: grid;
+  gap: 3px;
+  padding: 3px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 1px rgba(21,32,26,.025);
+}
+.sheet .wish-owner-picker .segmented-thumb { display: none; }
+.sheet .wish-owner-picker .seg {
+  min-width: 0;
+  height: 100%;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  box-shadow: none;
+}
+.sheet .wish-owner-picker .seg[aria-selected="true"] {
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(21,32,26,.1);
+}
+.sheet .wish-price-input { height: 58px; }
+.sheet .wish-links-field { display: grid; gap: 7px; }
+.sheet .wish-links-inputs { display: grid; gap: 7px; }
+.sheet .wish-link-input-row { display: grid; grid-template-columns: minmax(0, 1fr) 34px; align-items: center; gap: 7px; }
+.sheet .wish-link-input-row .input { min-width: 0; }
+.sheet .wish-link-remove { width: 34px; height: 34px; border: 0; border-radius: var(--r-pill); background: var(--surface-sunk); color: var(--text-2); font-size: 22px; line-height: 1; }
+.sheet .wish-add-link { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 4px; border: 0; background: transparent; color: var(--accent-press); font: inherit; font-size: var(--fs-xs); font-weight: 620; }
+.sheet .wish-add-link-plus { font-size: 20px; line-height: 1; font-weight: 400; }
+.sheet .wish-link-list { display: grid; gap: 8px; }
+.sheet .wish-link-option { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+.accent-current { display: inline-flex; align-items: center; gap: 7px; color: var(--text-2); font-size: var(--fs-xs); }
+.accent-setting-swatch, .accent-theme-dot { display: block; width: 13px; height: 13px; flex: none; border-radius: 50%; background: var(--accent); box-shadow: inset 0 0 0 1px rgba(21,32,26,.06); }
+.accent-theme-hint { margin: 0 2px 14px; }
+.accent-theme-list { display: grid; gap: 8px; }
+.accent-theme-option { min-height: 54px; padding: 8px 12px; display: grid; grid-template-columns: 24px minmax(0,1fr) 22px; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: var(--r-card); background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%); color: var(--text); text-align: left; }
+.accent-theme-dot { width: 20px; height: 20px; }
+.accent-theme-label { font-weight: 580; }
+.accent-theme-check { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; color: transparent; }
+.accent-theme-check svg { width: 14px; height: 14px; }
+.accent-theme-option[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-soft); }
+.accent-theme-option[aria-pressed="true"] .accent-theme-label { color: var(--accent-press); }
+.accent-theme-option[aria-pressed="true"] .accent-theme-check { background: var(--accent); color: #fff; }
+#scr-wishlist .wish-row .income-side { grid-column: 4; width: 100%; min-width: 0; text-align: right; }
+#scr-wishlist .wish-row .income-amount { width: 100%; font-size: 17px; text-align: right; }
+#scr-wishlist .wish-row .income-flag { display: block; margin-top: 2px; }
+#scr-wishlist .wish-row[data-feedback] .swipe-body {
+  box-shadow: 0 0 0 1px rgba(21,32,26,.10), 0 6px 16px rgba(21,32,26,.06);
+}
+#scr-wishlist #wishEmpty { margin-top: 12px; }
+.wishlist-people-hint { margin: 0 2px 14px; line-height: 1.45; }
+.wishlist-name-list { gap: 8px; }
+.wishlist-name-row { grid-template-columns: minmax(0,1fr) 38px; gap: 8px; padding: 0; background: none; }
+.wishlist-name-row .input { min-width: 0; }
+.wishlist-name-add { margin-top: 10px; }
+
+@media (max-width: 390px) {
+  .tab { gap: 2px; }
+  .tab svg { width: 18px; height: 18px; }
+  .tab-label { font-size: 10px; letter-spacing: 0; }
 }
 
 /* ============================================================
@@ -674,7 +833,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   inset: 0 auto 0 0;
 }
 .swipe-actions--left .swipe-action {
-  background: linear-gradient(145deg, #22AE78 0%, var(--accent-press) 100%);
+  background: linear-gradient(145deg, var(--accent) 0%, var(--accent-press) 100%);
 }
 .swipe[data-dragging] .swipe-actions,
 .swipe[data-open] .swipe-actions { visibility: visible; }
@@ -1704,7 +1863,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 }
 textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 .input:focus, .select:focus { outline: none; border-color: var(--accent); }
-.input--amount {
+.input--amount, .wish-price-input {
   font-family: var(--num);
   font-size: 26px;
   font-weight: 620;
@@ -1987,6 +2146,13 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   --accent-soft: #E8F5EE;
   --accent-line: rgba(25,155,102,.22);
   --accent-nav: #72D5A4;
+  --accent-muted: #A9DDC5;
+  --accent-fill: #B8E2CF;
+  --accent-soft-2: #D9F0E4;
+  --accent-shadow: rgba(25,155,102,.10);
+  --accent-shadow-strong: rgba(25,155,102,.20);
+  --accent-shadow-soft: rgba(25,155,102,.08);
+  --accent-ring: rgba(25,155,102,.12);
   --border: rgba(21,32,26,.075);
   --border-strong: rgba(21,32,26,.13);
   --r-card: 18px;
@@ -1994,6 +2160,31 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   --r-ctl: 11px;
   --shadow-card: 0 1px 2px rgba(21,32,26,.025), 0 8px 24px rgba(21,32,26,.045);
   --shadow-modal: 0 18px 56px rgba(21,32,26,.18), 0 3px 10px rgba(21,32,26,.08);
+}
+
+:root[data-accent-theme="blue"] {
+  --accent: #3478C6; --accent-press: #2865AA; --accent-soft: #EAF2FC;
+  --accent-line: rgba(52,120,198,.22); --accent-nav: #8BB7EA; --accent-muted: #B7D0F0;
+  --accent-fill: #B9D2F2; --accent-soft-2: #DDEAF9; --accent-shadow: rgba(52,120,198,.12);
+  --accent-shadow-strong: rgba(52,120,198,.20); --accent-shadow-soft: rgba(52,120,198,.08); --accent-ring: rgba(52,120,198,.12);
+}
+:root[data-accent-theme="violet"] {
+  --accent: #8057C5; --accent-press: #6843A8; --accent-soft: #F1ECF9;
+  --accent-line: rgba(128,87,197,.22); --accent-nav: #B19ADE; --accent-muted: #D0C1EB;
+  --accent-fill: #C8B5E8; --accent-soft-2: #E6DDF4; --accent-shadow: rgba(128,87,197,.12);
+  --accent-shadow-strong: rgba(128,87,197,.20); --accent-shadow-soft: rgba(128,87,197,.08); --accent-ring: rgba(128,87,197,.12);
+}
+:root[data-accent-theme="terracotta"] {
+  --accent: #C0614C; --accent-press: #A94F3C; --accent-soft: #FAEEEA;
+  --accent-line: rgba(192,97,76,.22); --accent-nav: #E5A294; --accent-muted: #E8C1B9;
+  --accent-fill: #E8B1A4; --accent-soft-2: #F4DDD7; --accent-shadow: rgba(192,97,76,.12);
+  --accent-shadow-strong: rgba(192,97,76,.20); --accent-shadow-soft: rgba(192,97,76,.08); --accent-ring: rgba(192,97,76,.12);
+}
+:root[data-accent-theme="graphite"] {
+  --accent: #56636D; --accent-press: #414D56; --accent-soft: #EEF1F2;
+  --accent-line: rgba(86,99,109,.22); --accent-nav: #A0ADB5; --accent-muted: #CBD2D6;
+  --accent-fill: #BCC6CC; --accent-soft-2: #E0E5E8; --accent-shadow: rgba(86,99,109,.12);
+  --accent-shadow-strong: rgba(86,99,109,.20); --accent-shadow-soft: rgba(86,99,109,.08); --accent-ring: rgba(86,99,109,.12);
 }
 
 body { letter-spacing: 0; }
@@ -2041,7 +2232,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .btn:active { transform: scale(.975); }
 .btn--ghost { box-shadow: none; }
 .icon-btn { border-color: transparent; background: rgba(255,255,255,.72); box-shadow: 0 1px 2px rgba(21,32,26,.04); }
-.icon-btn--accent { box-shadow: 0 4px 12px rgba(25,155,102,.2); }
+.icon-btn--accent { box-shadow: 0 4px 12px var(--accent-shadow-strong); }
 
 .chips { gap: 7px; }
 .chips {
@@ -2223,7 +2414,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 }
 .income-title, .fin-name { font-weight: 610; letter-spacing: -.01em; }
 .income-meta, .fin-meta { letter-spacing: .012em; }
-.income-new-badge { box-shadow: 0 1px 1px rgba(25,155,102,.08); }
+.income-new-badge { box-shadow: 0 1px 1px var(--accent-shadow-soft); }
 
 .hbar-track, .bar-fill, .hbar-fill { border-radius: var(--r-ctl); }
 .bar-col, .hbar { border-radius: var(--r-ctl); }
@@ -2239,7 +2430,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .sheet { border-radius: 22px 22px 0 0; box-shadow: var(--shadow-modal); }
 .sheet-body, .sheet-foot { background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%); }
 .input, .select, textarea.input { border-radius: var(--r-ctl); border-color: var(--border-strong); box-shadow: inset 0 1px 1px rgba(21,32,26,.025); }
-.input:focus, .select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(25,155,102,.12); }
+.input:focus, .select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
 .quick-cat { border-radius: var(--r-ctl); }
 .switch { box-shadow: inset 0 0 0 1px rgba(21,32,26,.04); }
 
@@ -2248,7 +2439,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 .tab-pill { box-shadow: 0 2px 8px rgba(21,32,26,.08); }
 .toast { border: 1px solid rgba(255,255,255,.08); box-shadow: var(--shadow-modal); }
 
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(25,155,102,.22); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent-line); outline-offset: 2px; }
 
 @media (prefers-reduced-transparency: reduce) {
   .appbar, .tabbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
@@ -2327,7 +2518,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 #dynMonth .bar-fill,
 #dynYear .hbar-fill {
-  background: linear-gradient(180deg, #B8E2CF 0%, var(--accent-muted) 100%);
+  background: linear-gradient(180deg, var(--accent-fill) 0%, var(--accent-muted) 100%);
 }
 #dynMonth .bar-col[aria-pressed="true"] .bar-fill { box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
 #dynMonth .bar-name, #dynMonth .bar-val { font-weight: 650; }
@@ -2835,7 +3026,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .sheet .field .input:focus,
 .sheet .field textarea.input:focus {
   border-color: var(--accent-line);
-  box-shadow: 0 0 0 3px rgba(24,164,107,.10);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .sheet .sheet-foot #sy-signup,
 .sheet .sheet-foot #sy-signin { height: 46px; }
@@ -2934,8 +3125,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   bottom: 3px;
   height: auto;
   border-radius: 22px;
-  background: linear-gradient(145deg, #E8F5EE 0%, #D9F0E4 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.82), 0 2px 8px rgba(25,155,102,.10);
+  background: linear-gradient(145deg, var(--accent-soft) 0%, var(--accent-soft-2) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82), 0 2px 8px var(--accent-shadow);
 }
 .tabbar .tab[aria-selected="true"] { color: var(--accent-press); }
 .tabbar .tab[aria-selected="true"] svg { color: var(--accent-press); }
@@ -2967,7 +3158,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .swipe-actions--left .swipe-action,
 .swipe-action--edit {
-  background: linear-gradient(145deg, #25B77F 0%, var(--accent-press) 100%);
+  background: linear-gradient(145deg, var(--accent) 0%, var(--accent-press) 100%);
 }
 .swipe-action--del {
   background: linear-gradient(145deg, #D97861 0%, #B94F3A 100%);
@@ -3001,7 +3192,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .status-dot--received {
   background: var(--accent-soft);
   color: var(--accent-press);
-  box-shadow: inset 0 0 0 1px rgba(25,155,102,.10);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
 }
 
 /* Единое оформление пустых состояний: лёгкая поверхность вместо
@@ -3184,11 +3375,28 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease-io);
 }
 .toast[data-in] { transform: translateY(0) scale(1); }
+.toast-mark {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-press);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
 .toast button { color: var(--accent-press); }
 .toast--err {
   background: linear-gradient(145deg, #FFFFFF 0%, #FFF6F3 100%);
   color: var(--text);
   border-color: rgba(192,97,76,.16);
+}
+.toast--err .toast-mark {
+  background: #FBE5DF;
+  color: var(--danger);
 }
 .toast--err button { color: var(--danger); }
 
@@ -3235,7 +3443,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .sheet:has(.input--amount) .select:focus {
   border-color: var(--accent-line);
   background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(25,155,102,.08);
+  box-shadow: 0 0 0 3px var(--accent-shadow-soft);
 }
 .sheet:has(.input--amount) .input--amount {
   height: 58px;
@@ -3356,6 +3564,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   background: var(--accent-press);
 }
 
+/* Цена и автор вишлиста выровнены в верхней строке формы. */
+.sheet .wish-price-owner-row > .field,
+.sheet .wish-price-owner-row > .field:first-of-type {
+  margin-top: 0;
+}
+
 </style>
 </head>
 <body>
@@ -3372,6 +3586,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   <symbol id="ic-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">
     <path d="M19.4 8.2V7a1.6 1.6 0 0 0-1.6-1.6H5.6A1.6 1.6 0 0 0 4 7v10a1.6 1.6 0 0 0 1.6 1.6h12.2a1.6 1.6 0 0 0 1.6-1.6v-1.2"/><path d="M20.6 10.2h-4a1.9 1.9 0 0 0 0 3.8h4a.8.8 0 0 0 .8-.8v-2.2a.8.8 0 0 0-.8-.8Z"/>
   </symbol>
+  <symbol id="ic-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 10h16v10H4zM3 6.5h18V10H3zM12 6.5V20"/><path d="M12 6.5H8.1a2.1 2.1 0 1 1 2.1-2.1C10.2 5.6 12 6.5 12 6.5Zm0 0h3.9a2.1 2.1 0 1 0-2.1-2.1C13.8 5.6 12 6.5 12 6.5Z"/>
+  </symbol>
+  <symbol id="ic-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 5h6v6M19 5l-9 9"/><path d="M18 13v5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V7.5A1.5 1.5 0 0 1 6.5 6H12"/></symbol>
   <symbol id="ic-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
     <circle cx="12" cy="12" r="3.1"/>
@@ -3469,6 +3687,26 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <div class="row-gap" id="incomeList" style="margin-top:12px"></div>
           <div class="empty" id="incomeEmpty" hidden>Доходов за этот месяц пока нет</div>
         </div>
+      </div>
+    </section>
+
+    <!-- ================= ВИШЛИСТ ================= -->
+    <section class="screen" id="scr-wishlist" role="tabpanel" aria-labelledby="tab-wishlist">
+      <div class="section wishlist-section">
+        <div class="section-head">
+          <div><h2 class="section-title">Вишлист</h2><p class="section-sub">Идеи подарков для вашей семьи</p></div>
+        </div>
+        <button class="btn btn--block" id="addWish" type="button">
+          <svg aria-hidden="true"><use href="#ic-plus"/></svg>
+          Добавить желание
+        </button>
+        <ul class="chips wishlist-status" id="wishFilters" role="group" aria-label="Фильтр желаний">
+          <li><button class="chip" type="button" data-filter="all" aria-pressed="true">Все <span class="chip-count" data-count="all">0</span></button></li>
+          <li><button class="chip" type="button" data-filter="wanted" aria-pressed="false">Хотим <span class="chip-count" data-count="wanted">0</span></button></li>
+          <li><button class="chip" type="button" data-filter="gifted" aria-pressed="false">Подарено <span class="chip-count" data-count="gifted">0</span></button></li>
+        </ul>
+        <div class="row-gap" id="wishList"></div>
+        <div class="empty" id="wishEmpty" hidden>Пока желаний нет.<br>Добавьте первое кнопкой выше.</div>
       </div>
     </section>
 
@@ -3582,6 +3820,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             <span><span class="list-label">Категории доходов</span></span>
             <span class="list-side"><span class="list-badge" id="badgeCats">0</span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
           </button>
+          <button class="list-row" type="button" data-open="wishlistPeople">
+            <span class="list-ico"><svg aria-hidden="true"><use href="#ic-gift"/></svg></span>
+            <span><span class="list-label">Имена вишлиста</span></span>
+            <span class="list-side"><span class="list-badge" id="badgeWishPeople">0</span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
+          </button>
           <button class="list-row" type="button" data-open="recurring">
             <span class="list-ico"><svg aria-hidden="true"><use href="#ic-repeat"/></svg></span>
             <span><span class="list-label">Регулярные доходы</span></span>
@@ -3601,6 +3844,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
             <span class="list-ico"><svg aria-hidden="true"><use href="#ic-archive"/></svg></span>
             <span><span class="list-label">Ранее заработанные доходы</span></span>
             <span class="list-side"><span class="list-badge" id="badgeHistorical">0</span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2 class="section-title">Внешний вид</h2></div>
+        <div class="list">
+          <button class="list-row" type="button" data-open="accentTheme">
+            <span class="list-ico accent-setting-ico"><svg aria-hidden="true"><use href="#ic-settings"/></svg></span>
+            <span><span class="list-label">Цвет акцента</span></span>
+            <span class="list-side"><span class="accent-current"><i class="accent-setting-swatch" id="accentThemeSwatch" aria-hidden="true"></i><span id="accentThemeName">Зелёный</span></span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
           </button>
         </div>
       </div>
@@ -3636,6 +3890,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
       </button>
       <button class="tab" id="tab-fin" type="button" role="tab" data-tab="fin" aria-selected="false" aria-controls="scr-fin">
         <svg aria-hidden="true"><use href="#ic-wallet"/></svg><span class="tab-label">Финансы</span>
+      </button>
+      <button class="tab" id="tab-wishlist" type="button" role="tab" data-tab="wishlist" aria-selected="false" aria-controls="scr-wishlist">
+        <svg aria-hidden="true"><use href="#ic-gift"/></svg><span class="tab-label">Вишлист</span>
       </button>
       <button class="tab" id="tab-set" type="button" role="tab" data-tab="set" aria-selected="false" aria-controls="scr-set">
         <svg aria-hidden="true"><use href="#ic-settings"/></svg><span class="tab-label">Настройки</span>
@@ -3896,7 +4153,7 @@ const SCHEMA   = 2;
 
 /** Коллекции, которые синхронизируются как наборы записей */
 const COLLECTIONS = [
-  'incomes', 'categories', 'recurring', 'historical',
+  'incomes', 'wishes', 'categories', 'recurring', 'historical',
   'deposits', 'savings', 'credits', 'notes', 'history', 'financeSnapshots'
 ];
 /** Одиночные объекты — сливаются целиком по своему updatedAt */
@@ -3935,6 +4192,7 @@ function emptyState() {
   const s = {
     schema: SCHEMA,
     incomes: [],
+    wishes: [],
     categories: DEFAULT_CATEGORIES.map((c, i) => stampNew({ name: c.name, color: c.color, order: i })),
     recurring: [],
     historical: [],
@@ -4368,7 +4626,7 @@ const Store = (() => {
 
 const HISTORY_LIMIT = 200;
 const COLLECTION_LABELS = {
-  incomes: 'Доход', categories: 'Категория',
+  incomes: 'Доход', wishes: 'Желание', categories: 'Категория',
   recurring: 'Регулярный доход', historical: 'Ранее заработанное',
   deposits: 'Вклад', savings: 'Сбережение', credits: 'Кредит', notes: 'Заметка'
 };
@@ -4591,7 +4849,17 @@ const Toast = (() => {
     if (!host) host = $('#toasts');
     if (!host) return;
     const o = opts || {};
+    const duplicate = Array.from(alive).find(node => node.querySelector('.t')?.textContent === text);
+    if (duplicate) {
+      duplicate.removeAttribute('data-in');
+      requestAnimationFrame(() => duplicate.setAttribute('data-in', ''));
+      return () => {
+        duplicate.removeAttribute('data-in');
+        setTimeout(() => duplicate.remove(), 220);
+      };
+    }
     const node = el('div', { class: 'toast' + (o.kind === 'err' ? ' toast--err' : ''), role: 'status' }, [
+      el('span', { class: 'toast-mark', 'aria-hidden': 'true', text: o.kind === 'err' ? '!' : '✓' }),
       el('span', { class: 't', text: text })
     ]);
     let timer = 0;
@@ -4770,16 +5038,14 @@ const Sheet = (() => {
     const entrance = conf.placement === 'top' ? '-100%' : '100%';
     node.style.transform = 'translate(-50%,' + entrance + ')';
     document.body.style.overflow = 'hidden';
-    // Принудительно фиксируем стартовый кадр: без этого Safari иногда
-    // объединяет начальную и конечную позиции, из-за чего лист дёргается.
-    node.offsetHeight;
-    // Затемнение стартует сразу вместе с окном, без двухкадровой задержки.
-    scrim.setAttribute('data-open', '');
-
-    requestAnimationFrame(() => {
+    // Даём браузеру отдельно отрисовать стартовое состояние. Принудительное
+    // чтение offsetHeight здесь вызывало синхронную перерисовку всей страницы
+    // и заметную вспышку фона на мобильном Safari.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       node.classList.add('sheet-anim');
       node.style.transform = 'translate(-50%,0)';
-    });
+      scrim.setAttribute('data-open', '');
+    }));
 
     // Не открываем клавиатуру автоматически: на iPhone это меняет visual
     // viewport во время появления листа и вызывает заметный рывок экрана.
@@ -4866,7 +5132,7 @@ const View = {
   statsYear: new Date().getFullYear(),
   openCat: null,
   openSwipeId: null,
-  scroll: { home: 0, stats: 0, fin: 0, set: 0 }
+  scroll: { home: 0, stats: 0, fin: 0, wishlist: 0, set: 0 }
 };
 
 /* ------------------------------------------------------------
@@ -4903,6 +5169,7 @@ const Tabs = (() => {
     }
     View.scroll[View.tab] = window.scrollY;
     View.tab = tab;
+    $('#app').setAttribute('data-active-tab', tab);
 
     buttons.forEach(b => setAttr(b, 'aria-selected', b.dataset.tab === tab ? 'true' : 'false'));
     $$('.screen').forEach(s => setAttr(s, 'data-active', s.id === 'scr-' + tab ? true : null));
@@ -5876,6 +6143,361 @@ function segmented(options, value, onChange) {
 
   return wrap;
 }
+
+
+/* ===== 35-wishlist.js ===== */
+/* ============================================================
+   Семейный вишлист
+   ============================================================ */
+
+const Wishlist = (() => {
+  const nodes = new Map();
+  const groups = new Map();
+  const pending = new Map();
+  let statusFilter = 'all';
+  const desireLevels = [
+    { value: 'fun', label: 'Просто нравится', color: '#6A6FB0' },
+    { value: 'nice', label: 'Было бы здорово', color: '#C3803F' },
+    { value: 'try', label: 'Хочу попробовать', color: '#2E8B8B' },
+    { value: 'someday', label: 'Присматриваюсь', color: '#718179' },
+    { value: 'strong', label: 'Очень хочется', color: '#C0614C' },
+    { value: 'dream', label: 'Мечтаю об этом', color: '#A34D7A' },
+    { value: 'want', label: 'Мечта-мечта', color: '#6268A9' }
+  ];
+  const normalizeDesire = value => value === 'useful' ? 'someday' : value === 'priority' ? 'dream' : value;
+
+  const people = () => (Store.state.settings.wishlistPeople || [])
+    .map(name => String(name || '').trim()).filter(Boolean).slice(0, 2);
+
+  function mount() {
+    $('#addWish').addEventListener('click', () => {
+      if (!people().length) {
+        Toast.show('Добавьте имена в Настройках → Имена вишлиста');
+        return;
+      }
+      openForm(null);
+    });
+    $$('#wishFilters [data-filter]').forEach(button => button.addEventListener('click', () => {
+      statusFilter = button.dataset.filter;
+      $$('#wishFilters [data-filter]').forEach(item => setAttr(item, 'aria-pressed', item === button ? 'true' : 'false'));
+      render();
+    }));
+  }
+
+  function build(rec) {
+    const dot = el('button', { class: 'status-dot', type: 'button', 'aria-pressed': 'false' }, [icon('check')]);
+    dot.addEventListener('click', event => {
+      event.stopPropagation();
+      toggle(rec.id);
+    });
+    const title = el('p', { class: 'income-title' });
+    const link = el('a', { class: 'wish-link', target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Открыть ссылку на подарок' }, [icon('external')]);
+    link.addEventListener('click', event => {
+      const urls = urlsFor(rec);
+      if (urls.length < 2) return;
+      event.preventDefault();
+      openLinks(rec, urls);
+    });
+    const desire = el('span', { class: 'wish-desire', hidden: true });
+    const amount = el('p', { class: 'income-amount' });
+    const flag = el('span', { class: 'income-flag' });
+    const body = el('div', { class: 'swipe-body wish-card', role: 'group' }, [
+      el('article', { class: 'income wish-income' }, [
+        dot,
+        el('div', { class: 'income-main' }, [title, desire]),
+        link,
+        el('div', { class: 'income-side' }, [amount, flag])
+      ])
+    ]);
+    const actions = el('div', { class: 'swipe-actions' }, [
+      el('button', { class: 'swipe-action swipe-action--edit', type: 'button', 'aria-label': 'Изменить желание',
+        onclick: event => { event.stopPropagation(); Swipe.closeAll(); setTimeout(() => openForm(rec.id), 220); }
+      }, [icon('pencil'), el('span', { text: 'Изменить' })]),
+      el('button', { class: 'swipe-action swipe-action--del', type: 'button', 'aria-label': 'Удалить желание',
+        onclick: event => { event.stopPropagation(); Swipe.closeAll(); remove(rec.id); }
+      }, [icon('trash'), el('span', { text: 'Удалить' })])
+    ]);
+    const row = el('div', { class: 'swipe wish-row' }, [actions, body]);
+    row.dataset.wishId = rec.id;
+    Swipe.attach(row, body, 'wish-' + rec.id);
+    return { row, body, dot, title, link, desire, amount, flag };
+  }
+
+  function paint(entry, rec) {
+    const gifted = rec.status === 'gifted';
+    entry.dot.className = 'status-dot ' + (gifted ? 'status-dot--received' : 'status-dot--expected');
+    setAttr(entry.dot, 'aria-pressed', gifted ? 'true' : 'false');
+    setAttr(entry.dot, 'aria-label', gifted ? 'Вернуть в желания' : 'Отметить подаренным');
+    setAttr(entry.dot, 'title', gifted ? 'Подарено — нажмите, чтобы вернуть' : 'Отметить подаренным');
+    setText(entry.title, rec.title || 'Без названия');
+    const urls = urlsFor(rec);
+    const url = urls[0] || '';
+    entry.link.hidden = !url;
+    if (url) entry.link.href = url;
+    setAttr(entry.link, 'aria-label', urls.length > 1 ? 'Открыть список ссылок на подарок' : 'Открыть ссылку на подарок');
+    entry.link.title = urls.length > 1 ? 'Ссылки: ' + urls.length : 'Открыть ссылку';
+    const level = desireLevels.find(item => item.value === normalizeDesire(rec.desireLevel));
+    entry.desire.hidden = !level;
+    entry.desire.className = 'wish-desire' + (level ? ' wish-desire--' + level.value : '');
+    setText(entry.desire, level ? level.label : '');
+    setText(entry.amount, rec.price > 0 ? money(rec.price) : '');
+    entry.amount.hidden = !(rec.price > 0);
+    entry.flag.hidden = false;
+    entry.flag.className = 'income-flag' + (gifted ? '' : ' income-flag--expected');
+    setText(entry.flag, gifted ? 'Подарено' : 'Хочу');
+    entry.body.setAttribute('aria-label', [rec.title, level ? level.label : '', rec.price > 0 ? money(rec.price) : '', gifted ? 'Подарено' : 'Хочу'].filter(Boolean).join(' · '));
+  }
+
+  function toggle(id) {
+    const active = pending.get(id);
+    if (active) {
+      clearTimeout(active.timer);
+      pending.delete(id);
+      const current = Store.byId('wishes', id);
+      const entry = nodes.get(id);
+      if (current && entry) paint(entry, current);
+      if (entry) entry.row.removeAttribute('data-feedback');
+      haptic('light');
+      return;
+    }
+    const rec = Store.byId('wishes', id);
+    const entry = nodes.get(id);
+    if (!rec || !entry) return;
+    const next = rec.status === 'gifted' ? 'wanted' : 'gifted';
+    paint(entry, Object.assign({}, rec, { status: next }));
+    entry.row.setAttribute('data-feedback', '');
+    haptic(next === 'gifted' ? 'success' : 'light');
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      const current = Store.byId('wishes', id);
+      if (!current) return;
+      Store.patch('wishes', id, { status: next, statusChangedAt: now() }, current.title);
+      Toast.show(next === 'gifted' ? 'Подарок подарен: «' + current.title + '»' : '«' + current.title + '» снова в желаниях');
+    }, prefersReducedMotion() ? 0 : 650);
+    pending.set(id, { timer });
+  }
+
+  function filtered() {
+    return Store.list('wishes').filter(rec => {
+      const activeStatus = pending.has(rec.id) ? (rec.status === 'gifted' ? 'wanted' : 'gifted') : rec.status;
+      if (statusFilter === 'wanted' && activeStatus !== 'wanted') return false;
+      if (statusFilter === 'gifted' && activeStatus !== 'gifted') return false;
+      return true;
+    }).sort((a, b) => {
+      const aGifted = (pending.has(a.id) ? a.status !== 'gifted' : a.status === 'gifted');
+      const bGifted = (pending.has(b.id) ? b.status !== 'gifted' : b.status === 'gifted');
+      if (aGifted !== bGifted) return aGifted ? 1 : -1;
+      return (b.statusChangedAt || b.updatedAt || b.createdAt || 0) - (a.statusChangedAt || a.updatedAt || a.createdAt || 0);
+    });
+  }
+
+  function render() {
+    const host = $('#wishList');
+    if (!host) return;
+    const names = people();
+    $('#addWish').hidden = false;
+    const all = Store.list('wishes');
+    const wanted = all.filter(rec => pending.has(rec.id) ? rec.status === 'gifted' : rec.status !== 'gifted').length;
+    const gifted = all.length - wanted;
+    setText($('[data-count="all"]', $('#wishFilters')), all.length);
+    setText($('[data-count="wanted"]', $('#wishFilters')), wanted);
+    setText($('[data-count="gifted"]', $('#wishFilters')), gifted);
+    const list = filtered();
+    const before = prefersReducedMotion() ? null : new Map(
+      Array.from(nodes, ([id, entry]) => [id, entry.row.getBoundingClientRect().top])
+    );
+    const seen = new Set();
+    const grouped = new Map();
+    const groupOrder = [...names];
+    list.forEach(rec => {
+      const owner = String(rec.person || '').trim() || 'Без имени';
+      if (!groupOrder.includes(owner)) groupOrder.push(owner);
+      if (!grouped.has(owner)) grouped.set(owner, []);
+      grouped.get(owner).push(rec);
+    });
+    groupOrder.forEach(owner => {
+      const records = grouped.get(owner);
+      if (!records || !records.length) return;
+      let group = groups.get(owner);
+      if (!group) {
+        const title = el('h3', { class: 'wish-group-title', text: owner });
+        const rows = el('div', { class: 'row-gap wish-group-list' });
+        const section = el('section', { class: 'wish-group', 'aria-label': owner }, [title, rows]);
+        group = { section, rows };
+        groups.set(owner, group);
+      }
+      host.appendChild(group.section);
+      records.forEach((rec, index) => {
+        seen.add(rec.id);
+        let entry = nodes.get(rec.id);
+        if (!entry) { entry = build(rec); nodes.set(rec.id, entry); }
+        paint(entry, rec);
+        const at = group.rows.children[index];
+        if (at !== entry.row) group.rows.insertBefore(entry.row, at || null);
+      });
+    });
+    for (const [owner, group] of groups) {
+      if (grouped.has(owner)) continue;
+      group.section.remove();
+      groups.delete(owner);
+    }
+    for (const [id, entry] of nodes) {
+      if (seen.has(id)) continue;
+      entry.row.remove();
+      nodes.delete(id);
+    }
+    if (before) requestAnimationFrame(() => {
+      for (const [id, entry] of nodes) {
+        const oldTop = before.get(id);
+        if (oldTop === undefined) continue;
+        const delta = oldTop - entry.row.getBoundingClientRect().top;
+        if (Math.abs(delta) < 1) continue;
+        entry.row.animate([
+          { transform: 'translateY(' + delta + 'px)' },
+          { transform: 'translateY(0)' }
+        ], { duration: 240, easing: 'cubic-bezier(.23, 1, .32, 1)' });
+      }
+    });
+    $('#wishEmpty').hidden = list.length > 0;
+    setText($('#wishEmpty'), all.length === 0
+      ? 'Пока желаний нет. Добавьте первое кнопкой выше.'
+      : 'В этом фильтре пока нет желаний.');
+  }
+
+  function safeUrl(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    try {
+      const url = new URL(/^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : 'https://' + raw);
+      return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : '';
+    } catch (_) { return ''; }
+  }
+
+  function urlsFor(rec) {
+    const source = Array.isArray(rec.urls) ? rec.urls : [rec.url];
+    return [...new Set(source.map(safeUrl).filter(Boolean))];
+  }
+
+  function openLinks(rec, urls) {
+    Sheet.open({
+      title: 'Ссылки на подарок',
+      build(body) {
+        const list = el('div', { class: 'wish-link-list' });
+        urls.forEach((url, index) => {
+          let label = 'Ссылка ' + (index + 1);
+          try { label = new URL(url).hostname.replace(/^www\./, ''); } catch (_) {}
+          list.appendChild(el('a', { class: 'btn btn--block wish-link-option', href: url, target: '_blank', rel: 'noopener noreferrer' }, [icon('external'), el('span', { text: label })]));
+        });
+        body.appendChild(list);
+      }
+    });
+  }
+
+  function openForm(id) {
+    const current = id ? Store.byId('wishes', id) : null;
+    const names = people();
+    if (!names.length) { Settings.openWishlistPeople(); return; }
+    const draft = {
+      title: current ? current.title : '',
+      person: current && names.includes(current.person) ? current.person : names[0],
+      desireLevel: current ? normalizeDesire(current.desireLevel || '') : '',
+      price: current ? Number(current.price) || 0 : 0,
+      urls: current ? (Array.isArray(current.urls) && current.urls.length ? current.urls.slice() : current.url ? [current.url] : ['']) : ['']
+    };
+    Sheet.open({
+      title: current ? 'Изменить желание' : 'Новое желание',
+      build(body) {
+        const price = el('input', { class: 'input wish-price-input', id: 'wish-price', type: 'text', inputmode: 'decimal', value: draft.price ? nf0.format(draft.price) : '', placeholder: '0', autocomplete: 'off' });
+        price.addEventListener('input', () => { draft.price = parseNum(price.value); });
+        const priceField = field('Цена, ₽', price, 'wish-price');
+        const title = el('input', { class: 'input', id: 'wish-title', value: draft.title, placeholder: 'Например, книга', autocomplete: 'off', 'data-autofocus': true });
+        title.addEventListener('input', () => { draft.title = title.value; });
+        const owner = segmented(names.map(name => ({ value: name, label: name })), draft.person, value => { draft.person = value; });
+        owner.classList.add('segmented--status', 'wish-owner-picker');
+        body.appendChild(el('div', { class: 'field-row wish-price-owner-row' }, [
+          priceField,
+          field('Кто добавил', owner, 'wish-owner')
+        ]));
+        body.appendChild(field('Название желания', title, 'wish-title'));
+        const linksField = el('div', { class: 'wish-links-field' });
+        const linksList = el('div', { class: 'wish-links-inputs' });
+        const renderLinkInputs = () => {
+          linksList.replaceChildren();
+          draft.urls.forEach((value, index) => {
+            const input = el('input', { class: 'input', type: 'url', inputmode: 'url', value, placeholder: 'Ссылка на подарок', autocomplete: 'url', 'aria-label': 'Ссылка ' + (index + 1) });
+            input.addEventListener('input', () => { draft.urls[index] = input.value; });
+            const remove = el('button', { class: 'wish-link-remove', type: 'button', text: '×', 'aria-label': 'Убрать ссылку', onclick: () => {
+              draft.urls.splice(index, 1);
+              if (!draft.urls.length) draft.urls.push('');
+              renderLinkInputs();
+            } });
+            linksList.appendChild(el('div', { class: 'wish-link-input-row' }, [input, remove]));
+          });
+        };
+        renderLinkInputs();
+        const addLink = el('button', { class: 'wish-add-link', type: 'button', onclick: () => {
+          draft.urls.push('');
+          renderLinkInputs();
+          linksList.lastElementChild?.querySelector('input')?.focus({ preventScroll: true });
+        } }, [el('span', { class: 'wish-add-link-plus', text: '+' }), el('span', { text: 'Добавить ссылку' })]);
+        linksField.append(linksList, addLink);
+        body.appendChild(field('Ссылки', linksField, 'wish-links'));
+        const desireQuick = el('div', { class: 'quick-cats wish-desire-picker', role: 'group', 'aria-label': 'Важность подарка' });
+        const desireWrap = el('div', { class: 'quick-wrap' }, [desireQuick]);
+        const desireOptions = desireLevels;
+        const syncDesire = () => {
+          $$('.quick-cat', desireQuick).forEach(button => setAttr(button, 'aria-pressed', button.dataset.value === draft.desireLevel ? 'true' : 'false'));
+        };
+        desireOptions.forEach(option => {
+          const button = el('button', {
+            class: 'quick-cat', type: 'button', text: option.label,
+            'aria-pressed': draft.desireLevel === option.value ? 'true' : 'false',
+            style: '--dot:' + option.color + ';--tint:' + option.color + '1f',
+            onclick: () => {
+              draft.desireLevel = option.value;
+              syncDesire();
+              requestAnimationFrame(() => button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' }));
+            }
+          });
+          button.dataset.value = option.value;
+          desireQuick.appendChild(button);
+        });
+        const updateDesireFade = () => {
+          const more = desireQuick.scrollWidth - desireQuick.clientWidth - desireQuick.scrollLeft > 8;
+          setAttr(desireWrap, 'data-more', more ? true : null);
+        };
+        desireQuick.addEventListener('scroll', updateDesireFade, { passive: true });
+        requestAnimationFrame(updateDesireFade);
+        body.appendChild(field('Важность подарка', desireWrap));
+      },
+      footer(foot) {
+        foot.appendChild(el('button', { class: 'btn btn--block', type: 'button', text: current ? 'Сохранить' : 'Добавить желание', onclick: () => {
+          const title = draft.title.trim();
+          if (!title) { Toast.show('Напишите, что добавить в вишлист', { kind: 'err' }); return; }
+          const rawUrls = draft.urls.map(value => String(value || '').trim()).filter(Boolean);
+          const urls = rawUrls.map(safeUrl);
+          if (urls.some(url => !url)) { Toast.show('Проверьте ссылки', { kind: 'err' }); return; }
+          const validUrls = [...new Set(urls)];
+          const payload = { title, person: draft.person, desireLevel: draft.desireLevel, price: Math.max(0, Number(draft.price) || 0), urls: validUrls, url: validUrls[0] || '',
+            status: current ? current.status : 'wanted' };
+          if (current) Store.patch('wishes', current.id, payload, title);
+          else Store.add('wishes', payload, title);
+          Sheet.close();
+          Toast.show(current ? 'Желание обновлено' : 'Желание добавлено');
+        } }));
+      }
+    });
+  }
+
+  function remove(id) {
+    const rec = Store.byId('wishes', id);
+    if (!rec) return;
+    Store.remove('wishes', id, rec.title);
+    Toast.show('«' + rec.title + '» в корзине', { action: { label: 'Вернуть', run: () => Store.restore('wishes', id) } });
+  }
+
+  return { mount, render };
+})();
 
 
 /* ===== 40-stats.js ===== */
@@ -7061,12 +7683,38 @@ function kvList(pairs) {
    ============================================================ */
 
 const Settings = (() => {
+  const ACCENT_KEY = 'dohod.accent-theme.v1';
+  const accentThemes = [
+    { id: 'green', name: 'Зелёный', color: '#199B66' },
+    { id: 'blue', name: 'Синий', color: '#3478C6' },
+    { id: 'violet', name: 'Фиолетовый', color: '#8057C5' },
+    { id: 'terracotta', name: 'Терракотовый', color: '#C0614C' },
+    { id: 'graphite', name: 'Графитовый', color: '#56636D' }
+  ];
+
+  function currentAccent() {
+    return accentThemes.find(theme => theme.id === document.documentElement.dataset.accentTheme) || accentThemes[0];
+  }
+
+  function applyAccent(id, persist = true) {
+    const theme = accentThemes.find(item => item.id === id) || accentThemes[0];
+    document.documentElement.dataset.accentTheme = theme.id;
+    if (persist) try { localStorage.setItem(ACCENT_KEY, theme.id); } catch (_) {}
+    setText($('#accentThemeName'), theme.name);
+    const swatch = $('#accentThemeSwatch');
+    if (swatch) swatch.style.backgroundColor = theme.color;
+    return theme;
+  }
 
   function mount() {
     $$('#scr-set [data-open]').forEach(btn => {
       btn.addEventListener('click', () => openScreen(btn.dataset.open));
     });
     $('#syncOpen').addEventListener('click', () => Sync.openSheet());
+    applyAccent(currentAccent().id);
+    window.addEventListener('storage', event => {
+      if (event.key === ACCENT_KEY) applyAccent(event.newValue || 'green', false);
+    });
     const authBtn = $('#syncAuth');
     authBtn.addEventListener('click', (e) => { e.stopPropagation(); Sync.toggleAuth(); });
     authBtn.addEventListener('keydown', (e) => {
@@ -7077,12 +7725,75 @@ const Settings = (() => {
   function openScreen(name) {
     switch (name) {
       case 'categories': return openCategories();
+      case 'wishlistPeople': return openWishlistPeople();
+      case 'accentTheme': return openAccentTheme();
       case 'recurring':  return openRecurring();
       case 'history':    return openHistory();
       case 'trash':      return openTrash();
       case 'historical': return openHistorical();
       case 'sync':       return Sync.openSheet();
     }
+  }
+
+  function openAccentTheme() {
+    Sheet.open({
+      title: 'Цвет акцента',
+      build(body) {
+        body.appendChild(el('p', { class: 'section-sub accent-theme-hint', text: 'Тема сохранится только на этом устройстве.' }));
+        const list = el('div', { class: 'accent-theme-list', role: 'group', 'aria-label': 'Варианты цвета акцента' });
+        const buttons = [];
+        const sync = selected => buttons.forEach((button, index) => setAttr(button, 'aria-pressed', accentThemes[index].id === selected ? 'true' : 'false'));
+        accentThemes.forEach(theme => {
+          const button = el('button', {
+            class: 'accent-theme-option', type: 'button', 'aria-pressed': currentAccent().id === theme.id ? 'true' : 'false',
+            onclick: () => { applyAccent(theme.id); sync(theme.id); }
+          }, [
+            el('i', { class: 'accent-theme-dot', style: 'background:' + theme.color, 'aria-hidden': 'true' }),
+            el('span', { class: 'accent-theme-label', text: theme.name }),
+            el('span', { class: 'accent-theme-check', 'aria-hidden': 'true' }, [icon('check')])
+          ]);
+          buttons.push(button);
+          list.appendChild(button);
+        });
+        body.appendChild(list);
+      }
+    });
+  }
+
+  function openWishlistPeople() {
+    const draft = (Store.state.settings.wishlistPeople || []).map(name => String(name || '').trim()).filter(Boolean).slice(0, 2);
+    Sheet.open({
+      title: 'Имена вишлиста',
+      build(body) {
+        body.appendChild(el('p', { class: 'section-sub wishlist-people-hint', text: 'Эти имена будут доступны при добавлении желания.' }));
+        const host = el('div', { class: 'list wishlist-name-list' });
+        const paint = () => {
+          host.replaceChildren();
+          draft.forEach((name, index) => {
+            const input = el('input', { class: 'input', value: name, maxlength: '32', placeholder: 'Например, Антон', 'aria-label': 'Имя ' + (index + 1) });
+            input.addEventListener('input', () => { draft[index] = input.value; });
+            const remove = el('button', { class: 'icon-del', type: 'button', 'aria-label': 'Убрать имя ' + name, onclick: () => { draft.splice(index, 1); paint(); } }, [icon('close')]);
+            host.appendChild(el('div', { class: 'edit-row wishlist-name-row' }, [input, remove]));
+          });
+          add.hidden = draft.length >= 2;
+        };
+        const add = el('button', { class: 'btn-dashed wishlist-name-add', type: 'button', onclick: () => { if (draft.length >= 2) return; draft.push(''); paint(); const input = $('input', host.lastElementChild); if (input) input.focus(); } }, [icon('plus'), el('span', { text: 'Добавить имя' })]);
+        body.append(host, add);
+        paint();
+      },
+      footer(foot) {
+        foot.appendChild(el('button', { class: 'btn btn--block', type: 'button', text: 'Сохранить имена', onclick: () => {
+          const clean = draft.map(name => name.trim()).filter(Boolean).slice(0, 2);
+          if (new Set(clean.map(name => name.toLocaleLowerCase('ru-RU'))).size !== clean.length) {
+            Toast.show('Имена не должны повторяться', { kind: 'err' });
+            return;
+          }
+          Store.setSingleton('settings', { wishlistPeople: clean });
+          Sheet.close();
+          Toast.show('Имена вишлиста сохранены');
+        } }));
+      }
+    });
   }
 
   /* ---------- Категории и владельцы ---------- */
@@ -7473,10 +8184,15 @@ const Settings = (() => {
     setText($('#badgeHist'), Store.list('history').length);
     setText($('#badgeTrash'), Store.trash().length);
     setText($('#badgeHistorical'), Store.list('historical').length);
+    setText($('#badgeWishPeople'), Math.min(2, (Store.state.settings.wishlistPeople || []).filter(Boolean).length));
+    const theme = currentAccent();
+    setText($('#accentThemeName'), theme.name);
+    const swatch = $('#accentThemeSwatch');
+    if (swatch) swatch.style.backgroundColor = theme.color;
     Sync.renderStatus();
   }
 
-  return { mount, render, openHistorical };
+  return { mount, render, openHistorical, openWishlistPeople };
 })();
 
 
@@ -8131,6 +8847,7 @@ const Render = {
       ensureRecurring(View.key);
       MonthBar.render();
       Home.render(o);
+      Wishlist.render();
       Stats.render(o);
       Fin.render(o);
       Settings.render();
@@ -8152,6 +8869,7 @@ function boot() {
   const demoMode = new URLSearchParams(location.search).get('demo') === '1';
   window.__DEMO_MODE__ = demoMode;
   Store.init({ demo: demoMode });
+  $('#app').setAttribute('data-active-tab', View.tab);
 
   if (demoMode && !Store.list('incomes').length) {
     Store.loadDemo(createDemoState());
@@ -8182,6 +8900,7 @@ function boot() {
   Tabs.mount();
   MonthBar.mount();
   Home.mount();
+  Wishlist.mount();
   Stats.mount();
   Fin.mount();
   Settings.mount();

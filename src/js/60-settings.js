@@ -3,12 +3,38 @@
    ============================================================ */
 
 const Settings = (() => {
+  const ACCENT_KEY = 'dohod.accent-theme.v1';
+  const accentThemes = [
+    { id: 'green', name: 'Зелёный', color: '#199B66' },
+    { id: 'blue', name: 'Синий', color: '#3478C6' },
+    { id: 'violet', name: 'Фиолетовый', color: '#8057C5' },
+    { id: 'terracotta', name: 'Терракотовый', color: '#C0614C' },
+    { id: 'graphite', name: 'Графитовый', color: '#56636D' }
+  ];
+
+  function currentAccent() {
+    return accentThemes.find(theme => theme.id === document.documentElement.dataset.accentTheme) || accentThemes[0];
+  }
+
+  function applyAccent(id, persist = true) {
+    const theme = accentThemes.find(item => item.id === id) || accentThemes[0];
+    document.documentElement.dataset.accentTheme = theme.id;
+    if (persist) try { localStorage.setItem(ACCENT_KEY, theme.id); } catch (_) {}
+    setText($('#accentThemeName'), theme.name);
+    const swatch = $('#accentThemeSwatch');
+    if (swatch) swatch.style.backgroundColor = theme.color;
+    return theme;
+  }
 
   function mount() {
     $$('#scr-set [data-open]').forEach(btn => {
       btn.addEventListener('click', () => openScreen(btn.dataset.open));
     });
     $('#syncOpen').addEventListener('click', () => Sync.openSheet());
+    applyAccent(currentAccent().id);
+    window.addEventListener('storage', event => {
+      if (event.key === ACCENT_KEY) applyAccent(event.newValue || 'green', false);
+    });
     const authBtn = $('#syncAuth');
     authBtn.addEventListener('click', (e) => { e.stopPropagation(); Sync.toggleAuth(); });
     authBtn.addEventListener('keydown', (e) => {
@@ -19,12 +45,75 @@ const Settings = (() => {
   function openScreen(name) {
     switch (name) {
       case 'categories': return openCategories();
+      case 'wishlistPeople': return openWishlistPeople();
+      case 'accentTheme': return openAccentTheme();
       case 'recurring':  return openRecurring();
       case 'history':    return openHistory();
       case 'trash':      return openTrash();
       case 'historical': return openHistorical();
       case 'sync':       return Sync.openSheet();
     }
+  }
+
+  function openAccentTheme() {
+    Sheet.open({
+      title: 'Цвет акцента',
+      build(body) {
+        body.appendChild(el('p', { class: 'section-sub accent-theme-hint', text: 'Тема сохранится только на этом устройстве.' }));
+        const list = el('div', { class: 'accent-theme-list', role: 'group', 'aria-label': 'Варианты цвета акцента' });
+        const buttons = [];
+        const sync = selected => buttons.forEach((button, index) => setAttr(button, 'aria-pressed', accentThemes[index].id === selected ? 'true' : 'false'));
+        accentThemes.forEach(theme => {
+          const button = el('button', {
+            class: 'accent-theme-option', type: 'button', 'aria-pressed': currentAccent().id === theme.id ? 'true' : 'false',
+            onclick: () => { applyAccent(theme.id); sync(theme.id); }
+          }, [
+            el('i', { class: 'accent-theme-dot', style: 'background:' + theme.color, 'aria-hidden': 'true' }),
+            el('span', { class: 'accent-theme-label', text: theme.name }),
+            el('span', { class: 'accent-theme-check', 'aria-hidden': 'true' }, [icon('check')])
+          ]);
+          buttons.push(button);
+          list.appendChild(button);
+        });
+        body.appendChild(list);
+      }
+    });
+  }
+
+  function openWishlistPeople() {
+    const draft = (Store.state.settings.wishlistPeople || []).map(name => String(name || '').trim()).filter(Boolean).slice(0, 2);
+    Sheet.open({
+      title: 'Имена вишлиста',
+      build(body) {
+        body.appendChild(el('p', { class: 'section-sub wishlist-people-hint', text: 'Эти имена будут доступны при добавлении желания.' }));
+        const host = el('div', { class: 'list wishlist-name-list' });
+        const paint = () => {
+          host.replaceChildren();
+          draft.forEach((name, index) => {
+            const input = el('input', { class: 'input', value: name, maxlength: '32', placeholder: 'Например, Антон', 'aria-label': 'Имя ' + (index + 1) });
+            input.addEventListener('input', () => { draft[index] = input.value; });
+            const remove = el('button', { class: 'icon-del', type: 'button', 'aria-label': 'Убрать имя ' + name, onclick: () => { draft.splice(index, 1); paint(); } }, [icon('close')]);
+            host.appendChild(el('div', { class: 'edit-row wishlist-name-row' }, [input, remove]));
+          });
+          add.hidden = draft.length >= 2;
+        };
+        const add = el('button', { class: 'btn-dashed wishlist-name-add', type: 'button', onclick: () => { if (draft.length >= 2) return; draft.push(''); paint(); const input = $('input', host.lastElementChild); if (input) input.focus(); } }, [icon('plus'), el('span', { text: 'Добавить имя' })]);
+        body.append(host, add);
+        paint();
+      },
+      footer(foot) {
+        foot.appendChild(el('button', { class: 'btn btn--block', type: 'button', text: 'Сохранить имена', onclick: () => {
+          const clean = draft.map(name => name.trim()).filter(Boolean).slice(0, 2);
+          if (new Set(clean.map(name => name.toLocaleLowerCase('ru-RU'))).size !== clean.length) {
+            Toast.show('Имена не должны повторяться', { kind: 'err' });
+            return;
+          }
+          Store.setSingleton('settings', { wishlistPeople: clean });
+          Sheet.close();
+          Toast.show('Имена вишлиста сохранены');
+        } }));
+      }
+    });
   }
 
   /* ---------- Категории и владельцы ---------- */
@@ -415,8 +504,13 @@ const Settings = (() => {
     setText($('#badgeHist'), Store.list('history').length);
     setText($('#badgeTrash'), Store.trash().length);
     setText($('#badgeHistorical'), Store.list('historical').length);
+    setText($('#badgeWishPeople'), Math.min(2, (Store.state.settings.wishlistPeople || []).filter(Boolean).length));
+    const theme = currentAccent();
+    setText($('#accentThemeName'), theme.name);
+    const swatch = $('#accentThemeSwatch');
+    if (swatch) swatch.style.backgroundColor = theme.color;
     Sync.renderStatus();
   }
 
-  return { mount, render, openHistorical };
+  return { mount, render, openHistorical, openWishlistPeople };
 })();
