@@ -2818,6 +2818,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .tabbar { padding-inline: 6px; }
 }
 
+/* On narrow screens keep tab names comfortably inside the moving selection. */
+@media (max-width: 600px) {
+  .tabbar .tab-label { font-size: 11px; font-weight: 600; letter-spacing: 0; }
+}
+
 /* Все четыре показателя аудита равноправны и занимают одну сетку. */
 #scr-stats .audit-cell:first-child {
   justify-content: space-between;
