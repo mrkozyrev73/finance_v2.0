@@ -8417,8 +8417,7 @@ const Settings = (() => {
 
    Задача — «поменял на одном телефоне, через мгновение видно на
    втором». Поэтому:
-   • отправка идёт сразу на первом изменении (без ожидания хвоста),
-     а серия быстрых правок схлопывается в один запрос;
+   • серия быстрых правок схлопывается в один запрос;
    • приём применяет данные прямо из realtime-события, без второго
      похода в базу;
    • при возврате приложения из фона делается догоняющий запрос:
@@ -8446,7 +8445,8 @@ const SUPABASE_ANON_KEY = 'sb_publishable_9NLcSynYNFQm_8IIAGDiWg_12OxQ9SC';
 
 const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
 const LOGIN_DOMAIN = 'dohod.app';
-const PUSH_WINDOW = 250;      // мс: минимальный интервал между отправками
+const PUSH_WINDOW = 700;      // мс: схлопываем быструю серию правок в одну отправку
+const CATCH_UP_COOLDOWN = 1200; // мс: объединяем focus + visibilitychange при возврате
 
 const Sync = (() => {
   let cfg = { url: '', key: '' };
@@ -8459,7 +8459,9 @@ const Sync = (() => {
   let pendingPush = false;
   let pushing = false;
   let pushTimer = 0;
-  let lastPushAt = 0;
+  let signInSyncTask = null;
+  let catchUpTask = null;
+  let lastCatchUpAt = 0;
   let lastRemoteStamp = null;
   let householdId = localStorage.getItem('income-supabase-household-v1') || '';
   let revision = Number(localStorage.getItem('income-supabase-revision-v1') || 0);
@@ -8606,15 +8608,28 @@ const Sync = (() => {
   }
 
   async function onSignedIn() {
+    if (signInSyncTask) return signInSyncTask;
+    lastCatchUpAt = Date.now();
+    signInSyncTask = finishSignInSync();
+    try { return await signInSyncTask; }
+    finally { signInSyncTask = null; }
+  }
+
+  async function finishSignInSync() {
     setStatus('connecting', 'Загружаем данные…');
     try {
-      await pull();
-      // После pull в локальном состоянии может оставаться то, чего ещё нет
-      // в удалённой записи (например, сейф, вклады или кредиты). Состояния
-      // уже объединены по записям, поэтому безопасно сохранить результат
-      // всегда — так первое подключение переносит весь набор данных.
-      await push(true);
+      const remote = await pull();
+      // На первом устройстве локальные данные нужно создать в облаке; на
+      // следующих — отправляем только если после слияния остались локальные
+      // записи или изменения. Обычный вход без изменений не делает лишний upsert.
+      if (!remote || !statesEqual(Store.state, remote)) await push(true);
+      else {
+        pendingPush = false;
+        clearTimeout(pushTimer);
+        pushTimer = 0;
+      }
       subscribeRealtime();
+      lastCatchUpAt = Date.now();
       setStatus('on');
     } catch (e) {
       console.warn('[sync] вход', e);
@@ -8650,6 +8665,19 @@ const Sync = (() => {
     Store.applyRemote(merged);
     Render.all({ soft: true });
     return true;
+  }
+
+  // У объектов из JSONB может отличаться порядок ключей; сравниваем
+  // каноническое представление, сохраняя порядок записей в массивах.
+  function stableJson(value) {
+    if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    if (Array.isArray(value)) return '[' + value.map(stableJson).join(',') + ']';
+    return '{' + Object.keys(value).filter(key => value[key] !== undefined).sort()
+      .map(key => JSON.stringify(key) + ':' + stableJson(value[key])).join(',') + '}';
+  }
+
+  function statesEqual(a, b) {
+    return stableJson(a) === stableJson(b);
   }
 
   async function pull() {
@@ -8705,17 +8733,12 @@ const Sync = (() => {
 
   /* ---------- Отправка ---------- */
 
-  /**
-   * Первое изменение уходит немедленно, следующие в пределах окна
-   * схлопываются в одну отправку. Ждать «на всякий случай» нечего:
-   * на втором телефоне правка должна появиться сразу.
-   */
+  /** Быстрые соседние изменения отправляются одним общим снимком состояния. */
   function schedulePush() {
     if (!client || !session) { pendingPush = true; return; }
-    const since = Date.now() - lastPushAt;
-    if (since >= PUSH_WINDOW && !pushing) { push(); return; }
-    if (pushTimer) return;
-    pushTimer = setTimeout(() => { pushTimer = 0; push(); }, Math.max(0, PUSH_WINDOW - since));
+    pendingPush = true;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => { pushTimer = 0; push(); }, PUSH_WINDOW);
   }
 
   async function push(force) {
@@ -8725,7 +8748,6 @@ const Sync = (() => {
     if (!navigator.onLine) { pendingPush = true; setStatus('offline', 'Нет сети — изменения ждут отправки'); return; }
 
     pushing = true;
-    lastPushAt = Date.now();
     try {
       const { data, error } = await client
         .from('app_state')
@@ -8773,7 +8795,7 @@ const Sync = (() => {
           setTimeout(() => {
             if (!session) return;
             subscribeRealtime();
-            pull().catch(() => {});
+            catchUp('Проверяем изменения…');
           }, 1500);
         }
       });
@@ -8786,14 +8808,20 @@ const Sync = (() => {
 
   /* ---------- Догоняющая синхронизация ---------- */
 
-  function catchUp(reason) {
-    if (!client || !session) return;
-    if (!navigator.onLine) return;
+  function catchUp(reason, force) {
+    if (!client || !session || !navigator.onLine) return Promise.resolve();
+    if (catchUpTask) return catchUpTask;
+    const nowAt = Date.now();
+    if (!force && nowAt - lastCatchUpAt < CATCH_UP_COOLDOWN) return Promise.resolve();
+    lastCatchUpAt = nowAt;
     setStatus('connecting', reason || 'Проверяем изменения…');
-    pull()
+    const task = pull()
       .then(() => { if (pendingPush) return push(); })
       .then(() => setStatus('on'))
-      .catch(e => setStatus('error', e.message || 'Не удалось синхронизировать'));
+      .catch(e => setStatus('error', e.message || 'Не удалось синхронизировать'))
+      .finally(() => { if (catchUpTask === task) catchUpTask = null; });
+    catchUpTask = task;
+    return task;
   }
 
   document.addEventListener('visibilitychange', () => {
@@ -8805,7 +8833,7 @@ const Sync = (() => {
     if (!session) return;
     unsubscribeRealtime();
     subscribeRealtime();
-    catchUp('Сеть вернулась, догоняем…');
+    catchUp('Сеть вернулась, догоняем…', true);
   });
   window.addEventListener('offline', () => {
     if (session) setStatus('offline', 'Нет сети — изменения ждут отправки');
@@ -8897,7 +8925,7 @@ alter publication supabase_realtime add table public.app_state;`;
           }));
           body.appendChild(el('button', {
             class: 'btn-dashed', type: 'button', style: 'margin-top:14px',
-            onclick: () => { catchUp('Обновляем…'); Toast.show('Проверяем изменения'); }
+            onclick: () => { catchUp('Обновляем…', true); Toast.show('Проверяем изменения'); }
           }, [icon('cloud'), el('span', { text: 'Обновить сейчас' })]));
         } else if (configured()) {
           const login = el('input', {
