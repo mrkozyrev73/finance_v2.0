@@ -463,12 +463,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .sheet .wish-link-option { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
 .accent-current { display: inline-flex; align-items: center; gap: 7px; color: var(--text-2); font-size: var(--fs-xs); }
 .accent-setting-swatch, .accent-theme-dot { display: block; width: 13px; height: 13px; flex: none; border-radius: 50%; background: var(--accent); box-shadow: inset 0 0 0 1px rgba(21,32,26,.06); }
-.accent-theme-hint { margin: 0 2px 14px; }
-.accent-theme-list { display: grid; gap: 8px; }
-.accent-theme-option { min-height: 54px; padding: 8px 12px; display: grid; grid-template-columns: 24px minmax(0,1fr) 22px; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: var(--r-card); background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%); color: var(--text); text-align: left; }
+.section-sub.accent-theme-hint { margin: 8px 4px 22px; line-height: 1.45; }
+.accent-theme-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.accent-theme-option { min-width: 0; min-height: 58px; padding: 8px 10px; display: grid; grid-template-columns: 20px minmax(0,1fr) 18px; align-items: center; gap: 7px; border: 1px solid var(--border); border-radius: var(--r-card); background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%); color: var(--text); text-align: left; }
 .accent-theme-dot { width: 20px; height: 20px; }
-.accent-theme-label { font-weight: 580; }
-.accent-theme-check { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; color: transparent; }
+.accent-theme-label { min-width: 0; font-size: 13px; line-height: 1.2; font-weight: 540; }
+.accent-theme-check { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; color: transparent; }
 .accent-theme-check svg { width: 14px; height: 14px; }
 .accent-theme-option[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-soft); }
 .accent-theme-option[aria-pressed="true"] .accent-theme-label { color: var(--accent-press); }
@@ -2185,6 +2185,36 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   --accent-line: rgba(86,99,109,.22); --accent-nav: #A0ADB5; --accent-muted: #CBD2D6;
   --accent-fill: #BCC6CC; --accent-soft-2: #E0E5E8; --accent-shadow: rgba(86,99,109,.12);
   --accent-shadow-strong: rgba(86,99,109,.20); --accent-shadow-soft: rgba(86,99,109,.08); --accent-ring: rgba(86,99,109,.12);
+}
+:root[data-accent-theme="orange"] {
+  --accent: #C87925; --accent-press: #A85F18; --accent-soft: #FBF1E5;
+  --accent-line: rgba(200,121,37,.22); --accent-nav: #E8B875; --accent-muted: #E9CB9F;
+  --accent-fill: #E8CEA8; --accent-soft-2: #F5E7D2; --accent-shadow: rgba(200,121,37,.12);
+  --accent-shadow-strong: rgba(200,121,37,.20); --accent-shadow-soft: rgba(200,121,37,.08); --accent-ring: rgba(200,121,37,.12);
+}
+:root[data-accent-theme="rose"] {
+  --accent: #C65383; --accent-press: #A9416C; --accent-soft: #F9EDF2;
+  --accent-line: rgba(198,83,131,.22); --accent-nav: #E6A2BD; --accent-muted: #E7C0D0;
+  --accent-fill: #E7BED0; --accent-soft-2: #F3DDE7; --accent-shadow: rgba(198,83,131,.12);
+  --accent-shadow-strong: rgba(198,83,131,.20); --accent-shadow-soft: rgba(198,83,131,.08); --accent-ring: rgba(198,83,131,.12);
+}
+:root[data-accent-theme="teal"] {
+  --accent: #148B8A; --accent-press: #0F716F; --accent-soft: #E8F4F3;
+  --accent-line: rgba(20,139,138,.22); --accent-nav: #79C8C3; --accent-muted: #AED8D4;
+  --accent-fill: #B4DCD7; --accent-soft-2: #D8EEEB; --accent-shadow: rgba(20,139,138,.12);
+  --accent-shadow-strong: rgba(20,139,138,.20); --accent-shadow-soft: rgba(20,139,138,.08); --accent-ring: rgba(20,139,138,.12);
+}
+:root[data-accent-theme="indigo"] {
+  --accent: #5C63BC; --accent-press: #484F9F; --accent-soft: #EEEFF9;
+  --accent-line: rgba(92,99,188,.22); --accent-nav: #A0A5DD; --accent-muted: #C3C6E8;
+  --accent-fill: #C5C8E8; --accent-soft-2: #E0E2F3; --accent-shadow: rgba(92,99,188,.12);
+  --accent-shadow-strong: rgba(92,99,188,.20); --accent-shadow-soft: rgba(92,99,188,.08); --accent-ring: rgba(92,99,188,.12);
+}
+:root[data-accent-theme="burgundy"] {
+  --accent: #A84F62; --accent-press: #883E50; --accent-soft: #F6ECEE;
+  --accent-line: rgba(168,79,98,.22); --accent-nav: #D19AA5; --accent-muted: #DEC0C6;
+  --accent-fill: #DFC1C7; --accent-soft-2: #EEDDE0; --accent-shadow: rgba(168,79,98,.12);
+  --accent-shadow-strong: rgba(168,79,98,.20); --accent-shadow-soft: rgba(168,79,98,.08); --accent-ring: rgba(168,79,98,.12);
 }
 
 body { letter-spacing: 0; }
@@ -7689,7 +7719,12 @@ const Settings = (() => {
     { id: 'blue', name: 'Синий', color: '#3478C6' },
     { id: 'violet', name: 'Фиолетовый', color: '#8057C5' },
     { id: 'terracotta', name: 'Терракотовый', color: '#C0614C' },
-    { id: 'graphite', name: 'Графитовый', color: '#56636D' }
+    { id: 'graphite', name: 'Графитовый', color: '#56636D' },
+    { id: 'orange', name: 'Янтарный', color: '#C87925' },
+    { id: 'rose', name: 'Розовый', color: '#C65383' },
+    { id: 'teal', name: 'Бирюзовый', color: '#148B8A' },
+    { id: 'indigo', name: 'Индиго', color: '#5C63BC' },
+    { id: 'burgundy', name: 'Бордовый', color: '#A84F62' }
   ];
 
   function currentAccent() {

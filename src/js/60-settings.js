@@ -9,7 +9,12 @@ const Settings = (() => {
     { id: 'blue', name: 'Синий', color: '#3478C6' },
     { id: 'violet', name: 'Фиолетовый', color: '#8057C5' },
     { id: 'terracotta', name: 'Терракотовый', color: '#C0614C' },
-    { id: 'graphite', name: 'Графитовый', color: '#56636D' }
+    { id: 'graphite', name: 'Графитовый', color: '#56636D' },
+    { id: 'orange', name: 'Янтарный', color: '#C87925' },
+    { id: 'rose', name: 'Розовый', color: '#C65383' },
+    { id: 'teal', name: 'Бирюзовый', color: '#148B8A' },
+    { id: 'indigo', name: 'Индиго', color: '#5C63BC' },
+    { id: 'burgundy', name: 'Бордовый', color: '#A84F62' }
   ];
 
   function currentAccent() {

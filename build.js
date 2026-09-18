@@ -68,6 +68,9 @@ ${jsFinal}
 </html>
 `;
 
+// Поддерживаем оба входа: корневой файл открыт локально, dist/index.html
+// используется для публикации. Они всегда должны содержать одну сборку.
+fs.writeFileSync(path.join(__dirname, 'index.html'), html);
 fs.writeFileSync(path.join(DIST, 'index.html'), html);
 fs.copyFileSync(path.join(SRC, 'manifest.webmanifest'), path.join(DIST, 'manifest.webmanifest'));
 fs.copyFileSync(path.join(SRC, 'sw.js'), path.join(DIST, 'sw.js'));
