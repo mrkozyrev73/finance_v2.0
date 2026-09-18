@@ -4,6 +4,7 @@
 
 const Settings = (() => {
   const ACCENT_KEY = 'dohod.accent-theme.v1';
+  const COLOR_MODE_KEY = 'dohod.color-mode.v1';
   const accentThemes = [
     { id: 'green', name: 'Зелёный', color: '#199B66' },
     { id: 'blue', name: 'Синий', color: '#3478C6' },
@@ -21,11 +22,34 @@ const Settings = (() => {
     return accentThemes.find(theme => theme.id === document.documentElement.dataset.accentTheme) || accentThemes[0];
   }
 
+  function savedColorMode() {
+    try {
+      const mode = localStorage.getItem(COLOR_MODE_KEY);
+      return ['light', 'dark', 'system'].includes(mode) ? mode : 'light';
+    } catch (_) { return 'light'; }
+  }
+
+  function applyColorMode(mode, persist = true) {
+    const selected = ['light', 'dark', 'system'].includes(mode) ? mode : 'light';
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const effective = selected === 'system' ? (prefersDark ? 'dark' : 'light') : selected;
+    document.documentElement.dataset.colorMode = effective;
+    document.documentElement.dataset.colorModeChoice = selected;
+    if (persist) try { localStorage.setItem(COLOR_MODE_KEY, selected); } catch (_) {}
+    const summary = $('#appearanceSummary');
+    if (summary) setText(summary, (currentAccent().name || 'Зелёный') + ' · ' + ({ light: 'Светлая', dark: 'Тёмная', system: 'Авто' }[selected]));
+    document.querySelectorAll('meta[name="theme-color"]').forEach(themeColor => {
+      themeColor.setAttribute('content', effective === 'dark' ? '#202321' : '#F5F7F6');
+    });
+    return selected;
+  }
+
   function applyAccent(id, persist = true) {
     const theme = accentThemes.find(item => item.id === id) || accentThemes[0];
     document.documentElement.dataset.accentTheme = theme.id;
     if (persist) try { localStorage.setItem(ACCENT_KEY, theme.id); } catch (_) {}
-    setText($('#accentThemeName'), theme.name);
+    const summary = $('#appearanceSummary');
+    if (summary) setText(summary, theme.name + ' · ' + ({ light: 'Светлая', dark: 'Тёмная', system: 'Авто' }[savedColorMode()]));
     const swatch = $('#accentThemeSwatch');
     if (swatch) swatch.style.backgroundColor = theme.color;
     return theme;
@@ -37,8 +61,14 @@ const Settings = (() => {
     });
     $('#syncOpen').addEventListener('click', () => Sync.openSheet());
     applyAccent(currentAccent().id);
+    applyColorMode(savedColorMode(), false);
+    const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
+    colorSchemeQuery?.addEventListener?.('change', () => {
+      if (savedColorMode() === 'system') applyColorMode('system', false);
+    });
     window.addEventListener('storage', event => {
       if (event.key === ACCENT_KEY) applyAccent(event.newValue || 'green', false);
+      if (event.key === COLOR_MODE_KEY) applyColorMode(event.newValue || 'light', false);
     });
     const authBtn = $('#syncAuth');
     authBtn.addEventListener('click', (e) => { e.stopPropagation(); Sync.toggleAuth(); });
@@ -62,9 +92,28 @@ const Settings = (() => {
 
   function openAccentTheme() {
     Sheet.open({
-      title: 'Цвет акцента',
+      title: 'Внешний вид',
       build(body) {
-        body.appendChild(el('p', { class: 'section-sub accent-theme-hint', text: 'Тема сохранится только на этом устройстве.' }));
+        body.appendChild(el('p', { class: 'section-sub accent-theme-hint', text: 'Настройка действует только на этом устройстве.' }));
+        body.appendChild(el('p', { class: 'field-label appearance-label', text: 'Тема' }));
+        const modes = [
+          { id: 'light', name: 'Светлая' },
+          { id: 'dark', name: 'Тёмная' },
+          { id: 'system', name: 'Авто' }
+        ];
+        const modeList = el('div', { class: 'appearance-mode-list', role: 'group', 'aria-label': 'Тема оформления' });
+        const modeButtons = [];
+        const syncMode = selected => modeButtons.forEach(button => setAttr(button, 'aria-pressed', button.dataset.mode === selected ? 'true' : 'false'));
+        modes.forEach(mode => {
+          const button = el('button', {
+            class: 'appearance-mode-option', type: 'button', 'data-mode': mode.id,
+            'aria-pressed': savedColorMode() === mode.id ? 'true' : 'false', text: mode.name,
+            onclick: () => { applyColorMode(mode.id); syncMode(mode.id); }
+          });
+          modeButtons.push(button);
+          modeList.appendChild(button);
+        });
+        body.append(modeList, el('p', { class: 'field-label appearance-label appearance-accent-label', text: 'Цвет акцента' }));
         const list = el('div', { class: 'accent-theme-list', role: 'group', 'aria-label': 'Варианты цвета акцента' });
         const buttons = [];
         const sync = selected => buttons.forEach((button, index) => setAttr(button, 'aria-pressed', accentThemes[index].id === selected ? 'true' : 'false'));

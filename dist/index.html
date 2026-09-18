@@ -17,7 +17,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAFoElEQVR4nO3dy1EbURCF4RblFRAGESkYgiAYIiIMzBYvsCg9RjN37rv7/N/SLkvjqnO670hjfLDJfH79/R59DWjn+fHpMPoazg29GMIOs7Gl6P7GhB5repeh25sRfOzRqwjN34Tgo0TrIjR7cYKPmloVofqLEny0VLsIDzVfjPCjtdoZq9Imgo8RamyD4g1A+DFKjewVFYDwY7TSDGYXgPBjFiVZzCoA4cdscjO5uwCEH7PKyeauAhB+zG5vRpMLQPjhxZ6sJhWA8MOb1MxuFoDww6uU7FZ9FALwZrUATH94t5XhuwUg/IhiLcscgSBtsQBMf0RzL9NsAEi7KQDTH1EtZZsNAGkXBWD6I7rrjLMBIO23AEx/qDjPOhsA0igApD2YcfyBnlPm2QCQRgEgjQJAGgWAtAM3wFDGBoA0CgBpFADSKACk/Rl9ARjj5f315tc+jm/N/tys+BRIzFKAa/FYBI5AQlqGv8frt0ABRPQKp7cSUAABvUPpqQQUANIoQHCjprGXLUABII0CQBoFgDQKAGkUIDiP3872RAEgjQIIYAvcRwFEUIJlFEAIJbhFAcR8HN8owhn+QYyo6xJ4eXShNjYAZMNvRgEgjgKIU57+ZhQA4iiAMPXpb0YBII4CiGL6/6AAaMLLl20UANIogKDWxx8v09+MAqAyT+E3owBy+Nmgl3gYDsU8Bv+EAgipMf09h30JRyBIowAimP7LKACkUQAkiTj9zSiABJ77uY8CYFPU6W9GAcJj+q+jAFgVefqbUYDQmP7bKACkUYCg+OIrDQWANAqARQrT34wChMTNbzoKgBsq09+MAoTD9N+HAuCC0vQ3owChMP33owD4pTb9zShAGEz/PBQA0ihAADz2kI8CQBoFgOz0N6MA7nHzW4YCiFOe/mYUwDWmfzkKIEx9+ptRALeY/nVQAEjjx6NnWprAvY4UfPFVDwXYaS18p98jXH5QgER7pu7sRZj1ukbgHiBB7pGjxY0qN791UYANpYF7eX+dKrRM/0sUYEXN4NZ4rZmKFAUFuKPV8WVkiJn+tyjAgtYhzSkC078NCnClZ9AI9XiHz6+/36MvYhazHk/44qsdNsB/o6fx6PdXxQaw+cJ3Pq2Z/m3Jb4DZwm825zVFJb0BFILG9F8nuwEUwo9tkgVQCT/Tf5tcAVTCjzRSBVAKP9M/jVQBWiFsfskUoNX0P4X/4/hGERyS+Bi0dfh7vmcKipgu/AYYEf6U38ccQm+AUeHvdR1LKN4+YTfALOHP/TPoI+QGmCn811puA4q2X7gNMHP4a74O6gi1AWYP/7Wa10ux8oTZAN7Cf3ptgjtWiAJ4DP+I98Et90cg7+G/lvP3oUD5XG+AiA+37Q0z4S/jdgMofJz48v5qH8e3oT+KPTqXBVAIP/pwdwQi/KjJVQEIP2pzUwDCjxbcFKAVwq/NRQGifdaPebgoQAuEH2aiBSD8OJErAOHHOakCEH5cc1GAGsEl/FjiogClCD/ucVOA3BATfqxxUwAzHhVGfa4KYJYeasKPFC4fhz7hOXmUcl0AoJS7IxBQEwWANAoAaRQA0h6eH58Ooy8CGOH58enABoA0CgBpFADSKACkPZj93AyMvhCgp1Pm2QCQRgEg7bcAHIOg4jzrbABIuygAWwDRXWecDQBpNwVgCyCqpWyzASBtsQBsAURzL9NsAEi7WwC2AKJYy/LqBqAE8G4rwxyBIG2zAGwBeJWS3aQNQAngTWpmk49AlABe7MnqrnsASoDZ7c3o7ptgSoBZ5WQz61MgSoDZ5GYy+2NQSoBZlGSx6HsASoDRSjNY/EUYJcAoNbJXNbz8ZxvooebQrfooBNsArdXOWLPAsg1QU6vh2nxiUwSUaH2q6HZkoQjYo9dxuvuZnSJgTe/7yKE3rZQBZmM/PJnuUxtKEdtsnxT+AxHxFYjmcMm0AAAAAElFTkSuQmCC">
 <script>
-(()=>{try{const t=localStorage.getItem('dohod.accent-theme.v1');if(['green','blue','violet','terracotta','graphite'].includes(t))document.documentElement.dataset.accentTheme=t;}catch(_){}})();
+(()=>{try{const t=localStorage.getItem('dohod.accent-theme.v1');if(['green','blue','violet','terracotta','graphite','orange','rose','teal','indigo','burgundy'].includes(t))document.documentElement.dataset.accentTheme=t;const m=localStorage.getItem('dohod.color-mode.v1');const c=['light','dark','system'].includes(m)?m:'light';const d=c==='dark'||(c==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.colorMode=d?'dark':'light';document.documentElement.dataset.colorModeChoice=c;}catch(_){}})();
 </script>
 <style>
 /* ============================================================
@@ -463,7 +463,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .sheet .wish-link-option { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
 .accent-current { display: inline-flex; align-items: center; gap: 7px; color: var(--text-2); font-size: var(--fs-xs); }
 .accent-setting-swatch, .accent-theme-dot { display: block; width: 13px; height: 13px; flex: none; border-radius: 50%; background: var(--accent); box-shadow: inset 0 0 0 1px rgba(21,32,26,.06); }
-.section-sub.accent-theme-hint { margin: 8px 4px 22px; line-height: 1.45; }
+.section-sub.accent-theme-hint { margin: 8px 4px 24px; line-height: 1.45; }
 .accent-theme-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
 .accent-theme-option { min-width: 0; min-height: 58px; padding: 8px 10px; display: grid; grid-template-columns: 20px minmax(0,1fr) 18px; align-items: center; gap: 7px; border: 1px solid var(--border); border-radius: var(--r-card); background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%); color: var(--text); text-align: left; }
 .accent-theme-dot { width: 20px; height: 20px; }
@@ -473,6 +473,11 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .accent-theme-option[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-soft); }
 .accent-theme-option[aria-pressed="true"] .accent-theme-label { color: var(--accent-press); }
 .accent-theme-option[aria-pressed="true"] .accent-theme-check { background: var(--accent); color: #fff; }
+.sheet .field-label.appearance-label { margin: 0 2px 10px; }
+.sheet .field-label.appearance-accent-label { margin: 24px 2px 10px; }
+.appearance-mode-list { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-top: 10px; }
+.appearance-mode-option { min-width: 0; min-height: 46px; padding: 7px 4px; border: 1px solid var(--border); border-radius: var(--r-inner); background: linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%); color: var(--text-2); font: inherit; font-size: 12px; font-weight: 560; white-space: nowrap; }
+.appearance-mode-option[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent-press); box-shadow: none; }
 #scr-wishlist .wish-row .income-side { grid-column: 4; width: 100%; min-width: 0; text-align: right; }
 #scr-wishlist .wish-row .income-amount { width: 100%; font-size: 17px; text-align: right; }
 #scr-wishlist .wish-row .income-flag { display: block; margin-top: 2px; }
@@ -2220,6 +2225,106 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 body { letter-spacing: 0; }
 button, input, select, textarea { font-optical-sizing: auto; }
 
+/* Тёмная тема: графитовые поверхности, акцент остаётся независимым. */
+:root[data-color-mode="dark"] {
+  color-scheme: dark;
+  --bg: #202321;
+  --surface: #2B302D;
+  --surface-2: #303633;
+  --surface-sunk: #252A27;
+  --hero: #282E2A;
+  --hero-2: #303833;
+  --text: #EEF3EF;
+  --text-2: #B5C0B9;
+  --text-3: #929F97;
+  --on-hero: #F2F6F3;
+  --on-hero-2: rgba(242,246,243,.68);
+  --border: rgba(237,245,239,.055);
+  --border-strong: rgba(237,245,239,.11);
+  --shadow-card: 0 1px 2px rgba(0,0,0,.10), 0 8px 24px rgba(0,0,0,.12);
+  --shadow-nav: 0 -1px 0 rgba(255,255,255,.035), 0 8px 28px rgba(0,0,0,.24);
+  --shadow-pill: 0 1px 2px rgba(0,0,0,.14), 0 3px 10px rgba(0,0,0,.16);
+  --shadow-modal: 0 18px 56px rgba(0,0,0,.34), 0 3px 10px rgba(0,0,0,.18);
+  --accent-press: color-mix(in srgb, var(--accent) 78%, white);
+  --accent-soft: color-mix(in srgb, var(--accent) 22%, #303633);
+  --accent-line: color-mix(in srgb, var(--accent) 36%, transparent);
+  --accent-nav: color-mix(in srgb, var(--accent) 58%, white);
+  --accent-muted: color-mix(in srgb, var(--accent) 48%, #303633);
+  --accent-fill: color-mix(in srgb, var(--accent) 54%, #303633);
+  --accent-soft-2: color-mix(in srgb, var(--accent) 16%, #303633);
+  --accent-shadow: color-mix(in srgb, var(--accent) 13%, transparent);
+  --accent-shadow-strong: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-shadow-soft: color-mix(in srgb, var(--accent) 9%, transparent);
+  --accent-ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --danger: #E58C7C;
+  --danger-soft: #49332F;
+  --info: #8FB8D8;
+  --info-soft: #303E49;
+  --warning: #D7B56B;
+  --warm: #3B302D;
+  --nav-bg: #252A27;
+}
+
+:root[data-color-mode="dark"] body { background: var(--bg); color: var(--text); }
+:root[data-color-mode="dark"] .tabbar {
+  background: rgba(43,48,45,.92);
+  border-color: transparent;
+  box-shadow: 0 10px 28px rgba(0,0,0,.28), 0 1px 3px rgba(0,0,0,.18);
+}
+:root[data-color-mode="dark"] .icon-btn { background: color-mix(in srgb, var(--surface) 88%, transparent); }
+:root[data-color-mode="dark"] .sheet,
+:root[data-color-mode="dark"] .sheet-body,
+:root[data-color-mode="dark"] .sheet-foot { background: linear-gradient(145deg, var(--surface-2) 0%, var(--surface) 100%); }
+:root[data-color-mode="dark"] .sheet .input,
+:root[data-color-mode="dark"] .sheet select,
+:root[data-color-mode="dark"] .sheet textarea,
+:root[data-color-mode="dark"] .search,
+:root[data-color-mode="dark"] .search input { background: var(--surface-sunk); color: var(--text); }
+:root[data-color-mode="dark"] .sheet .input::placeholder,
+:root[data-color-mode="dark"] .search input::placeholder { color: var(--text-3); }
+:root[data-color-mode="dark"] #scr-home .hero {
+  border-color: rgba(237,245,239,.06);
+  background: radial-gradient(circle at 50% -34%, rgba(255,255,255,.065) 0%, rgba(255,255,255,.025) 40%, transparent 72%), linear-gradient(145deg, #303633 0%, #2B302D 62%, #282D2A 100%);
+  box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 9px 24px rgba(0,0,0,.18);
+}
+:root[data-color-mode="dark"] #scr-home .hero::before {
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 68% 96% at 50% 38%, rgba(255,255,255,.045) 0%, rgba(255,255,255,.018) 52%, transparent 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+:root[data-color-mode="dark"] #scr-home #incomeList .swipe-body,
+:root[data-color-mode="dark"] #scr-wishlist .wish-row .swipe-body,
+:root[data-color-mode="dark"] #scr-fin .fin-card,
+:root[data-color-mode="dark"] #scr-set .list-row,
+:root[data-color-mode="dark"] #scr-stats .card,
+:root[data-color-mode="dark"] #scr-home .empty,
+:root[data-color-mode="dark"] #scr-stats .empty,
+:root[data-color-mode="dark"] #scr-fin .empty,
+:root[data-color-mode="dark"] .sheet .empty,
+:root[data-color-mode="dark"] #scr-set .sync-card,
+:root[data-color-mode="dark"] .sheet .sync-state-card,
+:root[data-color-mode="dark"] .toast {
+  background: linear-gradient(145deg, var(--surface-2) 0%, var(--surface) 100%);
+  box-shadow: var(--shadow-card);
+}
+:root[data-color-mode="dark"] #scr-home #incomeList .swipe-body,
+:root[data-color-mode="dark"] #scr-wishlist .wish-row .swipe-body { border-color: transparent; }
+:root[data-color-mode="dark"] #scr-fin .fin-audit-cell dd { background: linear-gradient(145deg, var(--surface-2) 0%, var(--surface) 100%); }
+:root[data-color-mode="dark"] #scr-fin .fin-audit-cell dd.is-flat { background: linear-gradient(145deg, #303633 0%, #2B302D 100%); box-shadow: inset 0 0 0 1px rgba(237,245,239,.025); }
+:root[data-color-mode="dark"] #scr-fin .fin-card--credit { background: linear-gradient(180deg, #38312F 0%, var(--surface) 52%); }
+:root[data-color-mode="dark"] .toast--err { border-color: color-mix(in srgb, var(--danger) 24%, transparent); }
+:root[data-color-mode="dark"] .toast--err .toast-mark { background: var(--danger-soft); }
+:root[data-color-mode="dark"] .segmented,
+:root[data-color-mode="dark"] .chips,
+:root[data-color-mode="dark"] .fin-total,
+:root[data-color-mode="dark"] .list-badge { background-color: var(--surface-sunk); }
+:root[data-color-mode="dark"] .switch::after { background: #E8EEEA; }
+:root[data-color-mode="dark"] .month-cell { background: var(--surface); color: var(--text-2); border-color: var(--border); }
+:root[data-color-mode="dark"] .month-cell[aria-pressed="true"] { background: var(--accent); color: #fff; }
+:root[data-color-mode="dark"] ::selection { background: var(--accent-soft); color: var(--text); }
+:root[data-color-mode="dark"] .appearance-mode-option[aria-pressed="true"] { box-shadow: none; }
+
 .appbar {
   padding-top: calc(env(safe-area-inset-top, 0px) + 24px);
   background: color-mix(in srgb, var(--bg) 82%, transparent);
@@ -3594,6 +3699,27 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   background: var(--accent-press);
 }
 
+/* Keep the dark floating navigation clean: the base navigation styles are
+   declared later than the theme tokens, so these surface details belong last. */
+:root[data-color-mode="dark"] .tabbar {
+  border: 0;
+  background: #282D2A;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: 0 10px 28px rgba(0,0,0,.28);
+}
+:root[data-color-mode="dark"] .btn,
+:root[data-color-mode="dark"] .sync-btn,
+:root[data-color-mode="dark"] .fin-add {
+  border-color: transparent;
+}
+:root[data-color-mode="dark"] #scr-home .hero::before {
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 68% 96% at 50% 38%, rgba(255,255,255,.045) 0%, rgba(255,255,255,.018) 52%, transparent 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+
 /* Цена и автор вишлиста выровнены в верхней строке формы. */
 .sheet .wish-price-owner-row > .field,
 .sheet .wish-price-owner-row > .field:first-of-type {
@@ -3883,8 +4009,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
         <div class="list">
           <button class="list-row" type="button" data-open="accentTheme">
             <span class="list-ico accent-setting-ico"><svg aria-hidden="true"><use href="#ic-settings"/></svg></span>
-            <span><span class="list-label">Цвет акцента</span></span>
-            <span class="list-side"><span class="accent-current"><i class="accent-setting-swatch" id="accentThemeSwatch" aria-hidden="true"></i><span id="accentThemeName">Зелёный</span></span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
+            <span><span class="list-label">Внешний вид</span></span>
+            <span class="list-side"><span class="accent-current"><i class="accent-setting-swatch" id="accentThemeSwatch" aria-hidden="true"></i><span id="appearanceSummary">Зелёный · Светлая</span></span><svg aria-hidden="true"><use href="#ic-right"/></svg></span>
           </button>
         </div>
       </div>
@@ -7714,6 +7840,7 @@ function kvList(pairs) {
 
 const Settings = (() => {
   const ACCENT_KEY = 'dohod.accent-theme.v1';
+  const COLOR_MODE_KEY = 'dohod.color-mode.v1';
   const accentThemes = [
     { id: 'green', name: 'Зелёный', color: '#199B66' },
     { id: 'blue', name: 'Синий', color: '#3478C6' },
@@ -7731,11 +7858,34 @@ const Settings = (() => {
     return accentThemes.find(theme => theme.id === document.documentElement.dataset.accentTheme) || accentThemes[0];
   }
 
+  function savedColorMode() {
+    try {
+      const mode = localStorage.getItem(COLOR_MODE_KEY);
+      return ['light', 'dark', 'system'].includes(mode) ? mode : 'light';
+    } catch (_) { return 'light'; }
+  }
+
+  function applyColorMode(mode, persist = true) {
+    const selected = ['light', 'dark', 'system'].includes(mode) ? mode : 'light';
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const effective = selected === 'system' ? (prefersDark ? 'dark' : 'light') : selected;
+    document.documentElement.dataset.colorMode = effective;
+    document.documentElement.dataset.colorModeChoice = selected;
+    if (persist) try { localStorage.setItem(COLOR_MODE_KEY, selected); } catch (_) {}
+    const summary = $('#appearanceSummary');
+    if (summary) setText(summary, (currentAccent().name || 'Зелёный') + ' · ' + ({ light: 'Светлая', dark: 'Тёмная', system: 'Авто' }[selected]));
+    document.querySelectorAll('meta[name="theme-color"]').forEach(themeColor => {
+      themeColor.setAttribute('content', effective === 'dark' ? '#202321' : '#F5F7F6');
+    });
+    return selected;
+  }
+
   function applyAccent(id, persist = true) {
     const theme = accentThemes.find(item => item.id === id) || accentThemes[0];
     document.documentElement.dataset.accentTheme = theme.id;
     if (persist) try { localStorage.setItem(ACCENT_KEY, theme.id); } catch (_) {}
-    setText($('#accentThemeName'), theme.name);
+    const summary = $('#appearanceSummary');
+    if (summary) setText(summary, theme.name + ' · ' + ({ light: 'Светлая', dark: 'Тёмная', system: 'Авто' }[savedColorMode()]));
     const swatch = $('#accentThemeSwatch');
     if (swatch) swatch.style.backgroundColor = theme.color;
     return theme;
@@ -7747,8 +7897,14 @@ const Settings = (() => {
     });
     $('#syncOpen').addEventListener('click', () => Sync.openSheet());
     applyAccent(currentAccent().id);
+    applyColorMode(savedColorMode(), false);
+    const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
+    colorSchemeQuery?.addEventListener?.('change', () => {
+      if (savedColorMode() === 'system') applyColorMode('system', false);
+    });
     window.addEventListener('storage', event => {
       if (event.key === ACCENT_KEY) applyAccent(event.newValue || 'green', false);
+      if (event.key === COLOR_MODE_KEY) applyColorMode(event.newValue || 'light', false);
     });
     const authBtn = $('#syncAuth');
     authBtn.addEventListener('click', (e) => { e.stopPropagation(); Sync.toggleAuth(); });
@@ -7772,9 +7928,28 @@ const Settings = (() => {
 
   function openAccentTheme() {
     Sheet.open({
-      title: 'Цвет акцента',
+      title: 'Внешний вид',
       build(body) {
-        body.appendChild(el('p', { class: 'section-sub accent-theme-hint', text: 'Тема сохранится только на этом устройстве.' }));
+        body.appendChild(el('p', { class: 'section-sub accent-theme-hint', text: 'Настройка действует только на этом устройстве.' }));
+        body.appendChild(el('p', { class: 'field-label appearance-label', text: 'Тема' }));
+        const modes = [
+          { id: 'light', name: 'Светлая' },
+          { id: 'dark', name: 'Тёмная' },
+          { id: 'system', name: 'Авто' }
+        ];
+        const modeList = el('div', { class: 'appearance-mode-list', role: 'group', 'aria-label': 'Тема оформления' });
+        const modeButtons = [];
+        const syncMode = selected => modeButtons.forEach(button => setAttr(button, 'aria-pressed', button.dataset.mode === selected ? 'true' : 'false'));
+        modes.forEach(mode => {
+          const button = el('button', {
+            class: 'appearance-mode-option', type: 'button', 'data-mode': mode.id,
+            'aria-pressed': savedColorMode() === mode.id ? 'true' : 'false', text: mode.name,
+            onclick: () => { applyColorMode(mode.id); syncMode(mode.id); }
+          });
+          modeButtons.push(button);
+          modeList.appendChild(button);
+        });
+        body.append(modeList, el('p', { class: 'field-label appearance-label appearance-accent-label', text: 'Цвет акцента' }));
         const list = el('div', { class: 'accent-theme-list', role: 'group', 'aria-label': 'Варианты цвета акцента' });
         const buttons = [];
         const sync = selected => buttons.forEach((button, index) => setAttr(button, 'aria-pressed', accentThemes[index].id === selected ? 'true' : 'false'));

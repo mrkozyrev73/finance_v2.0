@@ -53,7 +53,7 @@ const html = `<!doctype html>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="data:image/png;base64,${favicon}">
 <script>
-(()=>{try{const t=localStorage.getItem('dohod.accent-theme.v1');if(['green','blue','violet','terracotta','graphite'].includes(t))document.documentElement.dataset.accentTheme=t;}catch(_){}})();
+(()=>{try{const t=localStorage.getItem('dohod.accent-theme.v1');if(['green','blue','violet','terracotta','graphite','orange','rose','teal','indigo','burgundy'].includes(t))document.documentElement.dataset.accentTheme=t;const m=localStorage.getItem('dohod.color-mode.v1');const c=['light','dark','system'].includes(m)?m:'light';const d=c==='dark'||(c==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.colorMode=d?'dark':'light';document.documentElement.dataset.colorModeChoice=c;}catch(_){}})();
 </script>
 <style>
 ${css}
