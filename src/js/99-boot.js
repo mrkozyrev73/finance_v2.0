@@ -180,7 +180,7 @@ function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
   if (location.protocol === 'file:') return;      // из файла SW не регистрируется
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js?v=2').catch(err => {
+    navigator.serviceWorker.register('sw.js?v=recovery-8').catch(err => {
       console.info('[pwa] service worker не зарегистрирован:', err.message);
     });
   });

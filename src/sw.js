@@ -1,6 +1,6 @@
 /* Service worker: приложение работает офлайн, данные лежат в localStorage */
 
-const CACHE = 'dohod-v5';
+const CACHE = 'dohod-recovery-v8';
 const ASSETS = [
   './',
   './index.html',
