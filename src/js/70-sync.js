@@ -40,7 +40,6 @@ const Sync = (() => {
   let cfg = { url: '', key: '' };
   let client = null;
   let session = null;
-  let channel = null;
   let status = 'off';        // off | connecting | on | error | offline
   let detail = 'Только на этом устройстве';
   let lastSyncAt = 0;
@@ -121,7 +120,7 @@ const Sync = (() => {
     const lib = await loadLib();
     client = lib.createClient(cfg.url, cfg.key, {
       auth: { persistSession: true, autoRefreshToken: true, storageKey: 'dohod.auth' },
-      realtime: { params: { eventsPerSecond: 20 } }
+      realtime: { params: { eventsPerSecond: 0 } }
     });
     client.auth.onAuthStateChange((_event, next) => {
       const had = !!session;
@@ -223,7 +222,6 @@ const Sync = (() => {
         clearTimeout(pushTimer);
         pushTimer = 0;
       }
-      subscribeRealtime();
       lastCatchUpAt = Date.now();
       setStatus('on');
     } catch (e) {
@@ -233,7 +231,6 @@ const Sync = (() => {
   }
 
   function onSignedOut() {
-    unsubscribeRealtime();
     lastSyncAt = 0;
     setStatus('off', 'Только на этом устройстве');
   }
@@ -475,52 +472,6 @@ const Sync = (() => {
     }
   }
 
-  /* ---------- Realtime ---------- */
-
-  function subscribeRealtime() {
-    if (!client || !session || channel) return;
-    channel = client
-      .channel('app_state:' + session.user.id)
-      .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'app_state',
-        filter: 'user_id=eq.' + session.user.id
-      }, (payload) => {
-        const row = payload.new;
-        if (!row || !row.updated_at) return;
-        // Данные уже в событии — применяем сразу, без второго запроса
-        if (row.updated_at === lastRemoteStamp) return;
-        if (row.data && typeof row.data === 'object') applyRemote(normalizeLegacyPayload(row.data, row.updated_at), row.updated_at);
-        else pull().catch(e => console.warn('[sync] realtime pull', e));
-      })
-      .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'app_archive',
-        filter: 'user_id=eq.' + session.user.id
-      }, (payload) => {
-        const row = payload.new;
-        if (!row || !row.updated_at || row.updated_at === archiveStamp) return;
-        if (row.data && typeof row.data === 'object') applyArchive(row.data, row.updated_at);
-        else pullArchive().catch(e => console.warn('[sync] archive pull', e));
-      })
-      .subscribe((state) => {
-        if (state === 'SUBSCRIBED') setStatus('on');
-        // Канал отвалился — пересоздаём и догоняем состояние
-        if (state === 'CHANNEL_ERROR' || state === 'TIMED_OUT' || state === 'CLOSED') {
-          if (!session) return;
-          unsubscribeRealtime();
-          setTimeout(() => {
-            if (!session) return;
-            subscribeRealtime();
-            catchUp('Проверяем изменения…');
-          }, 1500);
-        }
-      });
-  }
-
-  function unsubscribeRealtime() {
-    if (channel && client) { try { client.removeChannel(channel); } catch (_) {} }
-    channel = null;
-  }
-
   /* ---------- Догоняющая синхронизация ---------- */
 
   function catchUp(reason, force) {
@@ -546,8 +497,6 @@ const Sync = (() => {
   window.addEventListener('focus', () => { if (session) catchUp(); });
   window.addEventListener('online', () => {
     if (!session) return;
-    unsubscribeRealtime();
-    subscribeRealtime();
     catchUp('Сеть вернулась, догоняем…', true);
   });
   window.addEventListener('offline', () => {
@@ -729,7 +678,7 @@ alter publication supabase_realtime add table public.app_archive;`;
             onclick: async () => {
               if (!draft.url || !draft.key) { Toast.show('Заполните оба поля', { kind: 'err' }); return; }
               saveConfig({ url: draft.url, key: draft.key });
-              client = null; session = null; unsubscribeRealtime();
+              client = null; session = null;
               Sheet.close();
               await init();
               setTimeout(openSheet, 220);
@@ -789,6 +738,7 @@ alter publication supabase_realtime add table public.app_archive;`;
   return {
     init, renderStatus, toggleAuth, openSheet,
     schedulePush,
+    refresh: (force) => catchUp('Обновляем…', !!force),
     get isOn() { return status === 'on'; }
   };
 })();

@@ -349,6 +349,7 @@ const Tabs = (() => {
     movePill();
 
     Render.all();
+    if (typeof Sync !== 'undefined' && Sync.refresh) Sync.refresh();
     window.scrollTo({ top: View.scroll[tab] || 0, behavior: 'auto' });
     Store.setSingleton('settings', { lastTab: tab });
   }
