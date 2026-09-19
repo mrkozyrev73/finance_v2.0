@@ -33,6 +33,8 @@ const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/
 const LOGIN_DOMAIN = 'dohod.app';
 const PUSH_WINDOW = 700;      // мс: схлопываем быструю серию правок в одну отправку
 const CATCH_UP_COOLDOWN = 1200; // мс: объединяем focus + visibilitychange при возврате
+const ARCHIVE_CACHE_PREFIX = 'dohod.archive.v1:';
+const ARCHIVE_COLLECTIONS = ['incomes', 'historical', 'financeSnapshots'];
 
 const Sync = (() => {
   let cfg = { url: '', key: '' };
@@ -47,8 +49,12 @@ const Sync = (() => {
   let pushTimer = 0;
   let signInSyncTask = null;
   let catchUpTask = null;
+  let archiveTask = null;
   let lastCatchUpAt = 0;
   let lastRemoteStamp = null;
+  let archiveStamp = null;
+  let archiveSerialized = '';
+  let archiveExists = false;
   let householdId = localStorage.getItem('income-supabase-household-v1') || '';
   let revision = Number(localStorage.getItem('income-supabase-revision-v1') || 0);
   let libLoading = null;
@@ -205,10 +211,13 @@ const Sync = (() => {
     setStatus('connecting', 'Загружаем данные…');
     try {
       const remote = await pull();
+      const archiveInfo = await pullArchive();
+      if (!archiveInfo.exists) await pushArchive(true);
       // На первом устройстве локальные данные нужно создать в облаке; на
       // следующих — отправляем только если после слияния остались локальные
       // записи или изменения. Обычный вход без изменений не делает лишний upsert.
-      if (!remote || !statesEqual(Store.state, remote)) await push(true);
+      const remoteNeedsArchiveTrim = !!remote && !statesEqual(remote, buildLiveState(remote));
+      if (!remote || remoteNeedsArchiveTrim || !statesEqual(buildLiveState(Store.state), buildLiveState(remote))) await push(true);
       else {
         pendingPush = false;
         clearTimeout(pushTimer);
@@ -264,6 +273,116 @@ const Sync = (() => {
 
   function statesEqual(a, b) {
     return stableJson(a) === stableJson(b);
+  }
+
+  function archiveMonth(record) {
+    if (record.year != null && record.month != null) return mkey(record.year, record.month);
+    if (record.month && /^\d{4}-\d{2}/.test(String(record.month))) return String(record.month).slice(0, 7);
+    if (record.date) return keyOf(record.date);
+    if (record.at) return keyOf(record.at);
+    return '';
+  }
+
+  function isArchivedRecord(record) {
+    const month = archiveMonth(record);
+    return !!month && month < keyOf(new Date());
+  }
+
+  function buildArchiveState(state) {
+    const source = state || Store.state;
+    const archive = { schema: source.schema || 2, incomes: [], historical: [], financeSnapshots: [] };
+    for (const name of ARCHIVE_COLLECTIONS) {
+      archive[name] = (source[name] || []).filter(isArchivedRecord);
+    }
+    return archive;
+  }
+
+  function buildLiveState(state) {
+    const source = state || Store.state;
+    const live = Object.assign({}, source);
+    for (const name of ARCHIVE_COLLECTIONS) {
+      live[name] = (source[name] || []).filter(record => !isArchivedRecord(record));
+    }
+    return live;
+  }
+
+  function archiveCacheKey() {
+    return ARCHIVE_CACHE_PREFIX + (session && session.user ? session.user.id : '');
+  }
+
+  function readArchiveCache() {
+    if (!session) return null;
+    try {
+      const raw = localStorage.getItem(archiveCacheKey());
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) { return null; }
+  }
+
+  function saveArchiveCache(data, stamp) {
+    archiveStamp = stamp || null;
+    archiveSerialized = stableJson(data || {});
+    try {
+      localStorage.setItem(archiveCacheKey(), JSON.stringify({ updatedAt: archiveStamp, data }));
+    } catch (_) {}
+  }
+
+  function applyArchive(data, stamp) {
+    if (!data || typeof data !== 'object') return;
+    const merged = mergeStates(Store.state, data);
+    Store.applyRemote(merged);
+    saveArchiveCache(buildArchiveState(Store.state), stamp);
+    Render.all({ soft: true });
+  }
+
+  async function pullArchive() {
+    if (!client || !session) return { exists: false };
+    if (archiveTask) return archiveTask;
+    archiveTask = (async () => {
+      const { data: meta, error: metaError } = await client
+        .from('app_archive')
+        .select('updated_at')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      if (metaError) throw metaError;
+      if (!meta) {
+        archiveExists = false;
+        return { exists: false };
+      }
+      const cached = readArchiveCache();
+      if (cached && cached.updatedAt === meta.updated_at) {
+        archiveExists = true;
+        applyArchive(cached.data, cached.updatedAt);
+        return { exists: true, cached: true };
+      }
+      const { data: row, error } = await client
+        .from('app_archive')
+        .select('data, updated_at')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      if (error) throw error;
+      archiveExists = !!row;
+      if (row) applyArchive(row.data, row.updated_at);
+      return { exists: !!row, cached: false };
+    })();
+    try { return await archiveTask; }
+    finally { archiveTask = null; }
+  }
+
+  async function pushArchive(force) {
+    if (!client || !session) return false;
+    const archive = buildArchiveState(Store.state);
+    const serialized = stableJson(archive);
+    if (!force && archiveExists && serialized === archiveSerialized) return false;
+    const stamp = new Date().toISOString();
+    const { data, error } = await client
+      .from('app_archive')
+      .upsert({ user_id: session.user.id, data: archive, updated_at: stamp }, { onConflict: 'user_id' })
+      .select('updated_at')
+      .single();
+    if (error) throw error;
+    archiveExists = true;
+    saveArchiveCache(archive, data.updated_at);
+    return true;
   }
 
   async function pull() {
@@ -335,9 +454,10 @@ const Sync = (() => {
 
     pushing = true;
     try {
+      await pushArchive();
       const { data, error } = await client
         .from('app_state')
-        .upsert({ user_id: session.user.id, data: Store.state, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+        .upsert({ user_id: session.user.id, data: buildLiveState(Store.state), updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
         .select('updated_at')
         .single();
       if (error) throw error;
@@ -371,6 +491,15 @@ const Sync = (() => {
         if (row.updated_at === lastRemoteStamp) return;
         if (row.data && typeof row.data === 'object') applyRemote(normalizeLegacyPayload(row.data, row.updated_at), row.updated_at);
         else pull().catch(e => console.warn('[sync] realtime pull', e));
+      })
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'app_archive',
+        filter: 'user_id=eq.' + session.user.id
+      }, (payload) => {
+        const row = payload.new;
+        if (!row || !row.updated_at || row.updated_at === archiveStamp) return;
+        if (row.data && typeof row.data === 'object') applyArchive(row.data, row.updated_at);
+        else pullArchive().catch(e => console.warn('[sync] archive pull', e));
       })
       .subscribe((state) => {
         if (state === 'SUBSCRIBED') setStatus('on');
@@ -480,7 +609,20 @@ create policy "own row update" on public.app_state
 
 -- Нужно для мгновенного обмена между устройствами
 alter table public.app_state replica identity full;
-alter publication supabase_realtime add table public.app_state;`;
+alter publication supabase_realtime add table public.app_state;
+
+-- Архив прошлых месяцев: загружается только при первой необходимости
+create table if not exists public.app_archive (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  data       jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table public.app_archive enable row level security;
+create policy "own archive read" on public.app_archive for select using (auth.uid() = user_id);
+create policy "own archive insert" on public.app_archive for insert with check (auth.uid() = user_id);
+create policy "own archive update" on public.app_archive for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+alter table public.app_archive replica identity full;
+alter publication supabase_realtime add table public.app_archive;`;
 
   function openSheet() {
     const draft = { login: '', password: '', url: cfg.url, key: cfg.key };
