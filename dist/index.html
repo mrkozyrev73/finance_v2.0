@@ -2090,8 +2090,10 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 .month-calendar-day {
   display: grid;
   place-items: center;
+  width: 28px;
   min-height: 25px;
-  border-radius: 50%;
+  justify-self: center;
+  border-radius: var(--r-ctl);
   font-family: var(--num);
   font-size: var(--fs-xs);
   font-variant-numeric: tabular-nums;
