@@ -2005,8 +2005,9 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 }
 .month-cell:active { transform: scale(.96); }
 .month-cell[aria-pressed="true"] {
-  color: var(--accent-press);
-  box-shadow: inset 0 -2px 0 var(--accent);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 7px var(--accent-shadow);
   font-weight: 700;
 }
 .month-cell[data-today] { color: var(--accent-press); font-weight: 650; }
@@ -2373,7 +2374,7 @@ button, input, select, textarea { font-optical-sizing: auto; }
 :root[data-color-mode="dark"] .list-badge { background-color: var(--surface-sunk); }
 :root[data-color-mode="dark"] .switch::after { background: #E8EEEA; }
 :root[data-color-mode="dark"] .month-cell { background: var(--surface); color: var(--text-2); border-color: var(--border); }
-:root[data-color-mode="dark"] .month-cell[aria-pressed="true"] { background: transparent; color: var(--accent-nav); }
+:root[data-color-mode="dark"] .month-cell[aria-pressed="true"] { background: var(--accent); color: #fff; }
 :root[data-color-mode="dark"] ::selection { background: var(--accent-soft); color: var(--text); }
 :root[data-color-mode="dark"] .appearance-mode-option[aria-pressed="true"] { box-shadow: none; }
 
