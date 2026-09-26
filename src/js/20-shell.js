@@ -447,12 +447,37 @@ const MonthBar = (() => {
         paint();
       },
       footer(foot) {
-        foot.appendChild(el('button', {
-          class: 'btn btn--ghost btn--block', type: 'button', text: 'Текущий месяц',
-          onclick: () => { setKey(View.todayKey); Sheet.close(); }
-        }));
+        foot.appendChild(buildMonthCalendar(View.todayKey));
       }
     });
+  }
+
+  // Небольшая справочная сетка: она помогает соотнести даты с днями недели,
+  // но намеренно не содержит интерактивных элементов.
+  function buildMonthCalendar(key) {
+    const year = yearOf(key);
+    const month = monOf(key);
+    const wrap = el('div', { class: 'month-calendar', 'aria-label': keyLabel(key) });
+    const head = el('div', { class: 'month-calendar-head' }, [
+      el('span', { class: 'month-calendar-caption', text: 'Текущий месяц' }),
+      el('span', { class: 'month-calendar-title', text: keyLabel(key) })
+    ]);
+    const weekdays = el('div', { class: 'month-calendar-weekdays', 'aria-hidden': 'true' });
+    for (const name of ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']) {
+      weekdays.appendChild(el('span', { text: name }));
+    }
+    const days = el('div', { class: 'month-calendar-days', 'aria-hidden': 'true' });
+    const firstOffset = (new Date(year, month, 1).getDay() + 6) % 7;
+    const count = new Date(year, month + 1, 0).getDate();
+    for (let i = 0; i < firstOffset; i++) days.appendChild(el('span', { class: 'month-calendar-day month-calendar-day--empty' }));
+    for (let day = 1; day <= count; day++) {
+      const dateKey = isoDate(new Date(year, month, day));
+      const attrs = { class: 'month-calendar-day', text: String(day) };
+      if (dateKey === isoDate(new Date())) attrs['data-today'] = '';
+      days.appendChild(el('span', attrs));
+    }
+    wrap.append(head, weekdays, days);
+    return wrap;
   }
 
   return { mount, render, setKey, step };

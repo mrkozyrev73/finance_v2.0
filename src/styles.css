@@ -2028,6 +2028,60 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 .sheet:has(.month-grid) .month-grid { gap: 6px; }
 .sheet:has(.month-grid) .month-cell { height: 40px; font-size: var(--fs-xs); }
 
+.month-calendar {
+  padding: 10px 12px 4px;
+  border-top: 1px solid var(--border);
+  color: var(--text-2);
+}
+.month-calendar-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.month-calendar-caption {
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tr-xs);
+  text-transform: uppercase;
+}
+.month-calendar-title {
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  color: var(--text);
+}
+.month-calendar-weekdays,
+.month-calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  text-align: center;
+}
+.month-calendar-weekdays {
+  margin-bottom: 3px;
+  color: var(--text-3);
+  font-size: 10px;
+  font-weight: 650;
+}
+.month-calendar-day {
+  display: grid;
+  place-items: center;
+  min-height: 25px;
+  border-radius: 50%;
+  font-family: var(--num);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+}
+.month-calendar-day--empty { visibility: hidden; }
+.month-calendar-day[data-today] {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 7px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
 /* Тосты */
 .toasts {
   position: fixed;
