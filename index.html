@@ -5951,6 +5951,13 @@ function toggleReceived(id) {
   // остаются прежними до окончания короткой паузы.
   Home.previewIncome(id, next);
   Home.flashIncome(id);
+  // Счётчик реагирует сразу на галочку, не дожидаясь перемещения строки.
+  const amount = Number(rec.amount) || 0;
+  const delta = next === 'received' ? amount : -amount;
+  Home.animateTotals(before, Object.assign({}, before, {
+    received: before.received + delta,
+    expected: before.expected - delta
+  }));
   haptic(next === 'received' ? 'success' : 'light');
   // Сохраняем статус только после паузы: до этого сортировке нечего
   // перестраивать, поэтому строка гарантированно остаётся на месте.
@@ -5967,8 +5974,6 @@ function toggleReceived(id) {
       ? Store.list('incomes').reduce((max, item) => Math.max(max, Number(item.receivedOrder) || 0), 0) + 1
       : (Number(current.receivedOrder) || 0);
     Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, title);
-    const after = Data.totalsOf(View.key);
-    Home.animateTotals(before, after);
     Toast.show(next === 'received'
       ? '«' + (title || 'Доход') + '» · ' + money(current.amount) + ' — получен'
       : '«' + (title || 'Доход') + '» · ' + money(current.amount) + ' — снова ожидается', {
