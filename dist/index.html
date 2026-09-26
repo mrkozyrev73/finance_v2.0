@@ -2001,12 +2001,20 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 
 /* Выбор месяца */
 .month-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 2px 6px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  padding: 0 4px 3px;
+  margin: 0 -4px;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
 }
+.month-grid::-webkit-scrollbar { display: none; }
 .month-cell {
   position: relative;
+  flex: 0 0 auto;
+  min-width: 82px;
   height: 36px;
   border-radius: 10px;
   border: 0;
@@ -2057,7 +2065,7 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 .sheet:has(.month-grid) .sheet-foot { padding: 8px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
 .sheet:has(.month-grid) .year-pager { margin-bottom: 9px; }
 .sheet:has(.month-grid) .year-pager .icon-btn { width: 30px; height: 30px; }
-.sheet:has(.month-grid) .month-grid { gap: 2px 6px; }
+.sheet:has(.month-grid) .month-grid { gap: 2px; }
 .sheet:has(.month-grid) .month-cell { height: 36px; font-size: var(--fs-sm); }
 
 .month-calendar {
@@ -5483,7 +5491,7 @@ const MonthBar = (() => {
         const label = el('b', { text: String(year) });
         pager.append(prev, label, next);
 
-        const grid = el('div', { class: 'month-grid' });
+        const grid = el('div', { class: 'month-grid', role: 'listbox', 'aria-label': 'Месяцы года' });
         body.append(pager, grid);
 
         const paint = () => {
@@ -5494,6 +5502,7 @@ const MonthBar = (() => {
             const cell = el('button', {
               class: 'month-cell',
               type: 'button',
+              role: 'option',
               'aria-pressed': k === View.key ? 'true' : 'false',
               text: MONTHS_NOM[m]
             });
@@ -5501,6 +5510,8 @@ const MonthBar = (() => {
             cell.addEventListener('click', () => { setKey(k); Sheet.close(); });
             grid.appendChild(cell);
           }
+          const selected = grid.querySelector('[aria-pressed="true"]');
+          if (selected) requestAnimationFrame(() => selected.scrollIntoView({ block: 'nearest', inline: 'center' }));
         };
         prev.addEventListener('click', () => { year--; paint(); });
         next.addEventListener('click', () => { year++; paint(); });

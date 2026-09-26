@@ -423,7 +423,7 @@ const MonthBar = (() => {
         const label = el('b', { text: String(year) });
         pager.append(prev, label, next);
 
-        const grid = el('div', { class: 'month-grid' });
+        const grid = el('div', { class: 'month-grid', role: 'listbox', 'aria-label': 'Месяцы года' });
         body.append(pager, grid);
 
         const paint = () => {
@@ -434,6 +434,7 @@ const MonthBar = (() => {
             const cell = el('button', {
               class: 'month-cell',
               type: 'button',
+              role: 'option',
               'aria-pressed': k === View.key ? 'true' : 'false',
               text: MONTHS_NOM[m]
             });
@@ -441,6 +442,8 @@ const MonthBar = (() => {
             cell.addEventListener('click', () => { setKey(k); Sheet.close(); });
             grid.appendChild(cell);
           }
+          const selected = grid.querySelector('[aria-pressed="true"]');
+          if (selected) requestAnimationFrame(() => selected.scrollIntoView({ block: 'nearest', inline: 'center' }));
         };
         prev.addEventListener('click', () => { year--; paint(); });
         next.addEventListener('click', () => { year++; paint(); });
