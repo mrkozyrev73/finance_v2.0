@@ -2040,8 +2040,8 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
 
 /* Компактный выбор месяца: календарь остаётся заметным, но не забирает экран. */
 .sheet:has(.month-grid) { max-height: min(58dvh, 500px); }
-.sheet:has(.month-grid) .sheet-body { padding: 0 16px 12px; }
-.sheet:has(.month-grid) .sheet-head { padding: 2px 16px 8px; }
+.sheet:has(.month-grid) .sheet-body { padding: 6px 16px 12px; }
+.sheet:has(.month-grid) .sheet-head { display: none; }
 .sheet:has(.month-grid) .sheet-foot { padding: 8px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
 .sheet:has(.month-grid) .year-pager { margin-bottom: 9px; }
 .sheet:has(.month-grid) .year-pager .icon-btn { width: 30px; height: 30px; }
@@ -2054,23 +2054,33 @@ textarea.input { height: 78px; padding: 12px 13px; resize: none; }
   color: var(--text-2);
 }
 .month-calendar-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
-  justify-content: space-between;
   gap: 10px;
   padding-inline: 4px;
   margin-bottom: 8px;
 }
 .month-calendar-caption {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--text-3);
   font-size: var(--fs-xs);
-  font-weight: 600;
+  line-height: 1.25;
+  font-weight: 650;
   letter-spacing: var(--tr-xs);
-  text-transform: uppercase;
 }
 .month-calendar-title {
-  font-size: var(--fs-sm);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-xs);
+  line-height: 1.25;
   font-weight: 650;
+  letter-spacing: var(--tr-xs);
   color: var(--text);
 }
 .month-calendar-weekdays,
