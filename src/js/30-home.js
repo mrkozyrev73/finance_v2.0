@@ -370,9 +370,17 @@ function toggleReceived(id) {
   const previousStatus = rec.status;
   const previousStatusChangedAt = rec.statusChangedAt;
   const previousReceivedOrder = rec.receivedOrder;
+  const previousDate = rec.date;
   const title = rec.title;
   const before = Data.totalsOf(View.key);
   const next = rec.status === 'received' ? 'expected' : 'received';
+  const wasCarriedIntoView = Data.carriesToMonth(rec, View.key);
+  let receivedDate = rec.date;
+  if (next === 'received' && wasCarriedIntoView) {
+    const originalDay = Math.max(1, parseInt(String(rec.date).slice(8, 10), 10) || 1);
+    const lastDay = new Date(yearOf(View.key), monOf(View.key) + 1, 0).getDate();
+    receivedDate = View.key + '-' + String(Math.min(originalDay, lastDay)).padStart(2, '0');
+  }
   // Сначала меняем только визуальное состояние. Данные и сортировка
   // остаются прежними до окончания короткой паузы.
   Home.previewIncome(id, next);
@@ -399,7 +407,10 @@ function toggleReceived(id) {
     const receivedOrder = next === 'received'
       ? Store.list('incomes').reduce((max, item) => Math.max(max, Number(item.receivedOrder) || 0), 0) + 1
       : (Number(current.receivedOrder) || 0);
-    Store.patch('incomes', id, { status: next, statusChangedAt, receivedOrder }, title);
+    Store.patch('incomes', id, {
+      status: next, statusChangedAt, receivedOrder,
+      ...(receivedDate !== current.date ? { date: receivedDate } : {})
+    }, title);
     Toast.show(next === 'received'
       ? '«' + (title || 'Доход') + '» · ' + money(current.amount) + ' — получен'
       : '«' + (title || 'Доход') + '» · ' + money(current.amount) + ' — снова ожидается', {
@@ -410,7 +421,8 @@ function toggleReceived(id) {
           Store.patch('incomes', id, {
             status: previousStatus,
             statusChangedAt: previousStatusChangedAt,
-            receivedOrder: previousReceivedOrder
+            receivedOrder: previousReceivedOrder,
+            date: previousDate
           }, title);
           toggleReceived.busy.delete(id);
         }
