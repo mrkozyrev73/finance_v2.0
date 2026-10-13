@@ -171,6 +171,36 @@ const Stats = (() => {
     return Data.totalsOf(key).total;
   }
 
+  function receivedThroughDay(key, day) {
+    const lastDay = new Date(yearOf(key), monOf(key) + 1, 0).getDate();
+    const cutoff = Math.min(day, lastDay);
+    return Store.list('incomes').reduce((sum, record) => {
+      if (record.status !== 'received' || keyOf(record.date) !== key) return sum;
+      const recordDay = parseInt(String(record.date).slice(8, 10), 10) || 0;
+      return recordDay <= cutoff ? sum + (Number(record.amount) || 0) : sum;
+    }, 0);
+  }
+
+  function paintRanking(node, rows, nameOf) {
+    node.innerHTML = '';
+    node.classList.add('audit-ranking');
+    if (!rows.length) {
+      node.classList.add('audit-ranking--empty');
+      node.textContent = '—';
+      return;
+    }
+    node.classList.remove('audit-ranking--empty');
+    rows.slice(0, 3).forEach((row, index) => {
+      node.appendChild(el('span', { class: 'audit-rank-row' }, [
+        el('span', { class: 'audit-rank-label' }, [
+          el('span', { class: 'audit-rank-index', text: String(index + 1) }),
+          el('span', { class: 'audit-rank-name', text: nameOf(row) })
+        ]),
+        el('span', { class: 'audit-rank-amount', text: money(row.amount) })
+      ]));
+    });
+  }
+
   function replayChart(mode) {
     if (prefersReducedMotion()) return;
     const layer = mode === 'year' ? $('#dynYear') : $('#dynMonth');
@@ -196,33 +226,37 @@ const Stats = (() => {
     if (View.dynMode !== 'year') View.statsYear = yearOf(View.key);
 
     /* --- Аудит --- */
-    const cur  = Data.totalsOf(View.key);
-    const prev = Data.totalsOf(shiftKey(View.key, -1));
+    const today = new Date();
+    const comparisonDay = today.getDate();
+    const previousKey = shiftKey(View.key, -1);
+    const curReceived = receivedThroughDay(View.key, comparisonDay);
+    const prevReceived = receivedThroughDay(previousKey, comparisonDay);
     const keys6 = Data.lastKeys(shiftKey(View.key, -1), 6);
     const sums6 = keys6.map(monthTotal);
     const avg6 = sums6.reduce((a, b) => a + b, 0) / 6;
 
     const active = Data.activeKeys();
-    let bestKey = null, bestSum = 0;
+    const monthLeaders = [];
     for (const k of active) {
       const s = monthTotal(k);
-      if (s > bestSum) { bestSum = s; bestKey = k; }
+      if (s > 0) monthLeaders.push({ key: k, amount: s });
     }
+    monthLeaders.sort((a, b) => b.amount - a.amount || b.key.localeCompare(a.key));
 
     const deltaNode = $('#auditDelta');
     deltaNode.innerHTML = '';
-    if (prev.total === 0 && cur.total === 0) {
+    if (prevReceived === 0 && curReceived === 0) {
       deltaNode.className = 'audit-cell-value fade-swap delta--flat';
       deltaNode.append(document.createTextNode('—'),
-        el('span', { class: 'sub', text: 'Нет данных за два месяца' }));
+        el('span', { class: 'sub', text: 'Нет полученных доходов по этому числу' }));
     } else {
-      const diff = cur.total - prev.total;
-      const pct = prev.total > 0 ? (diff / prev.total) * 100 : (cur.total > 0 ? 100 : 0);
+      const diff = curReceived - prevReceived;
+      const pct = prevReceived > 0 ? (diff / prevReceived) * 100 : (curReceived > 0 ? 100 : 0);
       const dir = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
       deltaNode.className = 'fade-swap delta--' + dir;
       deltaNode.append(
         document.createTextNode((diff > 0 ? '+' : diff < 0 ? '−' : '') + percent(Math.abs(pct), 0)),
-        el('span', { class: 'sub', text: (diff >= 0 ? '+' : '−') + money(Math.abs(diff)) + ' к ' + MONTHS_DAT[monOf(shiftKey(View.key, -1))] })
+        el('span', { class: 'sub', text: (diff >= 0 ? '+' : '−') + money(Math.abs(diff)) + ' · по ' + comparisonDay + '-е число' })
       );
     }
 
@@ -233,18 +267,12 @@ const Stats = (() => {
     avgNode.append(document.createTextNode(money(avg6)), el('span', { class: 'sub', text: span6 }));
 
     const bestNode = $('#auditBest');
-    bestNode.innerHTML = '';
-    bestNode.append(document.createTextNode(bestKey ? money(bestSum) : '—'),
-      el('span', { class: 'sub', text: bestKey ? keyLabel(bestKey) : 'Пока нет записей' }));
+    paintRanking(bestNode, monthLeaders, row => keyLabel(row.key));
 
     const categoryNode = $('#auditCategory');
-    const categoryRows = Data.breakdown({ type: 'month', key: View.key }).rows;
-    const topCategory = categoryRows.find(row => row.catId !== '__historical');
-    categoryNode.innerHTML = '';
-    categoryNode.append(
-      document.createTextNode(topCategory ? topCategory.name : '—'),
-      el('span', { class: 'sub', text: topCategory ? money(topCategory.amount) : 'Пока нет доходов' })
-    );
+    const categoryRows = Data.breakdown({ type: 'month', key: View.key }).rows
+      .filter(row => row.catId !== '__historical');
+    paintRanking(categoryNode, categoryRows, row => row.name);
 
     /* --- Динамика --- */
     const isYear = View.dynMode === 'year';

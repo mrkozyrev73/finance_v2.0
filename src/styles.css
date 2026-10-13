@@ -2677,6 +2677,54 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #scr-stats .audit-cell dd { margin-top: 7px; font-size: 21px; }
 #scr-stats .audit-cell .sub { margin-top: 4px; line-height: 1.2; }
 #scr-stats .audit-category { font-size: 18px; line-height: 1.1; letter-spacing: -.02em; }
+#scr-stats .audit-cell:has(.audit-ranking:not(.audit-ranking--empty)) {
+  min-height: 106px;
+  padding-top: 13px;
+  padding-bottom: 12px;
+}
+#scr-stats .audit-ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  font-family: var(--font);
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  font-weight: 550;
+}
+#scr-stats .audit-rank-row,
+#scr-stats .audit-rank-label {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+}
+#scr-stats .audit-rank-row { justify-content: space-between; gap: 5px; }
+#scr-stats .audit-rank-label { gap: 5px; overflow: hidden; }
+#scr-stats .audit-rank-index {
+  flex: none;
+  width: 11px;
+  color: var(--text-3);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+#scr-stats .audit-rank-name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#scr-stats .audit-rank-amount {
+  flex: none;
+  color: var(--text);
+  font-family: var(--num);
+  font-size: 11px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+#scr-stats .audit-ranking--empty { color: var(--text-3); }
 
 #scr-stats .card {
   padding: 12px 14px 15px;
