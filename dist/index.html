@@ -3949,6 +3949,58 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   margin-top: 0;
 }
 
+/* Statistics audit: one typography and color system across all four tiles. */
+#scr-stats .audit-cell dt {
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  line-height: 1.25;
+  font-weight: 600;
+}
+#scr-stats .audit-cell > dd:not(.audit-ranking) {
+  margin-top: 7px;
+  color: var(--text);
+  font-family: var(--num);
+  font-size: 20px;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+}
+#scr-stats .audit-cell > dd.delta--up,
+#scr-stats .audit-cell > dd.delta--down,
+#scr-stats .audit-cell > dd.delta--flat {
+  color: var(--text);
+}
+#scr-stats .audit-cell > dd:not(.audit-ranking) .sub {
+  margin-top: 4px;
+  color: var(--text-3);
+  font-family: var(--font);
+  font-size: var(--fs-xs);
+  line-height: 1.2;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+#scr-stats .audit-cell > dd:not(.audit-ranking) .audit-cutoff {
+  margin-top: 2px;
+  color: var(--text-3);
+  font-size: 10px;
+  line-height: 1.15;
+  font-weight: 500;
+}
+#scr-stats .audit-cell > dd.audit-ranking .audit-rank-name,
+#scr-stats .audit-cell > dd.audit-ranking .audit-rank-amount {
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+#scr-stats .audit-cell > dd.audit-ranking .audit-rank-name {
+  color: var(--text-2);
+}
+#scr-stats .audit-cell > dd.audit-ranking .audit-rank-amount {
+  color: var(--text);
+}
+
 </style>
 </head>
 <body>
