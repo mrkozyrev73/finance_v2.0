@@ -256,7 +256,10 @@ const Stats = (() => {
       deltaNode.className = 'fade-swap delta--' + dir;
       deltaNode.append(
         document.createTextNode((diff > 0 ? '+' : diff < 0 ? '−' : '') + percent(Math.abs(pct), 0)),
-        el('span', { class: 'sub', text: (diff >= 0 ? '+' : '−') + money(Math.abs(diff)) + ' · по ' + comparisonDay + '-е число' })
+        el('span', { class: 'sub' }, [
+          document.createTextNode((diff >= 0 ? '+' : '−') + money(Math.abs(diff))),
+          el('span', { class: 'audit-cutoff', text: 'по ' + comparisonDay + '-е число' })
+        ])
       );
     }
 
@@ -267,7 +270,8 @@ const Stats = (() => {
     avgNode.append(document.createTextNode(money(avg6)), el('span', { class: 'sub', text: span6 }));
 
     const bestNode = $('#auditBest');
-    paintRanking(bestNode, monthLeaders, row => keyLabel(row.key));
+    paintRanking(bestNode, monthLeaders, row =>
+      MONTHS_SHORT[monOf(row.key)] + ' ' + yearOf(row.key));
 
     const categoryNode = $('#auditCategory');
     const categoryRows = Data.breakdown({ type: 'month', key: View.key }).rows
